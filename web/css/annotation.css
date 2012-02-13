@@ -25,6 +25,9 @@ body {
 }
 
 /* annotation field */
+.annotate-field {
+	margin-bottom: 15px;
+}
 .annotate-header h3 {
 	margin: 0 0 2px;
 }

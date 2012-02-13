@@ -139,7 +139,8 @@ image(R, Image) :-
 
 html_annotation_fields([]) --> !.
 html_annotation_fields([URI|T]) -->
-	html(div(\html_annotation_field(URI))),
+	html(div(class('annotate-field'),
+		 \html_annotation_field(URI))),
 	html_annotation_fields(T).
 
 html_annotation_field(URI) -->
@@ -147,13 +148,11 @@ html_annotation_field(URI) -->
 	  rdf_label(URI, L),
 	  literal_text(L, Label)
 	},
-	html([div([class('annotate-field')],
-		  [ div(class('annotate-header'),
-		       [ h3(Label),
-			 \html_annotation_field_desc(URI)
-		       ]),
-		    input([id(Id), type(text)])
-		  ])
+	html([ div(class('annotate-header'),
+		   [ h3(Label),
+		     \html_annotation_field_desc(URI)
+		   ]),
+	       input([id(Id), type(text)])
 	     ]).
 
 html_annotation_field_desc(URI) -->
