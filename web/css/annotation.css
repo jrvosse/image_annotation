@@ -21,11 +21,12 @@ body {
 	background-color: #EEE;
 }
 #media {
+	padding: 10px;
 }
 
 /* annotation field */
 .annotate-header h3 {
-	margin: 10px 0 2px;
+	margin: 0 0 2px;
 }
 .annotate-description {
 	color: #666;
@@ -56,4 +57,9 @@ body {
 }
 .taglist .remove {
 	float: right;
+}
+
+/* resource */
+.resource h3 {
+	margin: 0 0 6px;
 }
