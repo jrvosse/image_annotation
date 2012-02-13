@@ -1,0 +1,20 @@
+@prefix :       <http://semanticweb.cs.vu.nl/annotate/> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:		<http://purl.org/dc/elements/1.1/> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+
+:PersonAnnotation
+    a :AnnotationField ;
+	rdfs:label "Who"@en ;
+	rdfs:label "Wie"@nl ;
+	dc:comment "add names of persons"@en ;
+	dc:comment "voeg namen van personen toe"@nl ;
+	:source "/api/autocomplete?q={query}&method=prefix" .
+
+:PlaceAnnotation
+	rdfs:label "Where"@en ;
+	rdfs:label "Waar"@nl ;
+	dc:comment "add names of geographical locations"@en ;
+	dc:comment "voeg namen van geografische plaatsen toe"@nl ;
+	:source "/api/autocomplete?q={query}&method=prefix" .

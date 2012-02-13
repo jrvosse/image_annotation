@@ -1,0 +1,1 @@
+http://localhost:3020/annotate?target=http://purl.org/vocabularies/rma/BI-1888-1463-152-A&field=http://semanticweb.cs.vu.nl/annotate/PersonAnnotation
