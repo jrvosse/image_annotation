@@ -122,36 +122,8 @@ format_label_list([H|T], N0, [P-N|Rest]) :-
 	),
 	format_label_list(T, N1, Rest).
 
-
-%%	find_hits(+Query, +LabelList, -Hits, +Options)
-%
-%	Hits contains terms hit(uri,property,label,info)
-%	from which label matches with Query and uri is related
-%	to label by property. Property or super property of it
-%	is in LabelList.
-
-%	compound query
-find_hits(Query, LabelList, Hits, Options) :-
-	option(compound(true), Options),
-	fuzzy:tokens(Query, Tokens),
-	Tokens = [_,_|_],
-	!,
-	compound_query_hits(Tokens, LabelList, Hits, Options).
-
-%   full query
 find_hits(Query, LabelList, Hits, Options) :-
 	query_hits(Query, LabelList, Hits, Options).
-
-%%	compound_query_hits(+Query, +LabelList, -Hits, Options)
-%
-%	Hits contains uris with matching label. Extra Tokens are
-%	stored as compound(Tokens) and must be filtered out later.
-%	See add_info/3.
-
-compound_query_hits(Tokens, LabelList, Hits, Options):-
-	Opt = [distance(false),attributes(LabelList)|Options],
-	findall(Hit, compound_hit(Tokens, Hit, Opt), Hits0),
-	filter(Hits0, Hits, Options).
 
 %%	query_hits(+Query, +LabelList, -Hits, Options)
 %
