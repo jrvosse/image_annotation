@@ -5,6 +5,8 @@
 	   gv_move_resource_head/2
 	  ]).
 
+:- use_module(library('semweb/rdf_db')).
+:- use_module(library('semweb/rdfs')).
 
 :- meta_predicate
 	gv_resource_commit(+,+,0,-,-).

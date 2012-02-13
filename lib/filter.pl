@@ -34,7 +34,6 @@
 
 :- use_module(library('semweb/rdf_db')).
 :- use_module(library('semweb/rdfs')).
-:- use_module(library('semweb/owl')).
 :- use_module(library(semweb/rdf_label)).
 
 %:- use_module(serql(rdf_optimise)).
@@ -159,7 +158,7 @@ filter(prop(P, V), R, RMap, QMap, Goal) :- !,
 	->  Goal = rdfs_plus_skos(RMap,QMap, R, _, V)
 	;   Goal = rdfs_plus_skos(RMap,QMap, R, P, V)
 	).
-filter(propsearch(P, Search), R, RMap, QMap, Goal) :- !,
+/*filter(propsearch(P, Search), R, RMap, QMap, Goal) :- !,
 	kwd_search:find_literals(Search, Literals, []),
 	filter(prop(P, V), R, RMap, QMap, Goal0),
 	findall(O, ( member(_-L,Literals),
@@ -170,7 +169,7 @@ filter(propsearch(P, Search), R, RMap, QMap, Goal) :- !,
 		Vs),
 	Goal = ( member(V,Vs),
 		 Goal0
-	       ).
+	       ).*/
 filter(reachable(TransP, C), R, _, _, Goal) :- !,
 	Goal = rdf_reachable(R, TransP, C).
 filter(reachable(P, TransP, C), R, RMap, QMap, Goal) :- !,
