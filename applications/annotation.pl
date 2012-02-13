@@ -15,7 +15,7 @@
 :- use_module(library('http/html_head')).
 :- use_module(library('http/http_path')).
 :- use_module(library('http/http_json')).
-
+:- use_module(components(label)).
 :- use_module(library(settings)).
 :- use_module(user(user_db)).
 :- use_module(library(instance_search)).
@@ -84,7 +84,7 @@ html_page(Target, Fields) :-
 			    [ div([id(fields), class('yui3-u-1-4')],
 				  \html_annotation_fields(Fields)),
 			      div([id(media), class('yui3-u-3-4')],
-				  \html_resources(Target, Title))
+				  \html_resource(Target, Title))
 			    ])
 		       ),
 		    div(id(ft), [])
@@ -95,29 +95,29 @@ html_page(Target, Fields) :-
 
 
 
-%%	html_resources(+URLs)
+%%	html_resource(+URI, Title)
 %
 %
 %	Title image and description of the resource being annotated.
 
-html_resources(URI, Title) -->
+html_resource(URI, Title) -->
 	html(div(class('resource'),
 		 [ div(class(title), h3(Title)),
-		   div(class(image), \resource_image(URI)),
-		   div(class(link), rdf_link(URI)),
+		   div(class(image), \html_resource_image(URI)),
+		   div(class(link), \rdf_link(URI)),
 		   div(class('description'),
-		       \resource_description(URI)
+		       \html_resource_description(URI)
 		      )
 		 ])).
 
-resource_description(URI) -->
+html_resource_description(URI) -->
 	{ rdf_has(URI, dc:comment, Desc),
 	  literal_text(Desc, Txt)
 	},
 	html(Txt).
-resource_description(_) --> !.
+html_resource_description(_) --> !.
 
-resource_image(URI) -->
+html_resource_image(URI) -->
 	{ image(URI, Image)
 	}, !,
 	html(a(href(Image),
@@ -125,8 +125,9 @@ resource_image(URI) -->
 		      src(Image)
 		    ])
 	      )).
-resource_image(_) --> !.
+html_resource_image(_) --> !.
 
+% hack
 image(R, Image) :-
 	rdf_has(Image, 'http://www.vraweb.org/vracore/vracore3#relation.depicts', R).
 
