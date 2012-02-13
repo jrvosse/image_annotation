@@ -77,13 +77,14 @@ html_page(Target, Fields) :-
 	    [ title(['Annotate -- ', Title])
 	    ],
 	    [ \html_requires(yui3('cssgrids/grids-min.css')),
+	      \html_requires(css('annotation.css')),
 	      div(class('yui3-skin-sam yui-skin-sam'),
 		  [ div(id(hd), []),
 		    div(id(bd),
 			div([id(layout), class('yui3-g')],
-			    [ div([id(fields), class('yui3-u-1-4')],
+			    [ div([id(fields), class('yui3-u')],
 				  \html_annotation_fields(Fields)),
-			      div([id(media), class('yui3-u-3-4')],
+			      div([id(media), class('yui3-u')],
 				  \html_resource(Target, Title))
 			    ])
 		       ),
@@ -148,7 +149,7 @@ html_annotation_field(URI) -->
 	},
 	html([div([class('annotate-field')],
 		  [ div(class('annotate-header'),
-		       [ Label,
+		       [ h3(Label),
 			 \html_annotation_field_desc(URI)
 		       ]),
 		    input([id(Id), type(text)])
@@ -160,7 +161,7 @@ html_annotation_field_desc(URI) -->
 	  literal_text(D, Desc)
 	},
 	!,
-	html(div([class('annotate-subheader')], Desc)).
+	html(div([class('annotate-description')], Desc)).
 html_annotation_field_desc(_URI) --> !.
 
 

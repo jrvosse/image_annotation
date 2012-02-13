@@ -1,0 +1,59 @@
+body {
+	color: #222;
+ 	font-family: "Trebuchet MS",Helvetica,Arial,sans-serif;
+	font-size: 13px;
+	background-color: #EEE;
+}
+
+/* layout */
+#layout {
+	width: 980px;
+	height: 600px;
+	margin: 0 auto;
+	padding: 10px;
+	background-color: #FFF;
+}
+#fields {
+	width: 220px;
+	height: 580px;
+	padding: 10px;
+	margin-right: 10px;
+	background-color: #EEE;
+}
+#media {
+}
+
+/* annotation field */
+.annotate-header h3 {
+	margin: 10px 0 2px;
+}
+.annotate-description {
+	color: #666;
+	margin: 0 0 4px;
+	font-style: italic;
+}
+.annotate-field input {
+	width: 214px;
+	font-size: 16px;
+	padding: 2px 2px;
+	border: 1px solid #AAA;
+}
+
+/* taglist */
+.taglist {
+	margin: 0;
+	padding: 0;
+}
+.taglist li {
+	width: 220px;
+	list-style: none;
+	padding: 0;
+	margin: 5px 0;
+	overflow: auto;
+}
+.taglist .label {
+	float: left;
+}
+.taglist .remove {
+	float: right;
+}
