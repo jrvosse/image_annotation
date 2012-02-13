@@ -10,11 +10,18 @@
 	rdfs:label "Wie"@nl ;
 	dc:comment "add names of persons"@en ;
 	dc:comment "voeg namen van personen toe"@nl ;
-	:source "/api/autocomplete?q={query}&method=prefix" .
+	:source "/api/autocomplete?q={query}&filter={\"type\":\"http://purl.org/vocabularies/rma/Person\"}" .
 
 :PlaceAnnotation
 	rdfs:label "Where"@en ;
 	rdfs:label "Waar"@nl ;
 	dc:comment "add names of geographical locations"@en ;
 	dc:comment "voeg namen van geografische plaatsen toe"@nl ;
-	:source "/api/autocomplete?q={query}&method=prefix" .
+	:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://purl.org/vocabularies/rma/place/\"}" .
+	
+:SubjectTypeAnnotation
+	rdfs:label "Subject type"@en ;
+	rdfs:label "Subject type"@nl ;
+	dc:comment "add type of the subject"@en ;
+	dc:comment "voeg type van het subject toe"@nl ;
+	:source "/api/autocomplete?q={query}&filter={\"reachable\":\"http://www.w3.org/2004/02/skos/core%23broader\",\"uri\":\"http://purl.org/vocabularies/getty/aat/visual_works_by_subject_type\"}" .	

@@ -45,9 +45,14 @@ http_autocomplete(Request) :-
 				[one_of([prefix,stem,exact]),
 				 default(prefix),
 				 description('String matching method')
-				])
+				]),
+			 filter(Filter,
+				[json_filter,
+				 default([]),
+				 description('JSON object specifying a restriction on the results')])
 			]),
-	Options = [match(Method)],
+	Options = [match(Method),
+		   filter(Filter)],
 	instance_search(Query, Hits0, Options),
 	length(Hits0, TotalNumberOfResults),
 	list_offset(Hits0, Offset, Hits1),
@@ -79,7 +84,7 @@ http_autocomplete(Request) :-
 instance_search(Query, Hits, Options) :-
 	option(property(Property), Options, []),
 	label_list(Property, LabelList),
-	find_hits(Query, LabelList, Hits, Options).
+	find_resources(Query, LabelList, Hits, Options).
 
 
 /***************************************************
@@ -122,40 +127,18 @@ format_label_list([H|T], N0, [P-N|Rest]) :-
 	),
 	format_label_list(T, N1, Rest).
 
-find_hits(Query, LabelList, Hits, Options) :-
-	query_hits(Query, LabelList, Hits, Options).
 
-%%	query_hits(+Query, +LabelList, -Hits, Options)
+%%	find_resources(+Query, +LabelList, -Hits, Options)
 %
 %	Hits contains uris with prefix matching label.
 
-query_hits(Query, LabelList, Hits, Options0) :-
+find_resources(Query, LabelList, Hits, Options0) :-
 	Options = [distance(false),attributes(LabelList)|Options0],
 	find_resource_by_name(Query, Hits0, Options),
 	maplist(ac_hit, Hits0, Hits1),
 	filter(Hits1, Hits, Options0).
 
 ac_hit(hit(_D,U,P,L), hit(U,P,L,[])).
-
-
-%%	compound_hit(+TokenList,
-%%		-Hit:hit(score,label,uri,property,info), +Options)
-%
-%	Same as hit/4, but now the query is a token list.
-%	All compound query combinations from the beginning
-%	of the list are enumarated.
-
-compound_hit(Tokens, hit(U,P,L,compound(Rest)), Options) :-
-	append(Query, Rest, Tokens),
-	find_resource_by_name(Query, hit(_,U,P,L), Options),
-	filter_compound_hit(Rest, U).
-
-filter_compound_hit([], _).
-filter_compound_hit([Token|Ts], R) :-
-	rdf_has(R, skos:broader, Parent),
-	rdf_reachable(Parent, skos:broader, V),
-	rdf_has(V, rdfs:label, literal(prefix(Token,_))),
-	filter_compound_hit(Ts, V).
 
 
 /***************************************************
@@ -170,37 +153,19 @@ filter_compound_hit([Token|Ts], R) :-
 filter(Hits0, Hits1, Options) :-
 	(	option(filter(Filter), Options),
 		Filter \== []
-	->	filter_hits(Hits0, Filter, Hits1, Options)
+	->	filter_hits(Hits0, Filter, Hits1)
 	;	Hits1 = Hits0
 	).
 filter(Hits, Hits, _Options).
 
 
-filter_hits([], _, [], _) :- !.
-filter_hits(HitsIn, Filter, HitsOut, Options) :-
-	option(rdfs_plus_skos(Reasoning), Options, []),
-	filter_to_goal(Filter, R, Goal, Reasoning),
+filter_hits([], _, []) :- !.
+filter_hits(HitsIn, Filter, HitsOut) :-
+	filter_to_goal(Filter, R, Goal),
 	findall(Hit, (member(Hit, HitsIn),
 		      Hit = hit(R,_,_,_),
 		      once(Goal)),
 		HitsOut).
-
-%%	remove_tree_hits(+Tree, -Hits)
-%
-%	Hits only contains the top node Hits
-%	from Tree.
-
-remove_tree_hits(node(_Cat,[Hit],_Children), [Hit]) :- !.
-remove_tree_hits(node(_Cat,[],Children), Hits) :-
-	remove_child_hits(Children, Hits).
-
-remove_child_hits([], []).
-remove_child_hits([Node|T], Hits) :-
-	remove_tree_hits(Node, Hits0),
-	remove_child_hits(T, Hits1),
-	append(Hits0, Hits1, Hits).
-
-
 
 
 %%	list_offset(+List, +N, -SmallerList)
