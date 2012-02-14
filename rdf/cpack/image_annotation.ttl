@@ -14,17 +14,14 @@
 <> a cpack:Package ;
 	cpack:packageName "image_annotation" ;
 	dcterms:title "Image annotation with configurable search fields" ;
-	cpack:author [ a foaf:Person ;
-		       foaf:name "@FOAFNAME@" ;
-		       foaf:mbox <@FOAFMBOX@> ;
-		     ] ;
-	cpack:primaryRepository
-	    [ a cpack:GitRepository ;
-	      cpack:gitURL <vu:git/ClioPatria/image_annotation.git>
-	    ] ;
+	cpack:author <http://www.few.vu.nl/~michielh/me> ;
+        cpack:primaryRepository
+            [ a cpack:GitRepository ;
+              cpack:gitURL <git://eculture.cs.vu.nl/home/hildebra/git/ClioPatria/image_annotation.git>
+            ] ;
 	cpack:description
 
-"""Package description goes here.  You can use PlDoc markup.
+"""Image annotation package with thesaurus-based autocompletion with configurable search fields.
 """ .
 
 
