@@ -1,1 +1,2 @@
 config(image_annotation, link).
+config(load_rma_example, link).
