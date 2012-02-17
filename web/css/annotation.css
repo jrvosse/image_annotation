@@ -66,3 +66,11 @@ body {
 .resource h3 {
 	margin: 0 0 6px;
 }
+
+div.aclist_extra {
+	padding: .5em;
+	background-color: white;
+	border: solid grey 1pt;
+	position: absolute;
+	width: 200px;
+}

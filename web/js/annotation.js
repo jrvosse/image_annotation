@@ -90,16 +90,11 @@ YUI.add('annotation', function(Y) {
 				var node = Y.Node.create("<div class='aclist_extra'></div>");
 				if (scope) node.append("<div class='aclist_extra_scope'>"+scope+"</div>");
 				if (defin) node.append("<div class='aclist_extra_defin'>"+defin+"</div>");
-				node.setStyle("padding", ".5em");
-				node.setStyle("backgroundColor", "white");
-				node.setStyle("border", "solid grey 1pt");
-				node.setStyle("position", "absolute");
-				node.setStyle("width", "200px");
-				var Xval = parseInt(e.newVal.get('parentNode').getComputedStyle("width")) + e.newVal.getX();
+				var width = parseInt(e.newVal.get('parentNode').getComputedStyle("width"));
+				var Xval = width + e.newVal.getX();
 				var Yval = e.newVal.getY();
 				e.newVal.append(node);
-				node.setX(Xval);
-				node.setY(Yval);
+				node.setXY([Xval,Yval]);
 			}
 		},
 		_onItemSelect : function(e) {
