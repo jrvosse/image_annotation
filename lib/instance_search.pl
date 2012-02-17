@@ -30,6 +30,8 @@
 :- use_module(util(filter)).
 */
 
+:- rdf_meta
+	all_literal_propvalues(r, r, -).
 
 :- http_handler(api(autocomplete), http_autocomplete, [js(true)]).
 
@@ -56,7 +58,8 @@ http_autocomplete(Request) :-
 	instance_search(Query, Hits0, Options),
 	length(Hits0, TotalNumberOfResults),
 	list_offset(Hits0, Offset, Hits1),
-	list_limit(Hits1, Limit, Hits, _),
+	list_limit(Hits1, Limit, Hits2, _),
+        maplist(ac_expand_hit, Hits2,Hits),
 	prolog_to_json(Hits, JSON),
 	reply_json(json([totalNumberOfResults(TotalNumberOfResults),
 			 results(JSON)])).
@@ -139,6 +142,38 @@ find_resources(Query, LabelList, Hits, Options0) :-
 	filter(Hits1, Hits, Options0).
 
 ac_hit(hit(_D,U,P,L), hit(U,P,L,[])).
+
+/***************************************************
+* expand with extra display info
+***************************************************/
+
+ac_expand_hit(hit(R,P,L,[]),
+	      hit(R,P,L,json([altLabels=Labels,
+			      scopeNotes=ScopeNotes,
+			      definitions=Definitions,
+			      broaders=Broaders,
+			      narrowers=Narrowers
+			     ]))) :-
+	all_labels(R,Labels),
+	findall(Broader, rdf_has(R, skos:broader, Broader), Broaders),
+	findall(Narrow, rdf_has(R, skos:narrower, Narrow), Narrowers),
+	all_literal_propvalues(R, skos:scopeNote, ScopeNotes),
+	all_literal_propvalues(R, skos:definition, Definitions).
+
+
+% Fix me: need to take care of preferred languages here
+all_literal_propvalues(R,P,Definitions) :-
+	findall(Definition,
+		(   rdf_has(R, P, DefLit),
+		    literal_text(DefLit,Definition)
+		), Definitions).
+
+
+all_labels(R,Labels) :-
+	findall(AltLabel, (rdf_label(R,Lit),
+			   literal_text(Lit, AltLabel)
+			  ),
+		Labels).
 
 
 /***************************************************

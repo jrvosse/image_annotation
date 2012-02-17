@@ -34,11 +34,12 @@ YUI.add('annotation', function(Y) {
 			this._renderTags(tags._items, 0); // how to get the items nicely?
 			tags.on("add", this._addTags, this);
 			tags.on("remove", this._removeTags, this);
+			this.on("hoveredItemChange", this._onHover, this);
 			this.on("select", this._onItemSelect, this);
 			Y.delegate("click", this._onTagRemoveClick, this.tagList, 'li .remove', this);
 			this.tags = tags;
 		},
-		
+	
 		_renderTags : function(tags, index) {
 			var tagList = this.tagList;
 			// format the tags
@@ -79,6 +80,27 @@ YUI.add('annotation', function(Y) {
 				on:{success: function(e) { tags.remove(index) }
 				}
 			});
+		},
+		_onHover : function(e) {
+			if (!e.newVal) return;
+			var scope = e.newVal.getData().result.raw.info.scopeNotes[0];
+			var defin = e.newVal.getData().result.raw.info.definitions[0];
+			if (scope || defin) {
+				Y.all('.aclist_extra').remove(true);
+				var node = Y.Node.create("<div class='aclist_extra'></div>");
+				if (scope) node.append("<div class='aclist_extra_scope'>"+scope+"</div>");
+				if (defin) node.append("<div class='aclist_extra_defin'>"+defin+"</div>");
+				node.setStyle("padding", ".5em");
+				node.setStyle("backgroundColor", "white");
+				node.setStyle("border", "solid grey 1pt");
+				node.setStyle("position", "absolute");
+				node.setStyle("width", "200px");
+				var Xval = parseInt(e.newVal.get('parentNode').getComputedStyle("width")) + e.newVal.getX();
+				var Yval = e.newVal.getY();
+				e.newVal.append(node);
+				node.setX(Xval);
+				node.setY(Yval);
+			}
 		},
 		_onItemSelect : function(e) {
 			var item = e.details[0].result.raw,
