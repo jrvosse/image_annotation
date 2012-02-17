@@ -271,7 +271,8 @@ rdf_add_annotation(Graph, Target, Field, Body, Label, Annotation) :-
 	rdf_assert(Annotation, rdf:type, oac:'Annotation', Graph),
 	rdf_assert(Annotation, oac:hasTarget, Target, Graph),
 	rdf_assert(Annotation, oac:hasBody, Body, Graph),
-	rdf_assert(Annotation, dc:title, literal(Label), Graph).
+	rdf_assert(Annotation, dcterms:title, literal(Label), Graph).
+
 
 
 %%	http_remove_annotation(+Request)
