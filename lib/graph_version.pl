@@ -1,7 +1,8 @@
 :- module(graph_version,
 	  [gv_resource_commit/5,
 	   gv_resource_head/2,
-	   gv_resource_graph/2
+	   gv_resource_graph/2,
+	   gv_delete_old_graphs/0
 	  ]).
 
 :- use_module(library('semweb/rdf_db')).
@@ -19,7 +20,7 @@
 %	* gv:parent to the previous commit
 %	* gv:graph to Graph
 %	* dc:creator to User
-%	* dc:date to th current time
+%	* dc:date to the current time
 
 gv_resource_commit(Resource, User, Action, Commit, Graph) :-
 	get_time(TimeStamp),
@@ -31,8 +32,8 @@ gv_resource_commit(Resource, User, Action, Commit, Graph) :-
 	rdf_transaction(Action),
 	rdf_transaction((rdf_assert(Commit, gv:parent, ParentCommit, Commit),
 			 rdf_assert(Commit, gv:graph, Graph, Commit),
-			 rdf_assert(Commit, dc:creator, User, Commit),
-			 rdf_assert(Commit, dc:date, literal(TimeStamp), Commit))),
+			 rdf_assert(Commit, dcterms:creator, User, Commit),
+			 rdf_assert(Commit, dcterms:date, literal(TimeStamp), Commit))),
 	gv_move_resource_head(Resource, Commit).
 
 %%	gv_resource_head(+Resource, -Commit) is det.
@@ -75,3 +76,25 @@ copy_rdf_graph(init, _) :- !.
 copy_rdf_graph(From, To) :-
 	rdf_transaction(forall(rdf(S,P,O,From),
 			       rdf_assert(S,P,O,To))).
+
+
+gv_delete_ancestors(init) :- !.
+gv_delete_ancestors(Commit) :-
+	(   rdf(Commit, gv:graph, Graph),
+	    rdf(Commit, gv:parent, Parent)
+	->  gv_delete_ancestors(Parent),
+	    (rdf_graph(Commit) -> rdf_unload(Commit); true),
+	    (rdf_graph(Graph)   -> rdf_unload(Graph); true)
+	;   true
+	).
+
+
+gv_delete_old_graphs :-
+	findall(P,
+		(   rdf(Head, gv:head, _),
+		    rdf(Head, gv:parent, P)
+		),
+		Parents),
+	forall(member(H, Parents),
+	       gv_delete_ancestors(H)
+	      ).
