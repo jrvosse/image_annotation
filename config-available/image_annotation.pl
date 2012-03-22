@@ -4,9 +4,9 @@
 */
 
 :- use_module(library('semweb/rdf_db')).
-:- use_module(library('semweb/rdf_library')).
 
-:- rdf_load_library(dcterms).
+% @TBD
+% requires Dublin Core and SKOS
 
 % hack namespace
 :- rdf_register_ns(oac, 'http://www.openannotation.org/ns/').
