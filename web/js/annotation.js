@@ -100,9 +100,10 @@ YUI.add('annotation', function(Y) {
 		_onItemSelect : function(e) {
 			var item = e.details[0].result.raw,
 				uri = item.uri,
-				label = item.label;
+				label = item.label,
+				inputNode = this.get("inputNode");
+				
 			Y.log('add tag: '+label+' '+uri);
-			
 			var tags = this.tags;
 			Y.io(this.get("store.add"), {
 				data:{
@@ -113,7 +114,9 @@ YUI.add('annotation', function(Y) {
 				},
 				on:{success: function(e,o) { 
 					var r = Y.JSON.parse(o.responseText);
-					tags.add({uri:uri, label:label, annotation:r.annotation})}
+					tags.add({uri:uri, label:label, annotation:r.annotation});
+					inputNode.set("value", "");
+					}
 				}
 			});
 			

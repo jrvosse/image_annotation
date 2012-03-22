@@ -230,6 +230,7 @@ js_annotation_field(FieldURI, Target) -->
 		 *******************************/
 
 :- http_handler(cliopatria(data/annotation/add), http_add_annotation, []).
+:- http_handler(cliopatria(data/annotation/update), http_update_annotation, []).
 :- http_handler(cliopatria(data/annotation/remove), http_remove_annotation, []).
 
 %%	http_add_annotation(+Request)
@@ -299,6 +300,54 @@ http_remove_annotation(Request) :-
 			 head=Head,
 			 graph=Graph])).
 
+%%	http_update_annotation(+Request)
+%
+%	Web service to update resource annotations
+
+http_update_annotation(Request) :-
+	http_parameters(Request,
+		[ target(TargetURI,
+		     [uri,
+		      description('URI of the object that is annotated')
+		     ]),
+		  field(FieldURI,
+			[uri,
+			 description('URI of the annotation field')
+			]),
+		  annotation(Annotation,
+			     [optional(true),
+			      description('Annotation for which the body is updated')]),
+		  body(Body,
+		       [description('Body of the annotation')]),
+		  label(Label0,
+			[optional(true),
+			 description('Label of the annotation value')])
+		]),
+	(   setting(login, true)
+        ->  ensure_logged_on(User)
+        ;   logged_on(User, anonymous)
+        ),
+	annotation_label(Label0, Body, Label),
+	gv_resource_commit(TargetURI, User,
+			   rdf_update_annotation(Graph, Annotation, TargetURI, FieldURI, Body, Label),
+			   Head,
+			   Graph),
+	reply_json(json([annotation=Annotation,
+			 graph=Graph,
+			 head=Head])).
+
+rdf_update_annotation(Graph, Annotation, Target, Field, Body, Label) :-
+	(   var(Annotation)
+	->  rdf_bnode(Annotation),
+	    rdf_assert(Annotation, an:annotationField, Field, Graph),
+	    rdf_assert(Annotation, rdf:type, oac:'Annotation', Graph),
+	    rdf_assert(Annotation, oac:hasTarget, Target, Graph)
+	;   rdf_retractall(Annotation, oac:hasBody, _, Graph),
+	    rdf_retractall(Annotation, dcterms:title, _, Graph)
+	),
+	rdf_assert(Annotation, oac:hasBody, Body, Graph),
+	rdf_assert(Annotation, dcterms:title, literal(Label), Graph).
+
 
 
 annotation_label(Label0, Body, Label) :-
@@ -316,5 +365,4 @@ annotation_in_field(Target, FieldURI, Annotation, Body, Label) :-
 	rdf(Annotation, oac:hasBody, Body, Graph),
 	rdf(Annotation, dcterms:title, Lit, Graph),
 	literal_text(Lit, Label).
-
 
