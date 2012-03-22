@@ -314,7 +314,7 @@ annotation_in_field(Target, FieldURI, Annotation, Body, Label) :-
 	rdf(Annotation, oac:hasTarget, Target, Graph),
 	rdf(Annotation, an:annotationField, FieldURI, Graph),
 	rdf(Annotation, oac:hasBody, Body, Graph),
-	rdf(Annotation, dc:title, Lit, Graph),
+	rdf(Annotation, dcterms:title, Lit, Graph),
 	literal_text(Lit, Label).
 
 
