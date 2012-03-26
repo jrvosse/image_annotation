@@ -30,7 +30,11 @@ YUI.add('annotation', function(Y) {
 		initializer: function(args) {
 			var parentNode = this.DEF_PARENT_NODE,
 				tags = new Y.Recordset({records:this.get("tags")});
+				
 			this.tagList = parentNode.appendChild(Node.create(Annotation.LIST_TEMPLATE));
+			this.infoNode = new Y.Overlay({
+			}).render(parentNode);
+			
 			this._renderTags(tags._items, 0); // how to get the items nicely?
 			tags.on("add", this._addTags, this);
 			tags.on("remove", this._removeTags, this);
@@ -82,19 +86,22 @@ YUI.add('annotation', function(Y) {
 			});
 		},
 		_onHover : function(e) {
-			if (!e.newVal) return;
-			var scope = e.newVal.getData().result.raw.info.scopeNotes[0];
-			var defin = e.newVal.getData().result.raw.info.definitions[0];
-			if (scope || defin) {
-				Y.all('.aclist_extra').remove(true);
-				var node = Y.Node.create("<div class='aclist_extra'></div>");
-				if (scope) node.append("<div class='aclist_extra_scope'>"+scope+"</div>");
-				if (defin) node.append("<div class='aclist_extra_defin'>"+defin+"</div>");
-				var width = parseInt(e.newVal.get('parentNode').getComputedStyle("width"));
-				var Xval = width + e.newVal.getX();
-				var Yval = e.newVal.getY();
-				e.newVal.append(node);
-				node.setXY([Xval,Yval]);
+			var infoNode = this.infoNode,
+				active = e.newVal,
+				body = '';
+			if(active) {	
+				var scope = active.getData().result.raw.info.scopeNotes[0],
+					defin = active.getData().result.raw.info.definitions[0];
+				if (scope) { body += "<div class='scope'>"+scope+"</div>"; } 
+				if (defin) { body += "<div class='defin'>"+defin+"</div>"; }
+			}
+			if(body) {
+				infoNode.set("bodyContent", body);
+				infoNode.set("align", {node:active, 
+				                      points:[Y.WidgetPositionAlign.TL, Y.WidgetPositionAlign.TR]});
+				infoNode.show();
+			} else {
+				infoNode.hide();
 			}
 		},
 		_onItemSelect : function(e) {
@@ -127,6 +134,6 @@ YUI.add('annotation', function(Y) {
 	Y.Plugin.Annotation = Annotation;
 
 }, '0.0.1', { requires: [
-	'node','event','autocomplete','recordset','io-base','querystring-stringify-simple'
+	'node','event','autocomplete','overlay','recordset','io-base','querystring-stringify-simple'
 	]
 });

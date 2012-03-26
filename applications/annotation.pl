@@ -185,6 +185,7 @@ js_module('annotation', json([fullpath(Path),
 				    requires(['recordset-base',
 					      autocomplete,
 					      'autocomplete-highlighters',
+					      overlay,
 					      'io','json-parse',
 					      'querystring-stringify-simple'
 				  ])

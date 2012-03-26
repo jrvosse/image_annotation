@@ -67,10 +67,11 @@ body {
 	margin: 0 0 6px;
 }
 
-div.aclist_extra {
-	padding: .5em;
+.yui3-overlay {
+	padding: 10px;
 	background-color: white;
 	border: solid grey 1pt;
 	position: absolute;
 	width: 200px;
+	z-index: 1;
 }
