@@ -19,6 +19,9 @@ YUI.add('annotation', function(Y) {
 		},
 		tags: {
 			value: []
+		},
+		allowTextSubmit: {
+			value:true
 		}
 	};
 
@@ -28,7 +31,8 @@ YUI.add('annotation', function(Y) {
 	Y.extend(Annotation, Y.Plugin.AutoComplete, {
 
 		initializer: function(args) {
-			var parentNode = this.DEF_PARENT_NODE,
+			var inputNode = args.inputNode,
+				parentNode = this.DEF_PARENT_NODE,
 				tags = new Y.Recordset({records:this.get("tags")});
 				
 			this.tagList = parentNode.appendChild(Node.create(Annotation.LIST_TEMPLATE));
@@ -38,9 +42,11 @@ YUI.add('annotation', function(Y) {
 			this._renderTags(tags._items, 0); // how to get the items nicely?
 			tags.on("add", this._addTags, this);
 			tags.on("remove", this._removeTags, this);
+			this.on("activeItemChange", this._onHover, this);
 			this.on("hoveredItemChange", this._onHover, this);
 			this.on("select", this._onItemSelect, this);
 			Y.delegate("click", this._onTagRemoveClick, this.tagList, 'li .remove', this);
+			Y.on("key", this._onTextSubmit, inputNode, 'down:13', this);
 			this.tags = tags;
 		},
 	
@@ -64,9 +70,15 @@ YUI.add('annotation', function(Y) {
 		},
 			
 		formatTag : function(tag) { 
-			var label = tag.getValue("label");
-			html = '<div class="label">'+label+'</div>';				
- 			html += '<div class="remove"><a href="javascript:{}">x</a></div>';
+			var label = tag.getValue("label"),
+				body = tag.getValue("body");
+			html = '<div class="label">';
+			if(body.type=="uri") {
+				html += '<a href="'+body.value+'">'+label+'</a>';
+			} else {
+				html += label
+			}
+ 			html += '</div><div class="remove"><a href="javascript:{}">x</a></div>';
 			return html;
 		},
 		
@@ -107,26 +119,36 @@ YUI.add('annotation', function(Y) {
 		_onItemSelect : function(e) {
 			var item = e.details[0].result.raw,
 				uri = item.uri,
-				label = item.label,
-				inputNode = this.get("inputNode");
+				label = item.label;
+			this.submitAnnotation({type:"uri", value:uri}, label);
+		},
+		_onTextSubmit : function(e) {
+			if(!this.get("activeItem")) {
+				var value = this.get("inputNode").get("value");
+				this.submitAnnotation({type:"literal", value:value}, value);
+			}	
+		},
+		
+		submitAnnotation : function(body, label) {
+			Y.log('add tag: '+body.value+' with label: '+label);
+
+			var inputNode = this.get("inputNode"),
+				tags = this.tags;
 				
-			Y.log('add tag: '+label+' '+uri);
-			var tags = this.tags;
 			Y.io(this.get("store.add"), {
 				data:{
 					target:this.get("target"),
 					field:this.get("field"),
-					body:uri,
+					body:Y.JSON.stringify(body),
 					label:label
 				},
 				on:{success: function(e,o) { 
 					var r = Y.JSON.parse(o.responseText);
-					tags.add({uri:uri, label:label, annotation:r.annotation});
+					tags.add({body:body, label:label, annotation:r.annotation});
 					inputNode.set("value", "");
 					}
 				}
 			});
-			
 		}
 		
 	});
@@ -134,6 +156,6 @@ YUI.add('annotation', function(Y) {
 	Y.Plugin.Annotation = Annotation;
 
 }, '0.0.1', { requires: [
-	'node','event','autocomplete','overlay','recordset','io-base','querystring-stringify-simple'
+	'node','event','autocomplete','overlay','recordset','io-base','json','querystring-stringify-simple'
 	]
 });

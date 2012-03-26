@@ -1,5 +1,6 @@
 :- module(annotation,
-	[]).
+	[annotation_in_field/5,
+	 json_annotation_list/3]).
 
 
 % semweb
@@ -14,7 +15,9 @@
 :- use_module(library('http/html_write')).
 :- use_module(library('http/html_head')).
 :- use_module(library('http/http_path')).
+:- use_module(library(http/json)).
 :- use_module(library('http/http_json')).
+:- use_module(library(http/json_convert)).
 :- use_module(components(label)).
 :- use_module(library(settings)).
 :- use_module(user(user_db)).
@@ -186,7 +189,7 @@ js_module('annotation', json([fullpath(Path),
 					      autocomplete,
 					      'autocomplete-highlighters',
 					      overlay,
-					      'io','json-parse',
+					      'io','json',
 					      'querystring-stringify-simple'
 				  ])
 			  ])) :-
@@ -207,9 +210,7 @@ js_annotation_field(FieldURI, Target) -->
 	  rdf_global_id(_:Id, FieldURI),
 	  setting(min_query_length, MinQueryLength),
 	  rdf(FieldURI, an:source, literal(Source)),
-	  findall({annotation:A, uri:R, label:L},
-		  annotation_in_field(Target, FieldURI, A, R, L),
-		  Tags)
+	  json_annotation_list(Target, FieldURI, Tags)
 	},
 	yui3_plug(one(id(Id)),
 		  'Y.Plugin.Annotation',
@@ -248,8 +249,9 @@ http_add_annotation(Request) :-
 			[uri,
 			 description('URI of the annotation field')
 			]),
-		  body(Body,
-		       [description('Body of the annotation')]),
+		  body(Body0,
+		       [json_rdf_object,
+			description('Body of the annotation')]),
 		  label(Label0,
 			[optional(true),
 			 description('Label of the annotation value')])
@@ -258,6 +260,7 @@ http_add_annotation(Request) :-
         ->  ensure_logged_on(User)
         ;   logged_on(User, anonymous)
         ),
+	annotation_body(Body0, Body),
 	annotation_label(Label0, Body, Label),
 	gv_resource_commit(TargetURI, User,
 			   rdf_add_annotation(Graph, TargetURI, FieldURI, Body, Label, Annotation),
@@ -318,8 +321,9 @@ http_update_annotation(Request) :-
 		  annotation(Annotation,
 			     [optional(true),
 			      description('Annotation for which the body is updated')]),
-		  body(Body,
-		       [description('Body of the annotation')]),
+		  body(Body0,
+		       [json_rdf_object,
+			description('Body of the annotation')]),
 		  label(Label0,
 			[optional(true),
 			 description('Label of the annotation value')])
@@ -328,6 +332,7 @@ http_update_annotation(Request) :-
         ->  ensure_logged_on(User)
         ;   logged_on(User, anonymous)
         ),
+	annotation_body(Body0, Body),
 	annotation_label(Label0, Body, Label),
 	gv_resource_commit(TargetURI, User,
 			   rdf_update_annotation(Graph, Annotation, TargetURI, FieldURI, Body, Label),
@@ -350,6 +355,12 @@ rdf_update_annotation(Graph, Annotation, Target, Field, Body, Label) :-
 	rdf_assert(Annotation, dcterms:title, literal(Label), Graph).
 
 
+		 /*******************************
+		 *               Utils		*
+		 *******************************/
+
+annotation_body(literal(L), literal(L)) :- !.
+annotation_body(uri(URI), URI).
 
 annotation_label(Label0, Body, Label) :-
 	(   var(Label0)
@@ -358,12 +369,34 @@ annotation_label(Label0, Body, Label) :-
 	).
 
 
+%%	json_annotation_list(+TargetURI, +FieldURI, -Annotations)
+%
+%	Annotation is a list with annotations represented in prolog JSON
+%	notation.
+
+json_annotation_list(Target, FieldURI, JSON) :-
+	findall(annotation(A, Body, L),
+		annotation_in_field(Target, FieldURI, A, Body, L),
+		Annotations),
+	prolog_to_json(Annotations, JSON).
+
 annotation_in_field(Target, FieldURI, Annotation, Body, Label) :-
 	gv_resource_head(Target, Commit),
 	gv_resource_graph(Commit, Graph),
 	rdf(Annotation, oac:hasTarget, Target, Graph),
 	rdf(Annotation, an:annotationField, FieldURI, Graph),
-	rdf(Annotation, oac:hasBody, Body, Graph),
+	rdf(Annotation, oac:hasBody, Body0, Graph),
 	rdf(Annotation, dcterms:title, Lit, Graph),
+	annotation_body(Body, Body0),
 	literal_text(Lit, Label).
 
+http:convert_parameter(json_rdf_object, Atom, Term) :-
+	atom_json_term(Atom, JSON, []),
+	json_to_prolog(JSON, Term).
+
+:- json_object
+	annotation(annotation:atom, body:_, label:atom),
+	uri(value:uri) + [type=uri],
+	literal(lang:atom, value:_) + [type=literal],
+	literal(type:atom, value:_) + [type=literal],
+	literal(value:_) + [type=literal].
