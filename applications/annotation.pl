@@ -343,22 +343,24 @@ http_update_annotation(Request) :-
 	annotation_body(Body0, Body),
 	annotation_label(Label0, Body, Label),
 	gv_resource_commit(TargetURI, User,
-			   rdf_update_annotation(Graph, Annotation, TargetURI, FieldURI, Body, Label),
+			   rdf_update_annotation(Graph, Annotation, User, TargetURI, FieldURI, Body, Label),
 			   Head,
 			   Graph),
 	reply_json(json([annotation=Annotation,
 			 graph=Graph,
 			 head=Head])).
 
-rdf_update_annotation(Graph, Annotation, Target, Field, Body, Label) :-
+rdf_update_annotation(Graph, Annotation, User, Target, Field, Body, Label) :-
 	(   var(Annotation)
 	->  rdf_bnode(Annotation),
 	    rdf_assert(Annotation, an:annotationField, Field, Graph),
 	    rdf_assert(Annotation, rdf:type, oac:'Annotation', Graph),
 	    rdf_assert(Annotation, oac:hasTarget, Target, Graph)
 	;   rdf_retractall(Annotation, oac:hasBody, _, Graph),
-	    rdf_retractall(Annotation, dcterms:title, _, Graph)
+	    rdf_retractall(Annotation, dcterms:title, _, Graph),
+	    rdf_retractall(Annotation, dcterms:creator, _, Graph)
 	),
+	rdf_assert(Annotation, dcterms:creator, User, Graph),
 	rdf_assert(Annotation, oac:hasBody, Body, Graph),
 	rdf_assert(Annotation, dcterms:title, literal(Label), Graph).
 
