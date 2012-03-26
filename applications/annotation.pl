@@ -39,6 +39,8 @@
 :- setting(login, boolean, true, 'Require login').
 :- setting(min_query_length, integer, 3,
 	   'Minimum number of characters that must be entered before a query event will be fired. A value of 0 allows empty queries; a negative value will effectively disable all query events and turn AutoComplete off. ').
+:- setting(user_restrict, boolean, false,
+	   'When set to true only own annotations are shown.').
 
 
 /***************************************************
@@ -238,6 +240,11 @@ js_annotation_field(FieldURI, Target) -->
 %%	http_add_annotation(+Request)
 %
 %	Web service to add resource annotations
+%
+%	%hack
+%	in the add service we store the user explicitly in the
+%	annotation. in the remove and update services we do not look at
+%	this, in the update this can give inconsistencies.
 
 http_add_annotation(Request) :-
 	http_parameters(Request,
@@ -263,15 +270,16 @@ http_add_annotation(Request) :-
 	annotation_body(Body0, Body),
 	annotation_label(Label0, Body, Label),
 	gv_resource_commit(TargetURI, User,
-			   rdf_add_annotation(Graph, TargetURI, FieldURI, Body, Label, Annotation),
+			   rdf_add_annotation(Graph, User, TargetURI, FieldURI, Body, Label, Annotation),
 			   Head,
 			   Graph),
 	reply_json(json([annotation=Annotation,
 			 graph=Graph,
 			 head=Head])).
 
-rdf_add_annotation(Graph, Target, Field, Body, Label, Annotation) :-
+rdf_add_annotation(Graph, User, Target, Field, Body, Label, Annotation) :-
 	rdf_bnode(Annotation),
+	rdf_assert(Annotation, dcterms:creator, User, Graph),
 	rdf_assert(Annotation, an:annotationField, Field, Graph),
 	rdf_assert(Annotation, rdf:type, oac:'Annotation', Graph),
 	rdf_assert(Annotation, oac:hasTarget, Target, Graph),
@@ -383,8 +391,13 @@ json_annotation_list(Target, FieldURI, JSON) :-
 annotation_in_field(Target, FieldURI, Annotation, Body, Label) :-
 	gv_resource_head(Target, Commit),
 	gv_resource_graph(Commit, Graph),
+	(   setting(user_restrict, true)
+	->  logged_on(User, anonymous)
+	;   true
+	),
 	rdf(Annotation, oac:hasTarget, Target, Graph),
 	rdf(Annotation, an:annotationField, FieldURI, Graph),
+	rdf(Annotation, dcterms:creator, User, Graph),
 	rdf(Annotation, oac:hasBody, Body0, Graph),
 	rdf(Annotation, dcterms:title, Lit, Graph),
 	annotation_body(Body, Body0),

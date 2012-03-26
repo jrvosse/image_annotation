@@ -2,11 +2,14 @@
 	  [gv_resource_commit/5,
 	   gv_resource_head/2,
 	   gv_resource_graph/2,
+	   gv_resource_last_user_commit/3,
 	   gv_delete_old_graphs/0
 	  ]).
 
 :- use_module(library('semweb/rdf_db')).
 :- use_module(library('semweb/rdfs')).
+:- use_module(user(user_db)).
+:- use_module(library(settings)).
 
 :- meta_predicate
 	gv_resource_commit(+,+,0,-,-).
@@ -41,11 +44,28 @@ gv_resource_commit(Resource, User, Action, Commit, Graph) :-
 %	Commit is the most recent commit on the versioned graphs
 %	associated with Resource, or the value 'init' if there are no
 %	versioned graphs associated with resource.
-%
+
 gv_resource_head(Resource, Commit) :-
 	rdf(Commit, gv:head, Resource),
 	!.
 gv_resource_head(_, init).
+
+
+%%	gv_resource_last_user_commit(+Resource, +User, -Commit)
+%
+%	Commit is the last Commit of User.
+
+gv_resource_last_user_commit(Resource, User, Commit) :-
+	rdf(Head, gv:head, Resource),
+	gv_user_head(User, Head, Commit).
+
+gv_user_head(User, Commit, UserHead) :-
+	(   rdf(Commit, dcterms:creator, User)
+	->  UserHead = Commit
+	;   rdf(Commit, gv:parent, ParentCommit)
+	->  gv_user_head(User, ParentCommit, UserHead)
+	;   UserHead = init
+	).
 
 %%	gv_resource_graph(Commit, Graph) is det.
 %
