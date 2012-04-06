@@ -263,10 +263,6 @@ annotation_in_field(Target, FieldURI, Annotation, Body, Label) :-
 	annotation_body(Body, Body0),
 	literal_text(Lit, Label).
 
-http:convert_parameter(json_rdf_object, Atom, Term) :-
-	atom_json_term(Atom, JSON, []),
-	json_to_prolog(JSON, Term).
-
 :- json_object
 	annotation(annotation:atom, body:_, label:atom),
 	uri(value:uri) + [type=uri],
