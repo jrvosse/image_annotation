@@ -21,9 +21,9 @@
 :- use_module(components(label)).
 :- use_module(library(settings)).
 :- use_module(user(user_db)).
-:- use_module(library(instance_search)).
 :- use_module(library(graph_version)).
-
+:- use_module(api(annotation)).
+:- use_module(library(instance_search)).
 
 /***************************************************
 * http handlers
@@ -36,7 +36,6 @@
 * settings
 ***************************************************/
 
-:- setting(login, boolean, true, 'Require login').
 :- setting(min_query_length, integer, 3,
 	   'Minimum number of characters that must be entered before a query event will be fired. A value of 0 allows empty queries; a negative value will effectively disable all query events and turn AutoComplete off. ').
 :- setting(user_restrict, boolean, false,
@@ -62,7 +61,7 @@ http_annotation(Request) :-
 			 description('URI of annotation field')
 			])
 		]),
-	(   setting(login, true)
+	(   setting(annotation_api:login, true)
         ->  authorized(write(_,_))
         ;   true
         ),
@@ -229,141 +228,6 @@ js_annotation_field(FieldURI, Target) -->
 		   resultHighlighter: phraseMatch}).
 
 
-		 /*******************************
-		 *             data		*
-		 *******************************/
-
-:- http_handler(cliopatria(data/annotation/add), http_add_annotation, []).
-:- http_handler(cliopatria(data/annotation/update), http_update_annotation, []).
-:- http_handler(cliopatria(data/annotation/remove), http_remove_annotation, []).
-
-%%	http_add_annotation(+Request)
-%
-%	Web service to add resource annotations
-%
-%	%hack
-%	in the add service we store the user explicitly in the
-%	annotation. in the remove and update services we do not look at
-%	this, in the update this can give inconsistencies.
-
-http_add_annotation(Request) :-
-	http_parameters(Request,
-		[ target(TargetURI,
-		     [uri,
-		      description('URI of the object that is annotated')
-		     ]),
-		  field(FieldURI,
-			[uri,
-			 description('URI of the annotation field')
-			]),
-		  body(Body0,
-		       [json_rdf_object,
-			description('Body of the annotation')]),
-		  label(Label0,
-			[optional(true),
-			 description('Label of the annotation value')])
-		]),
-	(   setting(login, true)
-        ->  ensure_logged_on(User)
-        ;   logged_on(User, anonymous)
-        ),
-	annotation_body(Body0, Body),
-	annotation_label(Label0, Body, Label),
-	gv_resource_commit(TargetURI, User,
-			   rdf_add_annotation(Graph, User, TargetURI, FieldURI, Body, Label, Annotation),
-			   Head,
-			   Graph),
-	reply_json(json([annotation=Annotation,
-			 graph=Graph,
-			 head=Head])).
-
-rdf_add_annotation(Graph, User, Target, Field, Body, Label, Annotation) :-
-	rdf_bnode(Annotation),
-	rdf_assert(Annotation, dcterms:creator, User, Graph),
-	rdf_assert(Annotation, an:annotationField, Field, Graph),
-	rdf_assert(Annotation, rdf:type, oac:'Annotation', Graph),
-	rdf_assert(Annotation, oac:hasTarget, Target, Graph),
-	rdf_assert(Annotation, oac:hasBody, Body, Graph),
-	rdf_assert(Annotation, dcterms:title, literal(Label), Graph).
-
-
-
-%%	http_remove_annotation(+Request)
-%
-%	Web service to remove resource annotations
-
-http_remove_annotation(Request) :-
-	http_parameters(Request,
-		[ annotation(Annotation,
-		     [uri,
-		      description('URI of the annotation object')
-		     ])
-		]),
-	(   setting(login, true)
-        ->  ensure_logged_on(User)
-        ;   logged_on(User, anonymous)
-        ),
-	once(rdf(Annotation, oac:hasTarget, Target)),
-	gv_resource_commit(Target, User,
-			   rdf_retractall(Annotation, _, _, Graph),
-			   Head,
-			   Graph),
-	reply_json(json([annotation=Annotation,
-			 head=Head,
-			 graph=Graph])).
-
-%%	http_update_annotation(+Request)
-%
-%	Web service to update resource annotations
-
-http_update_annotation(Request) :-
-	http_parameters(Request,
-		[ target(TargetURI,
-		     [uri,
-		      description('URI of the object that is annotated')
-		     ]),
-		  field(FieldURI,
-			[uri,
-			 description('URI of the annotation field')
-			]),
-		  annotation(Annotation,
-			     [optional(true),
-			      description('Annotation for which the body is updated')]),
-		  body(Body0,
-		       [json_rdf_object,
-			description('Body of the annotation')]),
-		  label(Label0,
-			[optional(true),
-			 description('Label of the annotation value')])
-		]),
-	(   setting(login, true)
-        ->  ensure_logged_on(User)
-        ;   logged_on(User, anonymous)
-        ),
-	annotation_body(Body0, Body),
-	annotation_label(Label0, Body, Label),
-	gv_resource_commit(TargetURI, User,
-			   rdf_update_annotation(Graph, Annotation, User, TargetURI, FieldURI, Body, Label),
-			   Head,
-			   Graph),
-	reply_json(json([annotation=Annotation,
-			 graph=Graph,
-			 head=Head])).
-
-rdf_update_annotation(Graph, Annotation, User, Target, Field, Body, Label) :-
-	(   var(Annotation)
-	->  rdf_bnode(Annotation),
-	    rdf_assert(Annotation, an:annotationField, Field, Graph),
-	    rdf_assert(Annotation, rdf:type, oac:'Annotation', Graph),
-	    rdf_assert(Annotation, oac:hasTarget, Target, Graph)
-	;   rdf_retractall(Annotation, oac:hasBody, _, Graph),
-	    rdf_retractall(Annotation, dcterms:title, _, Graph),
-	    rdf_retractall(Annotation, dcterms:creator, _, Graph)
-	),
-	rdf_assert(Annotation, dcterms:creator, User, Graph),
-	rdf_assert(Annotation, oac:hasBody, Body, Graph),
-	rdf_assert(Annotation, dcterms:title, literal(Label), Graph).
-
 
 		 /*******************************
 		 *               Utils		*
@@ -371,12 +235,6 @@ rdf_update_annotation(Graph, Annotation, User, Target, Field, Body, Label) :-
 
 annotation_body(literal(L), literal(L)) :- !.
 annotation_body(uri(URI), URI).
-
-annotation_label(Label0, Body, Label) :-
-	(   var(Label0)
-	->  rdf_display_label(Body, Label)
-	;   Label = Label0
-	).
 
 
 %%	json_annotation_list(+TargetURI, +FieldURI, -Annotations)
