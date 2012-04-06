@@ -151,12 +151,15 @@ ac_expand_hit(hit(R,P,L,[]),
 	      hit(R,P,L,json([altLabels=Labels,
 			      scopeNotes=ScopeNotes,
 			      definitions=Definitions,
-			      broaders=Broaders,
-			      narrowers=Narrowers
+			      broader=Broader,
+			      narrower=Narrower,
+			      related=Related
 			     ]))) :-
 	all_labels(R,Labels),
-	findall(Broader, rdf_has(R, skos:broader, Broader), Broaders),
-	findall(Narrow, rdf_has(R, skos:narrower, Narrow), Narrowers),
+	findall(B, rdf_has(R, skos:broader,  B), Broader),
+	findall(N, rdf_has(R, skos:narrower, N), Narrower),
+	findall(Rl,rdf_has(R, skos:related, Rl), Related),
+
 	all_literal_propvalues(R, skos:scopeNote, ScopeNotes),
 	all_literal_propvalues(R, skos:definition, Definitions).
 
