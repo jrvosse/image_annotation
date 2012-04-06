@@ -176,7 +176,8 @@ all_labels(R,Labels) :-
 	findall(AltLabel, (rdf_label(R,Lit),
 			   literal_text(Lit, AltLabel)
 			  ),
-		Labels).
+		Labels0),
+	sort(Labels0,Labels).
 
 
 /***************************************************
