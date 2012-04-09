@@ -23,7 +23,6 @@
 :- use_module(user(user_db)).
 :- use_module(library(graph_version)).
 :- use_module(api(annotation)).
-:- use_module(library(instance_search)).
 
 /***************************************************
 * http handlers

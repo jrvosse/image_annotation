@@ -1,2 +1,3 @@
-config(image_annotation, link).
-config(load_rma_example, link).
+config(image_annotation,    link).
+config(load_rma_example,    link).
+config(enable_autocomplete, link).

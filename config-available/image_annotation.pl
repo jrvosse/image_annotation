@@ -8,8 +8,6 @@
 % hack namespace
 :- rdf_register_ns(oac, 'http://www.openannotation.org/ns/').
 :- rdf_register_ns(an, 'http://semanticweb.cs.vu.nl/annotate/').
-:- rdf_register_ns(gv, 'http://semanticweb.cs.vu.nl/graph/version/').
-:- rdf_register_ns(prov, 'http://www.w3.org/ns/prov-o/').
+% :- rdf_register_ns(prov, 'http://www.w3.org/ns/prov-o/').
 
-:- use_module(library(skos_schema)).
 :- use_module(applications(annotation)).
