@@ -1,7 +1,4 @@
-:- module(annotation,
-	[annotation_in_field/5,
-	 json_annotation_list/3]).
-
+:- module(annotation, []).
 
 % semweb
 :- use_module(library('semweb/rdf_db')).
@@ -21,7 +18,6 @@
 :- use_module(components(label)).
 :- use_module(library(settings)).
 :- use_module(user(user_db)).
-:- use_module(library(graph_version)).
 :- use_module(api(annotation)).
 
 /***************************************************
@@ -37,9 +33,6 @@
 
 :- setting(min_query_length, integer, 3,
 	   'Minimum number of characters that must be entered before a query event will be fired. A value of 0 allows empty queries; a negative value will effectively disable all query events and turn AutoComplete off. ').
-:- setting(user_restrict, boolean, false,
-	   'When set to true only own annotations are shown.').
-
 
 /***************************************************
 * http replies
@@ -228,43 +221,4 @@ js_annotation_field(FieldURI, Target) -->
 
 
 
-		 /*******************************
-		 *               Utils		*
-		 *******************************/
 
-annotation_body(literal(L), literal(L)) :- !.
-annotation_body(uri(URI), URI).
-
-
-%%	json_annotation_list(+TargetURI, +FieldURI, -Annotations)
-%
-%	Annotation is a list with annotations represented in prolog JSON
-%	notation.
-
-json_annotation_list(Target, FieldURI, JSON) :-
-	findall(annotation(A, Body, L),
-		annotation_in_field(Target, FieldURI, A, Body, L),
-		Annotations),
-	prolog_to_json(Annotations, JSON).
-
-annotation_in_field(Target, FieldURI, Annotation, Body, Label) :-
-	gv_resource_head(Target, Commit),
-	gv_resource_graph(Commit, Graph),
-	(   setting(user_restrict, true)
-	->  logged_on(User, anonymous)
-	;   true
-	),
-	rdf(Annotation, oac:hasTarget, Target, Graph),
-	rdf(Annotation, an:annotationField, FieldURI, Graph),
-	rdf(Annotation, dcterms:creator, User, Graph),
-	rdf(Annotation, oac:hasBody, Body0, Graph),
-	rdf(Annotation, dcterms:title, Lit, Graph),
-	annotation_body(Body, Body0),
-	literal_text(Lit, Label).
-
-:- json_object
-	annotation(annotation:atom, body:_, label:atom),
-	uri(value:uri) + [type=uri],
-	literal(lang:atom, value:_) + [type=literal],
-	literal(type:atom, value:_) + [type=literal],
-	literal(value:_) + [type=literal].
