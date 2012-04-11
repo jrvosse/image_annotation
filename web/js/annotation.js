@@ -102,8 +102,8 @@ YUI.add('annotation', function(Y) {
 				active = e.newVal,
 				body = '';
 			if(active) {	
-				var scope = active.getData().result.raw.info.scopeNotes[0],
-					defin = active.getData().result.raw.info.definitions[0];
+				var scope = active.getData().result.raw.info.scopeNotes[0].en,
+					defin = active.getData().result.raw.info.definitions[0].en;
 				if (scope) { body += "<div class='scope'>"+scope+"</div>"; } 
 				if (defin) { body += "<div class='defin'>"+defin+"</div>"; }
 			}
