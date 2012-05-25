@@ -1,18 +1,18 @@
 :- module(annotation, []).
 
 % semweb
-:- use_module(library('semweb/rdf_db')).
-:- use_module(library('semweb/rdf_label')).
+:- use_module(library(semweb/rdf_db)).
+:- use_module(library(semweb/rdf_label)).
 :- use_module(library(yui3_beta)).
 
 % http libraries
-:- use_module(library('http/http_dispatch')).
-:- use_module(library('http/http_parameters')).
-:- use_module(library('http/html_write')).
-:- use_module(library('http/html_head')).
-:- use_module(library('http/http_path')).
-:- use_module(components(label)).
+:- use_module(library(http/http_dispatch)).
+:- use_module(library(http/http_parameters)).
+:- use_module(library(http/html_write)).
+:- use_module(library(http/html_head)).
+:- use_module(library(http/http_path)).
 :- use_module(library(settings)).
+:- use_module(components(label)).
 :- use_module(user(user_db)).
 :- use_module(api(annotation)).
 
@@ -114,7 +114,7 @@ html_resource_image(URI) -->
 	{ image(URI, Image)
 	}, !,
 	html(a(href(Image),
-		img([ style('max-width:400px'),
+	img([ style('max-width:400px; max-height:570px'),
 		      src(Image)
 		    ])
 	      )).
@@ -123,6 +123,8 @@ html_resource_image(_) --> !.
 % hack
 image(R, Image) :-
 	rdf_has(Image, 'http://www.vraweb.org/vracore/vracore3#relation.depicts', R).
+image(R, Image) :-
+	rdf_has(R, 'http://purl.org/collections/nl/rma/schema#imageURL', Image).
 
 
 %%	html_annotation_fields(+FieldURIs)
