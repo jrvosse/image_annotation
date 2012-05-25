@@ -2,7 +2,6 @@
 
 % semweb
 :- use_module(library('semweb/rdf_db')).
-:- use_module(library('semweb/rdfs')).
 :- use_module(library('semweb/rdf_label')).
 :- use_module(library(yui3_beta)).
 
@@ -12,9 +11,6 @@
 :- use_module(library('http/html_write')).
 :- use_module(library('http/html_head')).
 :- use_module(library('http/http_path')).
-:- use_module(library(http/json)).
-:- use_module(library('http/http_json')).
-:- use_module(library(http/json_convert)).
 :- use_module(components(label)).
 :- use_module(library(settings)).
 :- use_module(user(user_db)).
