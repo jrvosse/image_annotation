@@ -27,14 +27,14 @@
 	:source "/api/autocomplete?q={query}&filter={\"reachable\":\"http://www.w3.org/2004/02/skos/core%23broader\",\"uri\":\"http://purl.org/vocabularies/getty/aat/visual_works_by_subject_type\"}" .
 
 :TaxonConceptSpeciesCommonNameAnnotation
-	rdfs:label "Which species"@en ;
+	rdfs:label "Species"@en ;
 	rdfs:label "Soortnaam"@nl ;
 	dc:comment "add common name of the species"@en ;
 	dc:comment "voeg de in Nederland gebruikelijke naame van soort toe"@nl ;
 	:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"}" .
 
 :TaxonConceptGenusNameAnnotation
-	rdfs:label "Which genus (when species not known)"@en ;
+	rdfs:label "Genus (when species not known)"@en ;
 	rdfs:label "Geslacht (indien soort niet bekend)"@nl ;
 	dc:comment "add genus name of the species"@en ;
 	dc:comment "voeg de in Nederland gebruikelijke geslachtsnaam toe wanneer u de soortnaam niet weet"@nl ;

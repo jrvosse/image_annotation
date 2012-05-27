@@ -212,7 +212,10 @@ js_annotation_field(FieldURI, Target) -->
 	  http_location_by_id(http_remove_annotation, Remove),
 	  rdf_global_id(_:Id, FieldURI),
 	  setting(min_query_length, MinQueryLength),
-	  rdf(FieldURI, an:source, literal(Source)),
+	  (   rdf(FieldURI, an:source, literal(Source))
+	  ->  true
+	  ;   Source=null
+	  ),
 	  json_annotation_list(Target, FieldURI, Tags)
 	},
 	yui3_plug(one(id(Id)),
