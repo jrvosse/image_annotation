@@ -75,3 +75,12 @@ body {
 	width: 200px;
 	z-index: 1;
 }
+
+.yui3-overlay .altLabel {
+	color: grey;
+	font-size: 0.8em;
+	padding-right: 0.5em;
+}
+.yui3-overlay .altLabel:after {
+	content: ";"
+}

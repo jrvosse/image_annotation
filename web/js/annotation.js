@@ -104,8 +104,12 @@ YUI.add('annotation', function(Y) {
 			if(active) {
 				var scope = active.getData().result.raw.info.scopeNotes[0];
 				var defin = active.getData().result.raw.info.definitions[0];
+				var alts =  active.getData().result.raw.info.altLabels;
 				if (scope && scope.en) { body += "<div class='scope'>"+scope.en+"</div>"; }
 				if (defin && defin.en) { body += "<div class='defin'>"+defin.en+"</div>"; }
+				for (var i=0; i<alts.length; i++) {
+					body += "<span class='altLabel'>" +alts[i] + "</span>" ;
+				}
 			}
 			if(body) {
 				infoNode.set("bodyContent", body);
