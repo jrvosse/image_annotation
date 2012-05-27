@@ -31,7 +31,7 @@
 	rdfs:label "Soortnaam"@nl ;
 	dc:comment "add common name of the species"@en ;
 	dc:comment "voeg de in Nederland gebruikelijke naame van soort toe"@nl ;
-	:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"}" .
+	:source "/api/autocomplete?q={query}&filter=[{\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"},{\"prop\":\"http://lod.taxonconcept.org/ontology/txn.owl%23inDBpediaClade\",\"uri\":\"http://dbpedia.org/ontology/FloweringPlant\"}]" .
 
 :TaxonConceptGenusNameAnnotation
 	rdfs:label "Genus (when species not known)"@en ;
