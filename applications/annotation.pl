@@ -104,7 +104,7 @@ html_resource(URI, Title) -->
 		 ])).
 
 html_resource_description(URI) -->
-	{ rdf_has(URI, dc:comment, Desc),
+	{ rdf_has(URI, dcterms:comment, Desc),
 	  literal_text(Desc, Txt)
 	},
 	html(Txt).
@@ -147,10 +147,22 @@ html_annotation_field(URI) -->
 		     \html_annotation_field_desc(URI)
 		   ]),
 	       input([id(Id), type(text)])
+	     ]),
+	!.
+
+html_annotation_field(URI) -->
+	{ rdf_global_id(_:Id, URI)
+	},
+	html([ div(class('annotate-header undefined'),
+		   [ h3([Id, ' undefined field']),
+		     \html_annotation_field_desc(URI)
+		   ]),
+	       input([id(Id), type(text)])
 	     ]).
 
+
 html_annotation_field_desc(URI) -->
-	{ rdf(URI, dc:comment, D),
+	{ rdf(URI, dcterms:comment, D),
 	  literal_text(D, Desc)
 	},
 	!,
