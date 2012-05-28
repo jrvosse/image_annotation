@@ -105,7 +105,14 @@ html_resource(URI, Title) -->
 
 html_resource_description(URI) -->
 	{ rdf_has(URI, dcterms:comment, Desc),
-	  literal_text(Desc, Txt)
+	  literal_text(Desc, Txt),
+	  !
+	},
+	html(Txt).
+html_resource_description(URI) -->
+	{ rdf_has(URI, dcterms:description, Desc),
+	  literal_text(Desc, Txt),
+	  !
 	},
 	html(Txt).
 html_resource_description(_) --> !.
