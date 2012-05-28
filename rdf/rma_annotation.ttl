@@ -26,12 +26,19 @@
 	dc:comment "voeg type van het subject toe"@nl ;
 	:source "/api/autocomplete?q={query}&filter={\"reachable\":\"http://www.w3.org/2004/02/skos/core%23broader\",\"uri\":\"http://purl.org/vocabularies/getty/aat/visual_works_by_subject_type\"}" .
 
+:ColorAnnotation
+	rdfs:label "Color"@en ;
+	rdfs:label "Kleur"@nl ;
+	dc:comment "add color of the subject"@en ;
+	dc:comment "voeg kleur van het subject toe"@nl ;
+	:source "/api/autocomplete?q={query}&filter={\"reachable\":\"http://www.w3.org/2004/02/skos/core%23broader\",\"uri\":\"http://purl.org/vocabularies/cornetto/synset-kleur-1-noun\"}" .
+
 :TaxonConceptSpeciesCommonNameAnnotation
 	rdfs:label "Species"@en ;
 	rdfs:label "Soortnaam"@nl ;
 	dc:comment "add common name of the species"@en ;
 	dc:comment "voeg de in Nederland gebruikelijke naame van soort toe"@nl ;
-	:source "/api/autocomplete?q={query}&filter=[{\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"},{\"prop\":\"http://lod.taxonconcept.org/ontology/txn.owl%23inDBpediaClade\",\"uri\":\"http://dbpedia.org/ontology/FloweringPlant\"}]" .
+	:source "/api/autocomplete?q={query}&filter=[{\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"},{\"prop\":\"http://lod.taxonconcept.org/ontology/txn.owl%23inDBpediaClade\",\"uri\":\"http://dbpedia.org/ontology/FloweringPlant\"}]&labelrank=['http://lod.taxonconcept.org/ontology/txn.owl%23commonName'-0, 'http://lod.taxonconcept.org/ontology/txn.owl%23scientificName'-0.2]" .
 
 :TaxonConceptGenusNameAnnotation
 	rdfs:label "Genus (when species not known)"@en ;
