@@ -1,3 +1,4 @@
 config(image_annotation,    link).
 config(load_rma_example,    link).
 config(enable_autocomplete, link).
+config(ann_preferences, link).
