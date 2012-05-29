@@ -41,8 +41,8 @@
 	:source "/api/autocomplete?q={query}&filter=[{\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"},{\"prop\":\"http://lod.taxonconcept.org/ontology/txn.owl%23inDBpediaClade\",\"uri\":\"http://dbpedia.org/ontology/FloweringPlant\"}]&labelrank=['http://lod.taxonconcept.org/ontology/txn.owl%23commonName'-0, 'http://lod.taxonconcept.org/ontology/txn.owl%23scientificName'-0.2]" .
 
 :TaxonConceptGenusNameAnnotation
-	rdfs:label "Genus (when species not known)"@en ;
-	rdfs:label "Geslacht (indien soort niet bekend)"@nl ;
+	rdfs:label "Genus"@en ;
+	rdfs:label "Geslacht"@nl ;
 	dc:comment "add genus name of the species"@en ;
 	dc:comment "voeg de in Nederland gebruikelijke geslachtsnaam toe wanneer u de soortnaam niet weet"@nl ;
 	:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"}" .
@@ -50,4 +50,11 @@
 :LocationAnnotation
 	rdfs:label "Binnen/buiten"@nl ;
 	rdfs:label "Indoors/outdoors"@en ;
+	:source ( "indoors"@en "outdoors"@en ) ;
 	:source ( "binnen"@nl "buiten"@nl ) .
+
+:MoodAnnotation
+	rdfs:label "Emotionele associaties"@nl ;
+	rdfs:label "Associated emotions"@en ;
+	:source ( "opgewekt"@nl "verdrietig"@nl "blij"@nl "jaloers"@nl "verliefd"@nl) ;
+	:source ( "upbeat"@en "down"@en "happy"@en "jalous"@en "in love"@en) .
