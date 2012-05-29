@@ -14,7 +14,11 @@
 :- use_module(library(settings)).
 :- use_module(components(label)).
 :- use_module(user(user_db)).
+:- use_module(user(preferences)).
 :- use_module(api(annotation)).
+
+:- rdf_meta
+	rdf_has_lang(r,r,-).
 
 /***************************************************
 * http handlers
@@ -104,14 +108,12 @@ html_resource(URI, Title) -->
 		 ])).
 
 html_resource_description(URI) -->
-	{ rdf_has(URI, dcterms:comment, Desc),
-	  literal_text(Desc, Txt),
+	{ rdf_has_lang(URI, dcterms:comment, Txt),
 	  !
 	},
 	html(Txt).
 html_resource_description(URI) -->
-	{ rdf_has(URI, dcterms:description, Desc),
-	  literal_text(Desc, Txt),
+	{ rdf_has_lang(URI, dcterms:description, Txt),
 	  !
 	},
 	html(Txt).
@@ -146,8 +148,7 @@ html_annotation_fields([URI|T]) -->
 
 html_annotation_field(URI) -->
 	{ rdf_global_id(_:Id, URI),
-	  rdf_label(URI, L),
-	  literal_text(L, Label)
+	  rdf_display_label(URI, Label)
 	},
 	html([ div(class('annotate-header'),
 		   [ h3(Label),
@@ -169,8 +170,7 @@ html_annotation_field(URI) -->
 
 
 html_annotation_field_desc(URI) -->
-	{ rdf(URI, dcterms:comment, D),
-	  literal_text(D, Desc)
+	{ rdf_has_lang(URI, dcterms:comment, Desc)
 	},
 	!,
 	html(div([class('annotate-description')], Desc)).
@@ -240,5 +240,11 @@ js_annotation_field(FieldURI, Target) -->
 		   resultHighlighter: phraseMatch}).
 
 
-
-
+rdf_has_lang(Subject, Predicate, Text) :-
+	user_preference(user:lang, literal(Lang)),
+	(   rdf_has(Subject, Predicate, literal(lang(Lang, Text)))
+	->  true
+	;   rdf_has(Subject, Predicate, literal(lang(en, Text)))
+	->  true
+	;   rdf_has(Subject, Predicate, literal(Text))
+	).
