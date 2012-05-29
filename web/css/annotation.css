@@ -7,14 +7,14 @@ body {
 
 /* layout */
 #layout {
-	width: 980px;
+	width: 90%
 	height: 600px;
 	margin: 0 auto;
 	padding: 10px;
 	background-color: #FFF;
 }
 #fields {
-	width: 220px;
+	width: 33%;
 	height: 580px;
 	padding: 10px;
 	margin-right: 10px;
@@ -28,34 +28,42 @@ body {
 .annotate-field {
 	margin-bottom: 15px;
 }
+.annotate-header {
+	clear: both;
+	float: left;
+	width: 48%;
+}
+
 .annotate-header h3 {
-	margin: 0 0 2px;
+	margin: 0 0 5px;
 }
 .annotate-description {
+	width: 200%;
 	color: #666;
 	margin: 0 0 4px;
 	font-style: italic;
 }
 .annotate-field .yui3-aclist-input {
-	width: 214px;
+	float: right;
+	width: 48%;
 	font-size: 16px;
-	padding: 2px 2px;
+	margin: 2px 2px;
 	border: 1px solid #AAA;
 }
 
-/* taglist */
 .taglist {
+	float: right;
+	clear: right;
 	margin: 0;
 	padding: 0;
 }
 .taglist li {
-	width: 220px;
 	list-style: none;
-	padding: 0;
 	margin: 5px 0;
 	overflow: auto;
 }
 .taglist .label {
+	margin: 0 5px;
 	float: left;
 }
 .taglist .remove {
@@ -70,14 +78,14 @@ body {
 .yui3-overlay {
 	padding: 10px;
 	background-color: white;
-	border: solid grey 1pt;
+	border: solid gray 1pt;
 	position: absolute;
 	width: 200px;
 	z-index: 1;
 }
 
 .yui3-overlay .altLabel {
-	color: grey;
+	color: gray;
 	font-size: 0.8em;
 	padding-right: 0.5em;
 }
