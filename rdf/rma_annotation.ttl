@@ -46,3 +46,8 @@
 	dc:comment "add genus name of the species"@en ;
 	dc:comment "voeg de in Nederland gebruikelijke geslachtsnaam toe wanneer u de soortnaam niet weet"@nl ;
 	:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"}" .
+
+:LocationAnnotation
+	rdfs:label "Binnen/buiten"@nl ;
+	rdfs:label "Indoors/outdoors"@en ;
+	:source ( "binnen"@nl "buiten"@nl ) .

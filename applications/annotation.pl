@@ -1,7 +1,9 @@
 :- module(annotation, []).
 
 % semweb
+
 :- use_module(library(semweb/rdf_db)).
+:- use_module(library(semweb/rdfs)).
 :- use_module(library(semweb/rdf_label)).
 :- use_module(library(yui3_beta)).
 
@@ -11,6 +13,7 @@
 :- use_module(library(http/html_write)).
 :- use_module(library(http/html_head)).
 :- use_module(library(http/http_path)).
+:- use_module(library(http/json_convert)).
 :- use_module(library(settings)).
 :- use_module(components(label)).
 :- use_module(user(user_db)).
@@ -197,7 +200,7 @@ js_module('annotation', json([fullpath(Path),
 %%	js_annotation_fields(+FieldURIs, +AnnotationTarget)
 %
 %	Write JavaScript to init annotation fields
-
+%
 js_annotation_fields([], _) --> !.
 js_annotation_fields([URI|T], Target) -->
 	js_annotation_field(URI, Target),
@@ -207,26 +210,49 @@ js_annotation_field(FieldURI, Target) -->
 	{ http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
 	  rdf_global_id(_:Id, FieldURI),
+	  user_preference(user:lang, literal(Lang)),
 	  setting(min_query_length, MinQueryLength),
-	  (   rdf(FieldURI, an:source, literal(Source))
-	  ->  true
-	  ;   Source=null
-	  ),
-	  json_annotation_list(Target, FieldURI, Tags)
+	  json_annotation_list(Target, FieldURI, Tags),
+	  (   rdf_has_lang(FieldURI, an:source, Source)
+	  ->  Config = {
+			target:Target,
+			field:FieldURI,
+			source:Source,
+			store: { add:Add,
+				 remove:Remove
+			       },
+			tags:Tags,
+			minQueryLength:MinQueryLength,
+			resultListLocator: results,
+			resultTextLocator: label,
+			resultHighlighter: phraseMatch}
+	  ;   rdf_has(FieldURI, an:source, RdfList),
+	      rdfs_member(literal(lang(Lang, _)), RdfList),
+	      rdfs_list_to_prolog_list(RdfList, LiteralList),
+	      maplist(literal_text, LiteralList, TextList),
+	      prolog_to_json(TextList, Source)
+	  ->  Config = {
+			target:Target,
+			field:FieldURI,
+			source:Source,
+			store: { add:Add,
+				 remove:Remove
+			       },
+			tags:Tags
+		       }
+	  ;   Config = {
+			target:Target,
+			field:FieldURI,
+			store: { add:Add,
+				 remove:Remove
+			       },
+			tags:Tags
+		       }
+	  )
 	},
-	yui3_plug(one(id(Id)),
-		  'Y.Plugin.Annotation',
-		  {target:Target,
-		   field:FieldURI,
-		   source:Source,
-		   store:{add:Add,
-			  remove:Remove
-			 },
-		   tags:Tags,
-		   minQueryLength:MinQueryLength,
-		   resultListLocator: results,
-		   resultTextLocator: label,
-		   resultHighlighter: phraseMatch}).
+	yui3_plug(one(id(Id)), 'Y.Plugin.Annotation', Config).
+
+
 
 
 rdf_has_lang(Subject, Predicate, Text) :-
@@ -237,3 +263,4 @@ rdf_has_lang(Subject, Predicate, Text) :-
 	->  true
 	;   rdf_has(Subject, Predicate, literal(Text))
 	).
+
