@@ -101,7 +101,8 @@ YUI.add('annotation', function(Y) {
 			var infoNode = this.infoNode,
 				active = e.newVal,
 				body = '';
-			if(active) {
+			if(active && active.getData().result.raw.info) {
+				Y.log(active.getData());
 				var scope = active.getData().result.raw.info.scopeNotes[0];
 				var defin = active.getData().result.raw.info.definitions[0];
 				var alts =  active.getData().result.raw.info.altLabels;
@@ -121,10 +122,12 @@ YUI.add('annotation', function(Y) {
 			}
 		},
 		_onItemSelect : function(e) {
-			var item = e.details[0].result.raw,
-				uri = item.uri,
-				label = item.label;
-			this.submitAnnotation({type:"uri", value:uri}, label);
+			var item = e.details[0].result.raw;
+			if (item.uri && item.label) {
+			  this.submitAnnotation({type:"uri", value:item.uri}, item.label);
+			} else {
+			  this.submitAnnotation({type:"literal", value: item}, item);
+			}
 		},
 		_onTextSubmit : function(e) {
 			if(!this.get("activeItem")) {
