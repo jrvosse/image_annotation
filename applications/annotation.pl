@@ -158,17 +158,6 @@ html_annotation_field(URI) -->
 	     ]),
 	!.
 
-html_annotation_field(URI) -->
-	{ rdf_global_id(_:Id, URI)
-	},
-	html([ div(class('annotate-header undefined'),
-		   [ h3([Id, ' undefined field']),
-		     \html_annotation_field_desc(URI)
-		   ]),
-	       input([id(Id), type(text)])
-	     ]).
-
-
 html_annotation_field_desc(URI) -->
 	{ rdf_has_lang(URI, dcterms:comment, Desc)
 	},
