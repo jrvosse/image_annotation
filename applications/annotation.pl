@@ -185,7 +185,7 @@ yui_script(Target, Fields) -->
 
 js_module('annotation', json([fullpath(Path),
 				    requires(['recordset-base',
-					      autocomplete,
+					      autocomplete, 'event-key',
 					      'autocomplete-highlighters',
 					      overlay,
 					      'io','json',
