@@ -150,8 +150,11 @@ html_annotation_fields([URI|T]) -->
 	html_annotation_fields(T).
 
 html_annotation_field(URI) -->
-	{ rdf_global_id(_:Id, URI),
-	  rdf_display_label(URI, Label)
+	{ rdf_display_label(URI, Label),
+	  (   rdf_global_id(_:Id, URI)
+	  ->  true
+	  ;   Id = URI
+	  )
 	},
 	html([ div(class('annotate-header'),
 		   [ h3(Label),
@@ -209,7 +212,7 @@ js_annotation_fields([URI|T], Target) -->
 js_annotation_field(FieldURI, Target) -->
 	{ http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
-	  rdf_global_id(_:Id, FieldURI),
+	  (   rdf_global_id(_:Id, FieldURI) -> true; Id = FieldURI),
 	  user_preference(user:lang, literal(Lang)),
 	  setting(min_query_length, MinQueryLength),
 	  json_annotation_list(Target, FieldURI, Tags),
