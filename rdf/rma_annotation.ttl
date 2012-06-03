@@ -5,19 +5,33 @@
 @prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
 
 
-:LocationAnnotation
-	rdfs:label "Binnen/buiten"@nl ;
+:NicheAccurator a :AnnotationUI ;
+        dc:title "Niche Accurator"@en;
+	:fields (
+	     :TaxonConceptSpeciesCommonNameAnnotation
+	     :TaxonConceptGenusNameAnnotation
+	     :QuantityAnnotation
+	     :ColorAnnotation
+	     :StateAnnotation
+	     :LocationAnnotation
+	     :RealOrNotAnnotation
+	     :MoodAnnotation
+	     :AestheticsAnnotation
+	 ) .
+
+:LocationAnnotation a :Field ;
+        rdfs:label "Binnen/buiten"@nl ;
 	rdfs:label "Indoors/outdoors"@en ;
 	:source ( "indoors"@en "outdoors"@en ) ;
 	:source ( "binnen"@nl "buiten"@nl ) .
 
-:AestheticsAnnotation
+:AestheticsAnnotation a :Field ;
 	rdfs:label "Aesthetiek"@nl ;
 	rdfs:label "Aesthetics"@en ;
 	:source ( "beautiful"@en "ugly"@en ) ;
 	:source ( "mooi"@nl "lelijk"@nl ) .
 
-:MoodAnnotation
+:MoodAnnotation  a :Field ;
 	rdfs:label "Emotionele associaties"@nl ;
 	rdfs:label "Associated emotions"@en ;
 	:source ( "opgewekt"@nl "verdrietig"@nl "blij"@nl "jaloers"@nl "verliefd"@nl) ;
@@ -67,6 +81,8 @@
 	dc:comment "add genus name of the species"@en ;
 	dc:comment "voeg de in Nederland gebruikelijke geslachtsnaam toe wanneer u de soortnaam niet weet"@nl ;
 	:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"}" .
+
+
 :PersonAnnotation
     a :AnnotationField ;
 	rdfs:label "Who"@en ;

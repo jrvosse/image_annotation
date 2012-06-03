@@ -51,16 +51,27 @@ http_annotation(Request) :-
 		     [uri,
 		      description('URI of the object to be annotated')
 		     ]),
-		  field(Fields,
-			[zero_or_more,
-			 description('URI of annotation field')
+		  ui(UI,
+		     [ uri,
+		       optional(true),
+		       description('URI of the UI configuration')
+		     ]),
+		  field(ExtraFields,
+			[list(uri),
+			 description('URI of annotation field, overriding UI defs')
 			])
 		]),
 	(   setting(annotation_api:login, true)
         ->  authorized(write(_,_))
         ;   true
         ),
+	get_ui_fields(UI, UIfields),
+	append(UIfields, ExtraFields, Fields),
 	html_page(Target, Fields).
+
+get_ui_fields(URI, Fields) :-
+	rdf_has(URI, an:fields, RdfList),
+	rdfs_list_to_prolog_list(RdfList, Fields).
 
 /***************************************************
 * annotation page
