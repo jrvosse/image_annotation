@@ -37,6 +37,8 @@
 :- setting(min_query_length, integer, 3,
 	   'Minimum number of characters that must be entered before a query event will be fired. A value of 0 allows empty queries; a negative value will effectively disable all query events and turn AutoComplete off. ').
 
+:- setting(default_target, uri, 'http://purl.org/collections/nl/rma/collection/r-163836', 'Default target object to annotate if none given').
+
 /***************************************************
 * http replies
 ***************************************************/
@@ -46,14 +48,16 @@
 %	Generate page to add and annotate a resource.
 
 http_annotation(Request) :-
+	setting(default_target, DefaultTarget),
 	http_parameters(Request,
 		[ target(Target,
 		     [uri,
+		      default(DefaultTarget),
 		      description('URI of the object to be annotated')
 		     ]),
 		  ui(UI,
 		     [ uri,
-		       optional(true),
+		       default(''),
 		       description('URI of the UI configuration')
 		     ]),
 		  field(ExtraFields,
@@ -65,13 +69,21 @@ http_annotation(Request) :-
         ->  authorized(write(_,_))
         ;   true
         ),
-	get_ui_fields(UI, UIfields),
-	append(UIfields, ExtraFields, Fields),
-	html_page(Target, Fields).
+	get_ui_fields(UI, ExtraFields, Title, Fields),
+	html_page(Target, Title, Fields).
 
-get_ui_fields(URI, Fields) :-
+get_ui_fields('', [], Title, Fields) :-
+	rdfs_individual_of(URI, an:'AnnotationUI'),
+	get_ui_fields(URI, [], Title, Fields).
+get_ui_fields('', Fields, 'Annotate', Fields) :-
+	Fields = [_|_],
+	!.
+get_ui_fields(URI, ExtraFields, Title, Fields) :-
 	rdf_has(URI, an:fields, RdfList),
-	rdfs_list_to_prolog_list(RdfList, Fields).
+	rdf_display_label(URI, Title),
+	rdfs_list_to_prolog_list(RdfList, Fields),
+	append(Fields, ExtraFields, Fields).
+
 
 /***************************************************
 * annotation page
@@ -81,10 +93,10 @@ get_ui_fields(URI, Fields) :-
 %
 %	HTML page
 
-html_page(Target, Fields) :-
-	rdf_display_label(Target, Title),
+html_page(Target, Title, Fields) :-
+	rdf_display_label(Target, TargetLabel),
 	reply_html_page(
-	    [ title(['Annotate -- ', Title])
+	    [ title([Title, ': ', TargetLabel])
 	    ],
 	    [ \html_requires(yui3('cssgrids/grids-min.css')),
 	      \html_requires(css('annotation.css')),
@@ -95,7 +107,7 @@ html_page(Target, Fields) :-
 			    [ div([id(fields), class('yui3-u')],
 				  \html_annotation_fields(Fields)),
 			      div([id(media), class('yui3-u')],
-				  \html_resource(Target, Title))
+				  \html_resource(Target, TargetLabel))
 			    ])
 		       ),
 		    div(id(ft), [])
