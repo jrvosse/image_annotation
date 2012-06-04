@@ -233,17 +233,23 @@ js_annotation_fields([URI|T], Target) -->
 	js_annotation_fields(T, Target).
 
 js_annotation_field(FieldURI, Target) -->
-	{ http_location_by_id(http_add_annotation, Add),
+	{
+	  (   rdf_global_id(_:Id, FieldURI)
+	  ->  true
+	  ;   Id = FieldURI
+	  ),
+	  http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
-	  (   rdf_global_id(_:Id, FieldURI) -> true; Id = FieldURI),
 	  user_preference(user:lang, literal(Lang)),
 	  setting(min_query_length, MinQueryLength),
+	  setting(http:prefix, Prefix),
 	  json_annotation_list(Target, FieldURI, Tags),
 	  (   rdf_has_lang(FieldURI, an:source, Source)
-	  ->  Config = {
+	  ->  atomic_concat(Prefix, Source, PrefixedSource),
+	      Config = {
 			target:Target,
 			field:FieldURI,
-			source:Source,
+			source:PrefixedSource,
 			store: { add:Add,
 				 remove:Remove
 			       },
