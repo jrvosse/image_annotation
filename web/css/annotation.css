@@ -38,7 +38,7 @@ body {
 	margin: 0 0 5px;
 }
 .annotate-description {
-	width: 200%;
+	width: 140%;
 	color: #666;
 	margin: 0 0 4px;
 	font-style: italic;
@@ -52,6 +52,7 @@ body {
 }
 
 .taglist {
+	width: 30%;
 	float: right;
 	clear: right;
 	margin: 0;
