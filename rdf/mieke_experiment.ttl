@@ -10,7 +10,7 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 :miekeExp1 a :AnnotationUI ;
         dc:title "Tagging Experiment"@en;
         dc:title "Tag Experiment"@nl;
-	:xmetadata (       # which metadata field types to show (only image)
+	:metadata (       # which metadata field types to show (only image)
 		  :imageURL
 		  ) ;
 	:fields (        # which annotation fields to show (one)
