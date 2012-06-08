@@ -1,0 +1,17 @@
+@prefix :       <http://semanticweb.cs.vu.nl/annotate/> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:	<http://purl.org/dc/terms/> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+
+
+:miekeExp1 a :AnnotationUI ;
+        dc:title "Tagging Experiment"@en;
+	:fields (
+		:blanco
+	 ) .
+
+:blanco a :Field ;
+     rdfs:label "Tag:"@nl ;
+	rdfs:label "Tag"@en ;
+	:comment :enabled .

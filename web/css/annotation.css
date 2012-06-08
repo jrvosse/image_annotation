@@ -17,11 +17,11 @@ body {
 	width: 33%;
 	height: 580px;
 	padding: 10px;
-	margin-right: 10px;
+	margin-right: 1%;
 	background-color: #EEE;
 }
 #media {
-	width: 730px;
+	width: 64%;
 }
 
 /* annotation field */
