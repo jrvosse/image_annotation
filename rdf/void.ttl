@@ -1,0 +1,17 @@
+@prefix      void: <http://rdfs.org/ns/void#> .
+@prefix      vann: <http://purl.org/vocab/vann/> .
+@prefix       lib: <http://www.swi-prolog.org/rdf/library/> .
+@prefix       owl: <http://www.w3.org/2002/07/owl#> .
+@prefix   dcterms: <http://purl.org/dc/terms/> .
+
+<annotation-ui-sealinc>
+	a void:Dataset ;
+	dcterms:title "Annotation UI configuration for the sealinc accurator demo";
+	void:dataDump
+		<rma_annotation.ttl> .
+
+<annotation-ui-mieke-tag-exp1>
+	a void:Dataset ;
+	dcterms:title "Annotation UI configuration for mieke's tag experiment";
+	void:dataDump
+		<mieke_experiment.ttl> .
