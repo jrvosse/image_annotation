@@ -79,10 +79,15 @@ get_ui_fields('', Fields, 'Annotate', Fields) :-
 	Fields = [_|_],
 	!.
 get_ui_fields(URI, ExtraFields, Title, Fields) :-
-	rdf_has(URI, an:fields, RdfList),
-	rdf_display_label(URI, Title),
-	rdfs_list_to_prolog_list(RdfList, Fields),
-	append(Fields, ExtraFields, Fields).
+	(   rdf_has(URI, an:fields, RdfList)
+	->  rdf_display_label(URI, Title),
+	    rdfs_list_to_prolog_list(RdfList, Fields),
+	    append(Fields, ExtraFields, Fields)
+	;   Title = 'Undefined UI configuration: ~p'-[URI],
+	    Fields=[]
+	).
+
+
 
 
 /***************************************************
