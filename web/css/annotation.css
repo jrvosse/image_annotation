@@ -24,6 +24,13 @@ body {
 	width: 64%;
 }
 
+#media .title .metalabel { display: none }
+#media .description .metalabel { display: none }
+#media .title .metavalue { 
+	font-size: 1.3em;
+	font-weight: bold;
+}
+
 /* annotation field */
 .annotate-field {
 	margin-bottom: 15px;

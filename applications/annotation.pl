@@ -39,6 +39,13 @@
 
 :- setting(default_target, uri, 'http://purl.org/collections/nl/rma/collection/r-163836', 'Default target object to annotate if none given').
 
+:- setting(default_metadata, list(uri),
+	   [ 'http://purl.org/dc/terms/title',
+	     'http://semanticweb.cs.vu.nl/annotate/imageURL',
+	     'http://semanticweb.cs.vu.nl/annotate/url',
+	     'http://purl.org/dc/terms/description'
+	   ], 'Default metadata fields to show').
+
 /***************************************************
 * http replies
 ***************************************************/
@@ -62,43 +69,69 @@ http_annotation(Request) :-
 		     ]),
 		  field(ExtraFields,
 			[list(uri),
-			 description('URI of annotation field, overriding UI defs')
-			])
+			 description('URIs of annotation field, adding to UI defs')
+			]),
+		  metadata(MetaFields,
+			   [list(uri),
+			    description('URIs of metadata properties to display')
+			   ])
 		]),
 	(   setting(annotation_api:login, true)
         ->  authorized(write(_,_))
         ;   true
         ),
-	get_ui_fields(UI, ExtraFields, Title, Fields),
-	html_page(Target, Title, Fields).
+	get_anfields(UI, ExtraFields, Title, AnnotationFields),
+	get_metafields(UI, MetaFields, MetadataFields),
+	Options = [
+		   target(Target),
+		   title(Title),
+		   annotation_fields(AnnotationFields),
+		   metadata_fields(MetadataFields)
+		  ],
+	html_page(Options).
 
-get_ui_fields('', [], Title, Fields) :-
+get_anfields('', [], Title, Fields) :-
 	rdfs_individual_of(URI, an:'AnnotationUI'),
-	get_ui_fields(URI, [], Title, Fields).
-get_ui_fields('', Fields, 'Annotate', Fields) :-
+	get_anfields(URI, [], Title, Fields).
+get_anfields('', Fields, 'Annotate', Fields) :-
 	Fields = [_|_],
 	!.
-get_ui_fields(URI, ExtraFields, Title, Fields) :-
+get_anfields(URI, ExtraFields, Title, Fields) :-
 	(   rdf_has(URI, an:fields, RdfList)
 	->  rdf_display_label(URI, Title),
-	    rdfs_list_to_prolog_list(RdfList, Fields),
-	    append(Fields, ExtraFields, Fields)
+	    rdfs_list_to_prolog_list(RdfList, UiFields),
+	    append(UiFields, ExtraFields, Fields)
 	;   Title = 'Undefined UI configuration: ~p'-[URI],
-	    Fields=[]
+	    Fields=ExtraFields
 	).
 
 
+get_metafields('', [], Fields) :-
+	rdfs_individual_of(URI, an:'AnnotationUI'),
+	get_metafields(URI, [], Fields).
+get_metafields('', ExtraFields, ExtraFields) :-
+	ExtraFields = [_|_],
+	!.
+get_metafields(URI, ExtraFields, Fields) :-
+	(   rdf_has(URI, an:metadata, RdfList)
+	->  rdfs_list_to_prolog_list(RdfList, Fields)
 
+	;   setting(default_metadata, UiFields)
+	),
+	append(UiFields, ExtraFields, Fields).
 
 /***************************************************
 * annotation page
 ***************************************************/
 
-%%	html_page(+Target, +Fields)
+%%	html_page(Options)
 %
 %	HTML page
 
-html_page(Target, Title, Fields) :-
+html_page(Options) :-
+	option(target(Target), Options, notarget),
+	option(title(Title), Options, 'Annotation'),
+	option(annotation_fields(AnFields), Options, []),
 	rdf_display_label(Target, TargetLabel),
 	reply_html_page(
 	    [ title([Title, ': ', TargetLabel])
@@ -110,45 +143,64 @@ html_page(Target, Title, Fields) :-
 		    div(id(bd),
 			div([id(layout), class('yui3-g')],
 			    [ div([id(fields), class('yui3-u')],
-				  \html_annotation_fields(Fields)),
+				  \html_annotation_fields(AnFields)),
 			      div([id(media), class('yui3-u')],
-				  \html_resource(Target, TargetLabel))
+				  \html_resource(Target, Options))
 			    ])
 		       ),
 		    div(id(ft), [])
 		  ]),
 	      script(type('text/javascript'),
-		     \yui_script(Target, Fields))
+		     \yui_script(Target, AnFields))
 	    ]).
 
 
 
-%%	html_resource(+URI, Title)
+%%	html_resource(+URI, Options)
 %
 %
 %	Title image and description of the resource being annotated.
 
-html_resource(URI, Title) -->
-	html(div(class('resource'),
-		 [ div(class(title), h3(Title)),
-		   div(class(image), \html_resource_image(URI)),
-		   div(class(link), \rdf_link(URI)),
-		   div(class('description'),
-		       \html_resource_description(URI)
-		      )
-		 ])).
+html_resource(URI, Options) -->
+	{
+	 option(metadata_fields(Fields), Options)
+	},
+	html(div(class('resource'), [ \html_metadata_fields(URI, Fields)])).
 
-html_resource_description(URI) -->
-	{ rdf_has_lang(URI, dcterms:comment, Txt),
-	  !
+html_metadata_fields(_URI, []) --> !.
+html_metadata_fields(URI, [Field|Tail]) -->
+	html_metadata_field(URI, Field),
+	html_metadata_fields(URI, Tail).
+
+html_metadata_field(URI, Field) -->
+	{
+	 rdfs_subproperty_of(Field, an:imageURL)
 	},
-	html(Txt).
-html_resource_description(URI) -->
-	{ rdf_has_lang(URI, dcterms:description, Txt),
-	  !
+	html_resource_image(URI).
+
+html_metadata_field(URI, Field) -->
+	{
+	 rdfs_subproperty_of(Field, an:url)
 	},
-	html(Txt).
-html_resource_description(_) --> !.
+	html(div(class(link), \rdf_link(URI))).
+
+html_metadata_field(URI, Field) -->
+	{
+	 rdf_has(URI, Field, Object),
+	 rdf_display_label(Field, Label),
+	 rdf_display_label(Object, Value),
+	 rdf_global_id(_:Class, Field)
+	},
+	html(
+	    div([class(Class)],
+		[span(class(metalabel), Label),
+		 span(class(metavalue), Value)
+		]
+	       )
+	    ).
+
+html_metadata_field(_,_) --> !.
+
 
 html_resource_image(URI) -->
 	{ image(URI, Image)
@@ -161,6 +213,9 @@ html_resource_image(URI) -->
 html_resource_image(_) --> !.
 
 % hack
+image(R, Image) :-
+	rdf_has(R, an:imageURL, Image).
+
 image(R, Image) :-
 	rdf_has(Image, 'http://www.vraweb.org/vracore/vracore3#relation.depicts', R).
 image(R, Image) :-
