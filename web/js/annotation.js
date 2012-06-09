@@ -8,6 +8,9 @@ YUI.add('annotation', function(Y) {
 	Annotation.NAME = "aclist"; // use same name as Y.Plugin.AutoComplete to inherit css
 	Annotation.NS = "annotation";
 	Annotation.ATTRS = {
+		commentNode: {
+			value: null
+		},
 		target: {
 			value: null
 		},
@@ -46,8 +49,15 @@ YUI.add('annotation', function(Y) {
 			this.on("hoveredItemChange", this._onHover, this);
 			this.on("select", this._onItemSelect, this);
 			Y.delegate("click", this._onTagRemoveClick, this.tagList, 'li .remove', this);
-			Y.on("key", this._onTextSubmit, inputNode, 'down:13', this);
+			inputNode.on("key", this._onTextSubmit, 'enter', this);
 			this.tags = tags;
+
+			var commentNode = this.get('commentNode');
+			if (commentNode.value) {
+			  commentNode = Y.one('#'+commentNode);
+			  this.set('commentNode', commentNode);
+			  commentNode.on("key", this._onTextSubmit, 'enter', this);
+			}
 		},
 
 		_renderTags : function(tags, index) {
@@ -70,13 +80,17 @@ YUI.add('annotation', function(Y) {
 		},
 
 		formatTag : function(tag) {
-			var label = tag.getValue("label"),
-				body = tag.getValue("body");
+			var label = tag.getValue("label");
+			var body = tag.getValue("body");
+			var comment = tag.getValue("comment");
 			html = '<div class="label">';
 			if(body.type=="uri") {
 				html += '<a href="'+body.value+'">'+label+'</a>';
 			} else {
 				html += label
+			}
+			if (comment && comment != "") {
+			  html += ' (' + comment +')';
 			}
 			html += '</div><div class="remove"><a href="javascript:{}">x</a></div>';
 			return html;
@@ -123,23 +137,32 @@ YUI.add('annotation', function(Y) {
 		},
 		_onItemSelect : function(e) {
 			var item = e.details[0].result.raw;
+			var comm = this.getcomment();
 			if (item.uri && item.label) {
-			  this.submitAnnotation({type:"uri", value:item.uri}, item.label);
+			  this.submitAnnotation({type:"uri", value:item.uri}, item.label, comm);
 			} else {
-			  this.submitAnnotation({type:"literal", value: item}, item);
+			  this.submitAnnotation({type:"literal", value: item}, item, comm);
 			}
 		},
 		_onTextSubmit : function(e) {
 			if(!this.get("activeItem")) {
 				var value = this.get("inputNode").get("value");
-				this.submitAnnotation({type:"literal", value:value}, value);
+				var comm = this.getcomment();
+				this.submitAnnotation({type:"literal", value:value}, value, comm);
 			}
 		},
 
-		submitAnnotation : function(body, label) {
+		getcomment: function() {
+			      var commentNode = this.get("commentNode");
+			      if (commentNode.value == null) return "";
+			      return commentNode.get("value");
+		},
+
+		submitAnnotation : function(body, label, comment) {
 			Y.log('add tag: '+body.value+' with label: '+label);
 
 			var inputNode = this.get("inputNode"),
+			    commentNode   = this.get("commentNode"),
 				tags = this.tags;
 
 			Y.io(this.get("store.add"), {
@@ -147,13 +170,15 @@ YUI.add('annotation', function(Y) {
 					target:this.get("target"),
 					field:this.get("field"),
 					body:Y.JSON.stringify(body),
-					label:label
+					label:label,
+					comment: comment
 				},
 				on:{success: function(e,o) {
 					var r = Y.JSON.parse(o.responseText);
-					tags.add({body:body, label:label, annotation:r.annotation});
+					tags.add({body:body, label:label, annotation:r.annotation, comment:comment});
 					inputNode.set("value", "");
-					}
+					if (commentNode.value) commentNode.set("value", "");
+				    }
 				}
 			});
 		}

@@ -232,18 +232,45 @@ html_annotation_fields([URI|T]) -->
 		 \html_annotation_field(URI))),
 	html_annotation_fields(T).
 
+comment_node_id(URI, NodeId) :-
+	rdf(URI, an:comment, an:enabled),
+	!,
+	(   rdf_global_id(_:Id, URI)
+	->  true
+	;   Id = URI
+	),
+	atomic_concat(Id, '_comment', NodeId).
+
+comment_node_id(_, null).
+
 html_annotation_field(URI) -->
 	{ rdf_display_label(URI, Label),
 	  (   rdf_global_id(_:Id, URI)
 	  ->  true
 	  ;   Id = URI
+	  ),
+	  comment_node_id(URI, Cid),
+	  (   Cid \= null
+	  ->  (rdf_has_lang(URI, an:commentLabel, CommentLabel)
+	      ->  true
+	      ;	  CommentLabel='Why? (optional)'
+	      ),
+	      Comment = div(class('annotate-comment'),
+			[
+			 h3(CommentLabel),
+			 textarea(
+			     [id(Cid),class('annotate-comment-input')],
+			     [])
+			])
+	  ;   Comment = ''
 	  )
 	},
 	html([ div(class('annotate-header'),
 		   [ h3(Label),
 		     \html_annotation_field_desc(URI)
 		   ]),
-	       input([id(Id), type(text)])
+	       input([id(Id), type(text)]),
+	       Comment
 	     ]),
 	!.
 
@@ -298,6 +325,7 @@ js_annotation_field(FieldURI, Target) -->
 	  ->  true
 	  ;   Id = FieldURI
 	  ),
+	  comment_node_id(FieldURI, CommentNode),
 	  http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
 	  user_preference(user:lang, literal(Lang)),
@@ -314,6 +342,7 @@ js_annotation_field(FieldURI, Target) -->
 				 remove:Remove
 			       },
 			tags:Tags,
+			commentNode: CommentNode,
 			minQueryLength:MinQueryLength,
 			resultListLocator: results,
 			resultTextLocator: label,
@@ -327,6 +356,7 @@ js_annotation_field(FieldURI, Target) -->
 			target:Target,
 			field:FieldURI,
 			source:Source,
+			commentNode: CommentNode,
 			store: { add:Add,
 				 remove:Remove
 			       },
@@ -335,6 +365,7 @@ js_annotation_field(FieldURI, Target) -->
 	  ;   Config = {
 			target:Target,
 			field:FieldURI,
+			commentNode: CommentNode,
 			store: { add:Add,
 				 remove:Remove
 			       },
