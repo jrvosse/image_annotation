@@ -57,13 +57,14 @@ body {
 	width: 100%;
 	color: #666;
 	margin: 0 0 .5px;
+	font-size: 0.8em;
 	font-style: italic;
 }
 .annotate-field input.yui3-aclist-input {
 	float: right;
 	width: 48%;
 	font-size: 1.3em;
-	margin: .5% .5%;
+	margin-top: 3%;
 	padding: 0%;
 	border: 2px solid #AAA;
 }
