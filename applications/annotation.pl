@@ -18,7 +18,6 @@
 :- use_module(components(label)).
 :- use_module(user(user_db)).
 :- use_module(user(preferences)).
-:- use_module(api(annotation)).
 
 :- rdf_meta
 	rdf_has_lang(r,r,-).
@@ -321,7 +320,7 @@ js_annotation_fields([URI|T], Target) -->
 	js_annotation_fields(T, Target).
 
 js_annotation_field(FieldURI, Target) -->
-	{
+	 {
 	  (   rdf_global_id(_:Id, FieldURI)
 	  ->  true
 	  ;   Id = FieldURI
@@ -329,10 +328,10 @@ js_annotation_field(FieldURI, Target) -->
 	  comment_node_id(FieldURI, CommentNode),
 	  http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
+	  http_location_by_id(http_get_annotation, Get),
 	  user_preference(user:lang, literal(Lang)),
 	  setting(min_query_length, MinQueryLength),
 	  setting(http:prefix, Prefix),
-	  json_annotation_list(Target, FieldURI, Tags),
 	  (   rdf_has_lang(FieldURI, an:source, Source)
 	  ->  atomic_concat(Prefix, Source, PrefixedSource),
 	      Config = {
@@ -340,9 +339,9 @@ js_annotation_field(FieldURI, Target) -->
 			field:FieldURI,
 			source:PrefixedSource,
 			store: { add:Add,
+				 get:Get,
 				 remove:Remove
 			       },
-			tags:Tags,
 			commentNode: CommentNode,
 			minQueryLength:MinQueryLength,
 			resultListLocator: results,
@@ -359,18 +358,18 @@ js_annotation_field(FieldURI, Target) -->
 			source:Source,
 			commentNode: CommentNode,
 			store: { add:Add,
+				 get:Get,
 				 remove:Remove
-			       },
-			tags:Tags
+			       }
 		       }
 	  ;   Config = {
 			target:Target,
 			field:FieldURI,
 			commentNode: CommentNode,
 			store: { add:Add,
+				 get:Get,
 				 remove:Remove
-			       },
-			tags:Tags
+			       }
 		       }
 	  )
 	},

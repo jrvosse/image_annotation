@@ -36,7 +36,7 @@ body {
 	height: 100%;
 	border-bottom: 1px solid #CCC;
 }
-.annotate-field .endoffield {  /* hack to fix height calculation of div.annotate field */
+.annotate-field .endoffield {  /* hack to fix height calculation of div.annotate-field */
 		     visibility: hidden;
 		     height: 1px;
 			    }

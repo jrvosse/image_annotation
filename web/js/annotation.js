@@ -35,8 +35,12 @@ YUI.add('annotation', function(Y) {
 
 		initializer: function(args) {
 			var inputNode = args.inputNode,
-				parentNode = this.DEF_PARENT_NODE,
-				tags = new Y.Recordset({records:this.get("tags")});
+				parentNode = this.DEF_PARENT_NODE;
+
+			var tags = new Y.Recordset({records:{}}); // this.get("tags")});
+			tags.on("add", this._addTags, this);
+			tags.on("remove", this._removeTags, this);
+			this.tags = tags;
 
 			var endNode = parentNode.one('.endoffield');
 			this.tagList = Node.create(Annotation.LIST_TEMPLATE);
@@ -44,15 +48,13 @@ YUI.add('annotation', function(Y) {
 			this.infoNode = new Y.Overlay({
 			}).render(parentNode);
 
-			this._renderTags(tags._items, 0); // how to get the items nicely?
-			tags.on("add", this._addTags, this);
-			tags.on("remove", this._removeTags, this);
+
+			// this._renderTags(tags._items, 0); // how to get the items nicely?
 			this.on("activeItemChange", this._onHover, this);
 			this.on("hoveredItemChange", this._onHover, this);
 			this.on("select", this._onItemSelect, this);
 			Y.delegate("click", this._onTagRemoveClick, this.tagList, 'li .remove', this);
 			inputNode.on("key", this._onTextSubmit, 'enter', this);
-			this.tags = tags;
 
 			var commentNode = this.get('commentNode');
 			if (commentNode) {
@@ -62,6 +64,7 @@ YUI.add('annotation', function(Y) {
 			} else {
 			  Y.log('no commentNode for field ' + this.get('field'));
 			}
+			this.getTags();
 		},
 
 		_renderTags : function(tags, index) {
@@ -115,6 +118,27 @@ YUI.add('annotation', function(Y) {
 				}
 			});
 		},
+		getTags : function() {
+			    var target = this.get('target'),
+				 field = this.get('field');
+			    var oSelf = this;
+			    Y.io(this.get("store.get"),
+				 { data: {
+					 target: target,
+					 field:  field
+					 },
+				   on: {
+				       success: function(e,o) {
+						  var r = Y.JSON.parse(o.responseText);
+						  if (r && r[field] && r[field].annotations) {
+						    var data =  r[field].annotations;
+						    oSelf.tags.add(data);
+						  }
+						}
+				       }
+				 }
+				);
+			  },
 		_onHover : function(e) {
 			var infoNode = this.infoNode,
 				active = e.newVal,
