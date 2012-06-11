@@ -20,7 +20,8 @@
 :- use_module(user(preferences)).
 
 :- rdf_meta
-	rdf_has_lang(r,r,-).
+	rdf_has_lang(r,r,-),
+	rdf_has_lang(r,r,+,-).
 
 /***************************************************
 * http handlers
@@ -227,8 +228,8 @@ image(R, Image) :-
 
 html_annotation_fields([]) --> !.
 html_annotation_fields([URI|T]) -->
-	html(div(class('annotate-field'),
-		 \html_annotation_field(URI))),
+	html(
+		 \html_annotation_field(URI)),
 	html_annotation_fields(T).
 
 comment_node_id(URI, NodeId) :-
@@ -248,6 +249,7 @@ html_annotation_field(URI) -->
 	  ->  true
 	  ;   Id = URI
 	  ),
+	  rdf_has_lang(URI, dcterms:comment, '',  FieldDescription),
 	  comment_node_id(URI, Cid),
 	  (   Cid \= @null
 	  ->  (rdf_has_lang(URI, an:commentLabel, CommentLabel)
@@ -264,23 +266,15 @@ html_annotation_field(URI) -->
 	  ;   Comment = ''
 	  )
 	},
-	html([ div(class('annotate-header'),
-		   [ h3(Label),
-		     \html_annotation_field_desc(URI)
-		   ]),
-	       input([id(Id), type(text)]),
-	       Comment,
-	       div([class('endoffield'),style('clear:both')],[end_of_field])
-	     ]),
+	html(div([class('annotate-field'), alt(FieldDescription)],
+		 [ div(class('annotate-header'),
+		       [ h3(Label),
+			 div([class('annotate-description')], FieldDescription)
+		       ]),
+		   input([id(Id), type(text)]),
+		   Comment
+		 ])),
 	!.
-
-html_annotation_field_desc(URI) -->
-	{ rdf_has_lang(URI, dcterms:comment, Desc)
-	},
-	!,
-	html(div([class('annotate-description')], Desc)).
-html_annotation_field_desc(_URI) --> !.
-
 
 
 		 /*******************************
@@ -302,6 +296,7 @@ yui_script(Target, Fields) -->
 js_module('annotation', json([fullpath(Path),
 				    requires(['recordset-base',
 					      autocomplete, 'event-key',
+					      'event-mouseenter',
 					      'autocomplete-highlighters',
 					      overlay,
 					      'io','json',
@@ -377,6 +372,11 @@ js_annotation_field(FieldURI, Target) -->
 
 
 
+rdf_has_lang(Subject, Predicate, Default, Text) :-
+	(   rdf_has_lang(Subject, Predicate, Text)
+	->  true
+	;   Text = Default
+	).
 
 rdf_has_lang(Subject, Predicate, Text) :-
 	user_preference(user:lang, literal(Lang)),

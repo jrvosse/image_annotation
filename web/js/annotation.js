@@ -42,9 +42,8 @@ YUI.add('annotation', function(Y) {
 			tags.on("remove", this._removeTags, this);
 			this.tags = tags;
 
-			var endNode = parentNode.one('.endoffield');
 			this.tagList = Node.create(Annotation.LIST_TEMPLATE);
-			parentNode.insert(this.tagList, endNode);
+			parentNode.append(this.tagList);
 			this.infoNode = new Y.Overlay({
 			}).render(parentNode);
 
