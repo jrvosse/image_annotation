@@ -31,11 +31,17 @@ body {
 
 /* annotation field */
 .annotate-field {
-	margin-bottom: 3%;
+	background-color: auto;
+	padding: 1% 0% 1% 0%;
+	height: 100%;
+	border-bottom: 1px solid #CCC;
 }
+.annotate-field .endoffield {  /* hack to fix height calculation of div.annotate field */
+		     visibility: hidden;
+		     height: 1px;
+			    }
 .annotate-header {
 	clear: both;
-	float: left;
 	width: 48%;
 }
 
@@ -51,9 +57,11 @@ body {
 		 }
 
 .annotate-header h3 {
+	float: left;
 	margin: 0 0 1%;
 }
 .annotate-description {
+	float: left; clear:left;
 	width: 100%;
 	color: #666;
 	margin: 0 0 .5px;
@@ -64,8 +72,8 @@ body {
 	float: right;
 	width: 48%;
 	font-size: 1.3em;
-	margin-top: 3%;
 	padding: 0%;
+        margin: .5% .5%;
 	border: 2px solid #AAA;
 }
 

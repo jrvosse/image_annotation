@@ -38,7 +38,9 @@ YUI.add('annotation', function(Y) {
 				parentNode = this.DEF_PARENT_NODE,
 				tags = new Y.Recordset({records:this.get("tags")});
 
-			this.tagList = parentNode.appendChild(Node.create(Annotation.LIST_TEMPLATE));
+			var endNode = parentNode.one('.endoffield');
+			this.tagList = Node.create(Annotation.LIST_TEMPLATE);
+			parentNode.insert(this.tagList, endNode);
 			this.infoNode = new Y.Overlay({
 			}).render(parentNode);
 
@@ -53,10 +55,12 @@ YUI.add('annotation', function(Y) {
 			this.tags = tags;
 
 			var commentNode = this.get('commentNode');
-			if (commentNode.value) {
+			if (commentNode) {
 			  commentNode = Y.one('#'+commentNode);
 			  this.set('commentNode', commentNode);
 			  commentNode.on("key", this._onTextSubmit, 'enter', this);
+			} else {
+			  Y.log('no commentNode for field ' + this.get('field'));
 			}
 		},
 
@@ -153,17 +157,19 @@ YUI.add('annotation', function(Y) {
 		},
 
 		getcomment: function() {
+			      Y.log('getcomment');
 			      var commentNode = this.get("commentNode");
-			      if (commentNode.value == null) return "";
+			      Y.log(commentNode);
+			      if (!commentNode) return "";
 			      return commentNode.get("value");
 		},
 
 		submitAnnotation : function(body, label, comment) {
-			Y.log('add tag: '+body.value+' with label: '+label);
+			Y.log('add tag: '+body.value+' with label: '+label+ ', comment: ' + comment);
 
-			var inputNode = this.get("inputNode"),
-			    commentNode   = this.get("commentNode"),
-				tags = this.tags;
+			var inputNode = this.get("inputNode");
+			var commentNode   = this.get("commentNode");
+			var tags = this.tags;
 
 			Y.io(this.get("store.add"), {
 				data:{
@@ -177,7 +183,7 @@ YUI.add('annotation', function(Y) {
 					var r = Y.JSON.parse(o.responseText);
 					tags.add({body:body, label:label, annotation:r.annotation, comment:comment});
 					inputNode.set("value", "");
-					if (commentNode.value) commentNode.set("value", "");
+					if (commentNode) commentNode.set("value", "");
 				    }
 				}
 			});

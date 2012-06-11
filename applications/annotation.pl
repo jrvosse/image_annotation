@@ -241,7 +241,7 @@ comment_node_id(URI, NodeId) :-
 	),
 	atomic_concat(Id, '_comment', NodeId).
 
-comment_node_id(_, null).
+comment_node_id(_, @null).
 
 html_annotation_field(URI) -->
 	{ rdf_display_label(URI, Label),
@@ -250,7 +250,7 @@ html_annotation_field(URI) -->
 	  ;   Id = URI
 	  ),
 	  comment_node_id(URI, Cid),
-	  (   Cid \= null
+	  (   Cid \= @null
 	  ->  (rdf_has_lang(URI, an:commentLabel, CommentLabel)
 	      ->  true
 	      ;	  CommentLabel='Why? (optional)'
@@ -270,7 +270,8 @@ html_annotation_field(URI) -->
 		     \html_annotation_field_desc(URI)
 		   ]),
 	       input([id(Id), type(text)]),
-	       Comment
+	       Comment,
+	       div([class('endoffield'),style('clear:both')],[end_of_field])
 	     ]),
 	!.
 
