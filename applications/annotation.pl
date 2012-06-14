@@ -19,6 +19,8 @@
 :- use_module(user(user_db)).
 :- use_module(user(preferences)).
 
+:- use_module(api(annotation)). % needed for http api handlers
+
 :- rdf_meta
 	rdf_has_lang(r,r,-),
 	rdf_has_lang(r,r,+,-).
