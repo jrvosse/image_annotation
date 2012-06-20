@@ -19,7 +19,9 @@
 :- use_module(user(user_db)).
 :- use_module(user(preferences)).
 
+
 :- use_module(api(annotation)). % needed for http api handlers
+:- use_module(media_caching).	% needed for http api handlers
 
 :- rdf_meta
 	rdf_has_lang(r,r,-),
@@ -205,11 +207,12 @@ html_metadata_field(_,_) --> !.
 
 
 html_resource_image(URI) -->
-	{ image(URI, Image)
+	{ image(URI, Image),
+	  http_link_to_id(http_original, [uri(Image)], Href)
 	}, !,
-	html(a(href(Image),
+	html(a([href(Href), target('_blank')],
 	img([ style('max-width:400px; max-height:570px'),
-		      src(Image)
+		      src(Href)
 		    ])
 	      )).
 html_resource_image(_) --> !.
