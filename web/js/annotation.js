@@ -37,7 +37,7 @@ YUI.add('annotation', function(Y) {
 			var inputNode = args.inputNode,
 				parentNode = this.DEF_PARENT_NODE;
 
-			var tags = new Y.Recordset({records:{}}); // this.get("tags")});
+			var tags = new Y.Recordset({records:{}});
 			tags.on("add", this._addTags, this);
 			tags.on("remove", this._removeTags, this);
 			this.tags = tags;
@@ -48,7 +48,6 @@ YUI.add('annotation', function(Y) {
 			}).render(parentNode);
 
 
-			// this._renderTags(tags._items, 0); // how to get the items nicely?
 			this.on("activeItemChange", this._onHover, this);
 			this.on("hoveredItemChange", this._onHover, this);
 			this.on("select", this._onItemSelect, this);
@@ -87,12 +86,10 @@ YUI.add('annotation', function(Y) {
 			var label = tag.getValue("label");
 			var body = tag.getValue("body");
 			var comment = tag.getValue("comment");
+			var link = tag.getValue("display_link");
 			html = '<div class="label">';
-			if(body.type=="uri") {
-				html += '<a href="'+body.value+'">'+label+'</a>';
-			} else {
-				html += label
-			}
+			html += '<a href="'+link+'">'+label+'</a>';
+
 			if (comment && comment != "") {
 			  html += ' (' + comment +')';
 			}

@@ -22,5 +22,10 @@ http_original(Request) :-
         debug(url_cache, 'Original for ~w (~w)', [URI,MimeType]),
         throw(http_reply(file(MimeType, File))).
 
+%%	map_uri(+URIin, -URIout) is det.
+%
+%	Hook to map media URIs to different URIs to work around known
+%	problems (e.g. images that are known to be wrong).
+%
 map_uri(U,U).
 
