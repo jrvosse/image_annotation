@@ -59,7 +59,7 @@ YUI.add('annotation', function(Y) {
 			  commentNode = Y.one('#'+commentNode);
 			  this.set('commentNode', commentNode);
 			  commentNode.on("key", this._onTextSubmit, 'enter', this);
-			} 
+			}
 			this.getTags();
 		},
 
@@ -199,7 +199,7 @@ YUI.add('annotation', function(Y) {
 				},
 				on:{success: function(e,o) {
 					var r = Y.JSON.parse(o.responseText);
-					tags.add({body:body, label:label, annotation:r.annotation, comment:comment});
+					tags.add({body:body, label:label, annotation:r.annotation, comment:comment, display_link:r.display_link});
 					inputNode.set("value", "");
 					if (commentNode) commentNode.set("value", "");
 				    }
