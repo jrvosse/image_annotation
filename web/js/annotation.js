@@ -60,9 +60,7 @@ YUI.add('annotation', function(Y) {
 			  commentNode = Y.one('#'+commentNode);
 			  this.set('commentNode', commentNode);
 			  commentNode.on("key", this._onTextSubmit, 'enter', this);
-			} else {
-			  Y.log('no commentNode for field ' + this.get('field'));
-			}
+			} 
 			this.getTags();
 		},
 
