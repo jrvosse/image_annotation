@@ -5,7 +5,7 @@
 :- use_module(library(semweb/rdf_db)).
 :- use_module(library(semweb/rdfs)).
 :- use_module(library(semweb/rdf_label)).
-:- use_module(library(yui3_beta)).
+
 
 % http libraries
 :- use_module(library(http/http_dispatch)).
@@ -14,11 +14,13 @@
 :- use_module(library(http/html_head)).
 :- use_module(library(http/http_path)).
 :- use_module(library(http/json_convert)).
+:- use_module(library(http/url_cache)).
+
+:- use_module(library(yui3_beta)).
 :- use_module(library(settings)).
 :- use_module(components(label)).
 :- use_module(user(user_db)).
 :- use_module(user(preferences)).
-
 
 :- use_module(api(annotation)). % needed for http api handlers
 :- use_module(media_caching).	% needed for http api handlers
@@ -223,9 +225,10 @@ image(R, Image) :-
 
 image(R, Image) :-
 	rdf_has(Image, 'http://www.vraweb.org/vracore/vracore3#relation.depicts', R).
-image(R, Image) :-
-	rdf_has(R, 'http://purl.org/collections/nl/rma/schema#imageURL', Image).
 
+image(R,R) :-
+	url_cache(R, _, MimeType),
+	sub_atom(MimeType, 0, 5, _, 'image'),!.
 
 %%	html_annotation_fields(+FieldURIs)
 %
