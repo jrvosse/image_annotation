@@ -1,4 +1,8 @@
-:- module(annotation, []).
+:- module(annotation,
+	  [ annotation_page/1,
+	    get_anfields/4,
+	    get_metafields/3
+	  ]).
 
 % semweb
 
@@ -94,7 +98,7 @@ http_annotation(Request) :-
 		   annotation_fields(AnnotationFields),
 		   metadata_fields(MetadataFields)
 		  ],
-	html_page(Options).
+	annotation_page(Options).
 
 get_anfields('', [], Title, Fields) :-
 	rdfs_individual_of(URI, an:'AnnotationUI'),
@@ -130,14 +134,15 @@ get_metafields(URI, ExtraFields, Fields) :-
 * annotation page
 ***************************************************/
 
-%%	html_page(Options)
+%%	annotation_page(Options)
 %
 %	HTML page
 
-html_page(Options) :-
+annotation_page(Options) :-
 	option(target(Target), Options, notarget),
 	option(title(Title), Options, 'Annotation'),
 	option(annotation_fields(AnFields), Options, []),
+
 	rdf_display_label(Target, TargetLabel),
 	reply_html_page(
 	    [ title([Title, ': ', TargetLabel])
@@ -154,13 +159,23 @@ html_page(Options) :-
 				  \html_resource(Target, Options))
 			    ])
 		       ),
-		    div(id(ft), [])
+		    div(id(ft), [\debug_footer(Options)])
 		  ]),
 	      script(type('text/javascript'),
 		     \yui_script(Target, AnFields))
 	    ]).
 
+debug_footer(_Options) -->
+	{ debugging(annotation, false) }, !.
 
+debug_footer(Options) -->
+	{
+	 debugging(annotation),
+	 option(target(Target), Options, notarget),
+	 logged_on(User, anonymous),
+	 (   user_property(User, done(Done)) -> true; Done = ?)
+	},
+	html(['~w (~w): ~p'-[User, Done, Target] ]).
 
 %%	html_resource(+URI, Options)
 %
