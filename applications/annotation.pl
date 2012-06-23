@@ -28,6 +28,7 @@
 
 :- use_module(api(annotation)). % needed for http api handlers
 :- use_module(media_caching).	% needed for http api handlers
+:- use_module(dashboard).
 
 :- rdf_meta
 	rdf_has_lang(r,r,-),
