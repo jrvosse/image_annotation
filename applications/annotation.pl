@@ -142,7 +142,8 @@ annotation_page(Options) :-
 	option(target(Target), Options, notarget),
 	option(title(Title), Options, 'Annotation'),
 	option(annotation_fields(AnFields), Options, []),
-
+	option(buttons(Buttons), Options, []),
+	option(footer(Footer), Options, []),
 	rdf_display_label(Target, TargetLabel),
 	reply_html_page(
 	    [ title([Title, ': ', TargetLabel])
@@ -154,28 +155,18 @@ annotation_page(Options) :-
 		    div(id(bd),
 			div([id(layout), class('yui3-g')],
 			    [ div([id(fields), class('yui3-u')],
-				  \html_annotation_fields(AnFields)),
+				  [ \html_annotation_fields(AnFields),
+				    div([id(anbuttons)], Buttons)
+				  ]),
 			      div([id(media), class('yui3-u')],
 				  \html_resource(Target, Options))
 			    ])
 		       ),
-		    div(id(ft), [\debug_footer(Options)])
+		    div(id(ft), Footer)
 		  ]),
 	      script(type('text/javascript'),
 		     \yui_script(Target, AnFields))
 	    ]).
-
-debug_footer(_Options) -->
-	{ debugging(annotation, false) }, !.
-
-debug_footer(Options) -->
-	{
-	 debugging(annotation),
-	 option(target(Target), Options, notarget),
-	 logged_on(User, anonymous),
-	 (   user_property(User, done(Done)) -> true; Done = ?)
-	},
-	html(['~w (~w): ~p'-[User, Done, Target] ]).
 
 %%	html_resource(+URI, Options)
 %
@@ -409,4 +400,3 @@ rdf_has_lang(Subject, Predicate, Text) :-
 	->  true
 	;   rdf_has(Subject, Predicate, literal(Text))
 	).
-
