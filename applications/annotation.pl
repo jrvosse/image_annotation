@@ -88,7 +88,7 @@ http_annotation(Request) :-
 			   ])
 		]),
 	(   setting(annotation_api:login, true)
-        ->  authorized(write(_,_))
+        ->  authorized(write(default, annotate))
         ;   true
         ),
 	get_anfields(UI, ExtraFields, Title, AnnotationFields),
