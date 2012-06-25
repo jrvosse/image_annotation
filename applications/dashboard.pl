@@ -6,13 +6,15 @@
 :- use_module(library(http/html_write)).
 :- use_module(user(user_db)).
 :- use_module(components(label)).
+:- use_module(cliopatria(hooks)).
 
 :- http_handler(cliopatria(annotate/dashboard/home), http_dashboard_home, []).
 :- http_handler(cliopatria(annotate/dashboard/user), http_dashboard_user, []).
 
 cliopatria:menu_popup_order(accurator, 120).
-cliopatria:menu_item(100=accurator/http_dashboard, 'Dashboard').
-cliopatria:menu_item(110=accutaror/http_annotation, 'Accurator').
+cliopatria:menu_label(accurator,			'Niche Accurator').
+cliopatria:menu_item(100=accurator/http_dashboard_home, 'Dashboard').
+cliopatria:menu_item(110=accurator/http_annotation,     'Denice annotation').
 
 :- multifile
 	show_user_annotations//1.
@@ -20,7 +22,6 @@ cliopatria:menu_item(110=accutaror/http_annotation, 'Accurator').
 http_dashboard_user(Request) :-
 	http_parameters(Request, [user(User, [])]),
 	user_page(User, []).
-
 
 http_dashboard_home(_Request) :-
 	dashboard_page([]).
