@@ -18,7 +18,7 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 		) .
 
 :blanco a :Field ;
-        rdfs:label "Tag:"@nl ;
+        rdfs:label "Voeg woord toe:"@nl ;
 	rdfs:label "Tag:"@en ;
 	:commentLabel "Waarom? (optioneel)"@nl;
 	:commentLabel "Why? (optional)"@en;
