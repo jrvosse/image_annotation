@@ -224,7 +224,11 @@ html_resource_image(URI) -->
 		      src(Href)
 		    ])
 	      )).
-html_resource_image(_) --> !.
+html_resource_image(URI) -->
+	{
+	 resource_link(URI, Link)
+	},
+	html(a([href(Link)], ['No image available for ~p' - URI])).
 
 % hack
 image(R, Image) :-
@@ -234,7 +238,7 @@ image(R, Image) :-
 	rdf_has(Image, 'http://www.vraweb.org/vracore/vracore3#relation.depicts', R).
 
 image(R,R) :-
-	url_cache(R, _, MimeType),
+	catch(url_cache(R, _, MimeType), _, fail),
 	sub_atom(MimeType, 0, 5, _, 'image'),!.
 
 %%	html_annotation_fields(+FieldURIs)
