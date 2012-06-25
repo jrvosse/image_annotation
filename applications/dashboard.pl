@@ -10,7 +10,9 @@
 :- http_handler(cliopatria(annotate/dashboard/home), http_dashboard_home, []).
 :- http_handler(cliopatria(annotate/dashboard/user), http_dashboard_user, []).
 
-cliopatria:menu_item(90=experiment/http_dashboard, 'Dashboard').
+cliopatria:menu_popup_order(accurator, 120).
+cliopatria:menu_item(100=accurator/http_dashboard, 'Dashboard').
+cliopatria:menu_item(110=accutaror/http_annotation, 'Accurator').
 
 :- multifile
 	show_user_annotations//1.
