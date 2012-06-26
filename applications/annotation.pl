@@ -155,12 +155,13 @@ annotation_page(Options) :-
 		  [ div(id(hd), []),
 		    div(id(bd),
 			div([id(layout), class('yui3-g')],
-			    [ div([id(fields), class('yui3-u')],
+			    [ 
+			      div([id(media), class('yui3-u')],
+				  \html_resource(Target, Options)),
+			      div([id(fields), class('yui3-u')],
 				  [ \html_annotation_fields(AnFields),
 				    div([id(anbuttons)], Buttons)
-				  ]),
-			      div([id(media), class('yui3-u')],
-				  \html_resource(Target, Options))
+				  ])
 			    ])
 		       ),
 		    div(id(ft), Footer)
