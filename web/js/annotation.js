@@ -88,7 +88,10 @@ YUI.add('annotation', function(Y) {
 			var comment = tag.getValue("comment");
 			var link = tag.getValue("display_link");
 			html = '<div class="label">';
-			html += '<a href="'+link+'">'+label+'</a>';
+			if (link == '') 
+				html += label;
+			else 
+				html += '<a href="'+link+'">'+label+'</a>';
 
 			if (comment && comment != "") {
 			  html += ' (' + comment +')';
