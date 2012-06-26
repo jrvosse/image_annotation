@@ -34,6 +34,9 @@
 	rdf_has_lang(r,r,-),
 	rdf_has_lang(r,r,+,-).
 
+:- multifile
+	page_header//1.
+
 /***************************************************
 * http handlers
 ***************************************************/
@@ -141,21 +144,18 @@ get_metafields(URI, ExtraFields, Fields) :-
 
 annotation_page(Options) :-
 	option(target(Target), Options, notarget),
-	option(title(Title), Options, 'Annotation'),
 	option(annotation_fields(AnFields), Options, []),
 	option(buttons(Buttons), Options, []),
 	option(footer(Footer), Options, []),
-	rdf_display_label(Target, TargetLabel),
 	reply_html_page(
-	    [ title([Title, ': ', TargetLabel])
-	    ],
+	    [ \annotation_page_header(Options) ],
 	    [ \html_requires(yui3('cssgrids/grids-min.css')),
 	      \html_requires(css('annotation.css')),
 	      div(class('yui3-skin-sam yui-skin-sam'),
 		  [ div(id(hd), []),
 		    div(id(bd),
 			div([id(layout), class('yui3-g')],
-			    [ 
+			    [
 			      div([id(media), class('yui3-u')],
 				  \html_resource(Target, Options)),
 			      div([id(fields), class('yui3-u')],
@@ -169,6 +169,15 @@ annotation_page(Options) :-
 	      script(type('text/javascript'),
 		     \yui_script(Target, AnFields))
 	    ]).
+
+annotation_page_header(Options) --> annotation:page_header(Options).
+annotation_page_header(Options) -->
+	{
+	 option(target(Target), Options, notarget),
+	 option(title(Title), Options, 'Annotation'),
+	 rdf_display_label(Target, TargetLabel)
+	},
+	html(title([Title, ': ', TargetLabel])).
 
 %%	html_resource(+URI, Options)
 %
