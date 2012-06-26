@@ -220,9 +220,7 @@ html_resource_image(URI) -->
 	  http_link_to_id(http_original, [uri(Image)], Href)
 	}, !,
 	html(a([href(Href), target('_blank')],
-	img([ style('max-width:400px; max-height:570px'),
-		      src(Href)
-		    ])
+	       img([src(Href)])
 	      )).
 html_resource_image(URI) -->
 	{
