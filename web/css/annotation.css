@@ -23,6 +23,10 @@ body {
 }
 
 #media .resource { text-align: center }
+#media img { 
+	max-width: 90%; 
+	max-height: 600px; 
+}
 #media .title .metalabel { display: none }
 #media .description .metalabel { display: none }
 #media .title .metavalue {
