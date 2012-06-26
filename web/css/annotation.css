@@ -102,6 +102,7 @@ body {
      font-size: 1.3em;
      margin: .5% .5%;
      border: 2px solid #AAA;
+     padding: 0;
 }
 .taglist {
 	font-size: 0.9em;
