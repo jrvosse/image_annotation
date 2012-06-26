@@ -17,7 +17,7 @@ cliopatria:menu_item(100=accurator/http_dashboard_home, 'Dashboard').
 cliopatria:menu_item(110=accurator/http_annotation,     'Denice annotation').
 
 :- multifile
-	show_user_annotations//1.
+	show_user_annotations//2.
 
 http_dashboard_user(Request) :-
 	http_parameters(Request, [user(User, [])]),
@@ -29,11 +29,11 @@ http_dashboard_home(_Request) :-
 
 user_page(User, _Options) :-
 	findall(Prop, user_property(User, Prop), Props),
-	findall(T-B, annotated_target(User, T, B), Annotations),
+	find_annotations(User, Annotations),
 	reply_html_page([title(User)],
 			[style([],['.an_dashboard_table { text-align: right}']),
 			 table(\show_user_props(Props)),
-			 \show_annotations(Annotations)
+			 \show_annotations(User, Annotations)
 			     ]).
 
 dashboard_page(_Options) :-
@@ -71,24 +71,19 @@ find_users(Users) :-
 participant(User) :-
 	current_user(Uid),
 	user_property(Uid, user_count(_Number)),
-	find_annotated_targets(User, Targets),
-	length(Targets, WorksDone),
+	find_annotations(Uid, Annotations),
+	length(Annotations, Done),
 	User= [
-	       id(Uid), done(WorksDone)
+	       id(Uid), done(Done)
 	      ].
 
 
-find_annotated_targets(User, Targets) :-
-	findall(Target-Body, annotated_target(User, Target, Body), Targets0),
-	sort(Targets0, Targets).
+find_annotations(User, Annotations) :-
+	findall(A, annotation_by_user(User, A), Anns0),
+	sort(Anns0, Annotations).
 
-annotated_target(User, Target, Body) :-
-	rdf(Annotation, oa:hasTarget, Target, Graph),
-	rdf(Annotation, oa:annotator, User, Graph),
-	rdf(Annotation, oa:hasBody,   literal(Body), Graph),
-	rdf(Commit, gv:graph, Graph),
-	\+ rdf(Commit, gv:parent, init).
-
+annotation_by_user(User, Annotation) :-
+	rdf(Annotation, oa:annotator, User).
 
 
 delete_all_annotations :-
@@ -119,21 +114,24 @@ show_user_props([Prop|Tail]) -->
 	html(tr([td(K), td(V)])),
 	show_user_props(Tail).
 
-show_annotations(L) --> show_user_annotations(L),!.
-show_annotations(L) -->
+show_annotations(User, L) --> show_user_annotations(User, L),!.
+show_annotations(User, L) -->
   html(table(
 	   [class(an_dashboard_table)],
 	   [tr([class(an_dashboard_header)],
 	       [th('Target'), th('Tag')]),
-	    \do_show_user_annotations(L)])).
+	    \do_show_user_annotations(User, L)])).
 
-do_show_user_annotations([]) --> !.
-do_show_user_annotations([T-B|Tail]) -->
+do_show_user_annotations(_User, []) --> !.
+do_show_user_annotations(User, [A|Tail]) -->
 	{
 	 rdf(A, oa:hasTarget, T),
 	 rdf(A, oa:hasBody, literal(B)),
 	 http_link_to_id(list_resource, [r(A)], ALink)
 	},
 	html(tr([td(\rdf_link(T)), td(a([href(ALink)],B))])),
-	do_show_user_annotations(Tail).
+	do_show_user_annotations(User, Tail).
+
+
+
 
