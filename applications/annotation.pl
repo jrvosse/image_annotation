@@ -48,7 +48,7 @@
 :- setting(min_query_length, integer, 3,
 	   'Minimum number of characters that must be entered before a query event will be fired. A value of 0 allows empty queries; a negative value will effectively disable all query events and turn AutoComplete off. ').
 
-:- setting(default_target, uri, 'http://purl.org/collections/nl/rma/collection/r-163836', 'Default target object to annotate if none given').
+:- setting(default_target, uri, 'http://www.public-domain-image.com/plants/flowers/slides/chrysanthemum-flower.jpg', 'Default target object to annotate if none given').
 
 :- setting(default_metadata, list(uri),
 	   [ 'http://purl.org/dc/terms/title',
@@ -155,7 +155,7 @@ annotation_page(Options) :-
 		  [ div(id(hd), []),
 		    div(id(bd),
 			div([id(layout), class('yui3-g')],
-			    [ 
+			    [
 			      div([id(media), class('yui3-u')],
 				  \html_resource(Target, Options)),
 			      div([id(fields), class('yui3-u')],
