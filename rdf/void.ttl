@@ -9,9 +9,3 @@
 	dcterms:title "Annotation UI configuration for the sealinc accurator demo";
 	void:dataDump
 		<rma_annotation.ttl> .
-
-<annotation-ui-mieke-tag-exp1>
-	a void:Dataset ;
-	dcterms:title "Annotation UI configuration for mieke's tag experiment";
-	void:dataDump
-		<mieke_experiment.ttl> .
