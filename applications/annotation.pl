@@ -1,11 +1,15 @@
-:- module(annotation, []).
+:- module(annotation,
+	  [ annotation_page/1,
+	    get_anfields/4,
+	    get_metafields/3
+	  ]).
 
 % semweb
 
 :- use_module(library(semweb/rdf_db)).
 :- use_module(library(semweb/rdfs)).
 :- use_module(library(semweb/rdf_label)).
-:- use_module(library(yui3_beta)).
+
 
 % http libraries
 :- use_module(library(http/http_dispatch)).
@@ -14,14 +18,17 @@
 :- use_module(library(http/html_head)).
 :- use_module(library(http/http_path)).
 :- use_module(library(http/json_convert)).
+:- use_module(library(http/url_cache)).
+
+:- use_module(library(yui3_beta)).
 :- use_module(library(settings)).
 :- use_module(components(label)).
 :- use_module(user(user_db)).
 :- use_module(user(preferences)).
 
-
 :- use_module(api(annotation)). % needed for http api handlers
 :- use_module(media_caching).	% needed for http api handlers
+:- use_module(dashboard).
 
 :- rdf_meta
 	rdf_has_lang(r,r,-),
@@ -81,7 +88,7 @@ http_annotation(Request) :-
 			   ])
 		]),
 	(   setting(annotation_api:login, true)
-        ->  authorized(write(_,_))
+        ->  authorized(write(default, annotate))
         ;   true
         ),
 	get_anfields(UI, ExtraFields, Title, AnnotationFields),
@@ -92,7 +99,7 @@ http_annotation(Request) :-
 		   annotation_fields(AnnotationFields),
 		   metadata_fields(MetadataFields)
 		  ],
-	html_page(Options).
+	annotation_page(Options).
 
 get_anfields('', [], Title, Fields) :-
 	rdfs_individual_of(URI, an:'AnnotationUI'),
@@ -128,14 +135,16 @@ get_metafields(URI, ExtraFields, Fields) :-
 * annotation page
 ***************************************************/
 
-%%	html_page(Options)
+%%	annotation_page(Options)
 %
 %	HTML page
 
-html_page(Options) :-
+annotation_page(Options) :-
 	option(target(Target), Options, notarget),
 	option(title(Title), Options, 'Annotation'),
 	option(annotation_fields(AnFields), Options, []),
+	option(buttons(Buttons), Options, []),
+	option(footer(Footer), Options, []),
 	rdf_display_label(Target, TargetLabel),
 	reply_html_page(
 	    [ title([Title, ': ', TargetLabel])
@@ -146,19 +155,20 @@ html_page(Options) :-
 		  [ div(id(hd), []),
 		    div(id(bd),
 			div([id(layout), class('yui3-g')],
-			    [ div([id(fields), class('yui3-u')],
-				  \html_annotation_fields(AnFields)),
+			    [ 
 			      div([id(media), class('yui3-u')],
-				  \html_resource(Target, Options))
+				  \html_resource(Target, Options)),
+			      div([id(fields), class('yui3-u')],
+				  [ \html_annotation_fields(AnFields),
+				    div([id(anbuttons)], Buttons)
+				  ])
 			    ])
 		       ),
-		    div(id(ft), [])
+		    div(id(ft), Footer)
 		  ]),
 	      script(type('text/javascript'),
 		     \yui_script(Target, AnFields))
 	    ]).
-
-
 
 %%	html_resource(+URI, Options)
 %
@@ -211,11 +221,13 @@ html_resource_image(URI) -->
 	  http_link_to_id(http_original, [uri(Image)], Href)
 	}, !,
 	html(a([href(Href), target('_blank')],
-	img([ style('max-width:400px; max-height:570px'),
-		      src(Href)
-		    ])
+	       img([src(Href)])
 	      )).
-html_resource_image(_) --> !.
+html_resource_image(URI) -->
+	{
+	 resource_link(URI, Link)
+	},
+	html(a([href(Link)], ['No image available for ~p' - URI])).
 
 % hack
 image(R, Image) :-
@@ -223,9 +235,10 @@ image(R, Image) :-
 
 image(R, Image) :-
 	rdf_has(Image, 'http://www.vraweb.org/vracore/vracore3#relation.depicts', R).
-image(R, Image) :-
-	rdf_has(R, 'http://purl.org/collections/nl/rma/schema#imageURL', Image).
 
+image(R,R) :-
+	catch(url_cache(R, _, MimeType), _, fail),
+	sub_atom(MimeType, 0, 5, _, 'image'),!.
 
 %%	html_annotation_fields(+FieldURIs)
 %
@@ -391,4 +404,3 @@ rdf_has_lang(Subject, Predicate, Text) :-
 	->  true
 	;   rdf_has(Subject, Predicate, literal(Text))
 	).
-

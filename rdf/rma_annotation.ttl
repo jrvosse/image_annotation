@@ -4,6 +4,9 @@
 @prefix dc:	<http://purl.org/dc/terms/> .
 @prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
 
+@prefix rmaschema: <http://purl.org/collections/nl/rma/schema#> .
+
+rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 
 :NicheAccurator a :AnnotationUI ;
         dc:title "Niche Accurator"@en;
