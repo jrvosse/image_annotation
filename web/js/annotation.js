@@ -105,6 +105,10 @@ YUI.add('annotation', function(Y) {
 				tags = this.tags,
 				record = tags.getRecordByIndex(index),
 				annotation = record.getValue("annotation");
+				// My: Popup asking for a user comment 
+				var delete_comment= prompt("You decided to delete this tag. Why?","Because...");
+
+
 			Y.log('remove annotation '+annotation+' at index: '+index);
 
 			Y.io(this.get("store.remove"), {
