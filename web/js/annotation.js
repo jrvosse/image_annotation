@@ -44,9 +44,15 @@ YUI.add('annotation', function(Y) {
 
 			this.tagList = Node.create(Annotation.LIST_TEMPLATE);
 			parentNode.append(this.tagList);
-			this.infoNode = new Y.Overlay({
-			}).render(parentNode);
-
+			this.infoNode = new Y.Overlay({}).render(parentNode);
+			var overlay = new Y.Overlay({}).render(parentNode);
+			body = "<div h3 class='annotate-comment'>";
+			body += "<h3>Opmerkingen:</h3>";
+			body += "<textarea class='annotate-comment-input' />";
+			overlay.set("bodyContent", body);	
+			overlay.set("centered", true);
+			overlay.set("width", "33%");
+			overlay.hide();
 
 			this.on("activeItemChange", this._onHover, this);
 			this.on("hoveredItemChange", this._onHover, this);
@@ -106,8 +112,7 @@ YUI.add('annotation', function(Y) {
 				record = tags.getRecordByIndex(index),
 				annotation = record.getValue("annotation");
 				// My: Popup asking for a user comment 
-				var delete_comment= prompt("You decided to delete this tag. Why?","Because...");
-
+				// var delete_comment= prompt("You decided to delete this tag. Why?","Because...");
 
 			Y.log('remove annotation '+annotation+' at index: '+index);
 
