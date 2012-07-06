@@ -4,6 +4,7 @@
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/html_write)).
+:- use_module(library(graph_version)).
 :- use_module(user(user_db)).
 :- use_module(components(label)).
 :- use_module(cliopatria(hooks)).
@@ -17,7 +18,7 @@ cliopatria:menu_item(100=accurator/http_dashboard_home, 'Dashboard').
 cliopatria:menu_item(110=accurator/http_annotation,     'Denice annotation').
 
 :- multifile
-	show_user_annotations//2.
+	show_user_annotations//3.
 
 http_dashboard_user(Request) :-
 	http_parameters(Request, [user(User, [])]),
@@ -30,10 +31,11 @@ http_dashboard_home(_Request) :-
 user_page(User, _Options) :-
 	findall(Prop, user_property(User, Prop), Props),
 	find_annotations(User, Annotations),
+	find_deletions(User, Deletions),
 	reply_html_page([title(User)],
 			[style([],['.an_dashboard_table { text-align: right}']),
 			 table(\show_user_props(Props)),
-			 \show_annotations(User, Annotations)
+			 \show_annotations(User, Annotations, Deletions)
 			     ]).
 
 dashboard_page(_Options) :-
@@ -85,6 +87,24 @@ find_annotations(User, Annotations) :-
 annotation_by_user(User, Annotation) :-
 	rdf(Annotation, oa:annotator, User).
 
+find_deletions(User, Deletions) :-
+	gv_current_branch(Branch),
+	gv_branch_head(Branch, Head),
+	find_user_commits(Head, User, [], Commits),
+	partition(is_deletion, Commits, Deletions, _Additions).
+
+is_deletion(Commit) :-
+	gv_commit_property(Commit, comment(Comment)),
+	sub_atom(Comment, 0, _, _, 'rm annotation').
+
+
+find_user_commits(init,_, Accum, Accum).
+find_user_commits(Commit, User, Accum, Result) :-
+	gv_commit_property(Commit, parent(Parent)),
+	(   gv_commit_property(Commit, creator(User))
+	->  find_user_commits(Parent, User, [Commit|Accum], Result)
+	;   find_user_commits(Parent, User, Accum, Result)
+	).
 
 delete_all_annotations :-
 	findall(G, annotation_graph(G), Graphs),
@@ -114,23 +134,23 @@ show_user_props([Prop|Tail]) -->
 	html(tr([td(K), td(V)])),
 	show_user_props(Tail).
 
-show_annotations(User, L) --> show_user_annotations(User, L),!.
-show_annotations(User, L) -->
+show_annotations(User, A, D) --> show_user_annotations(User, A, D),!.
+show_annotations(User, A, D) -->
   html(table(
 	   [class(an_dashboard_table)],
 	   [tr([class(an_dashboard_header)],
 	       [th('Target'), th('Tag')]),
-	    \do_show_user_annotations(User, L)])).
+	    \do_show_user_annotations(User, A, D)])).
 
-do_show_user_annotations(_User, []) --> !.
-do_show_user_annotations(User, [A|Tail]) -->
+do_show_user_annotations(_User, [], _) --> !.
+do_show_user_annotations(User, [A|Tail], D) -->
 	{
 	 rdf(A, oa:hasTarget, T),
 	 rdf(A, oa:hasBody, literal(B)),
 	 http_link_to_id(list_resource, [r(A)], ALink)
 	},
 	html(tr([td(\rdf_link(T)), td(a([href(ALink)],B))])),
-	do_show_user_annotations(User, Tail).
+	do_show_user_annotations(User, Tail, D).
 
 
 
