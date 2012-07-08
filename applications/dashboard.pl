@@ -98,12 +98,13 @@ is_deletion(Commit) :-
 	sub_atom(Comment, 0, _, _, 'rm annotation').
 
 
-find_user_commits(init,_, Accum, Accum).
 find_user_commits(Commit, User, Accum, Result) :-
-	gv_commit_property(Commit, parent(Parent)),
-	(   gv_commit_property(Commit, creator(User))
-	->  find_user_commits(Parent, User, [Commit|Accum], Result)
-	;   find_user_commits(Parent, User, Accum, Result)
+	(   \+ gv_commit_property(Commit, parent(Parent))
+	->  Result = Accum
+	;   (   gv_commit_property(Commit, committer_name(User))
+	    ->  find_user_commits(Parent, User, [Commit|Accum], Result)
+	    ;   find_user_commits(Parent, User, Accum, Result)
+	    )
 	).
 
 delete_all_annotations :-
