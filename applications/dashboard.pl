@@ -1,6 +1,7 @@
 :- module(an_dashboard, []).
 
 :- use_module(library(semweb/rdf_db)).
+:- use_module(library(semweb/rdf_label)).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/html_write)).
@@ -82,7 +83,15 @@ participant(User) :-
 
 find_annotations(User, Annotations) :-
 	findall(A, annotation_by_user(User, A), Anns0),
-	sort(Anns0, Annotations).
+	maplist(ann_time, Anns0, APairs),
+	group_pairs_by_key(APairs, AGrouped),
+	keysort(AGrouped, AGroupedS),
+	pairs_values(AGroupedS, Values),
+	append(Values, Annotations).
+
+ann_time(Ann, Time-Ann) :-
+	rdf(Ann, oa:annotated, TimeLit),
+	literal_text(TimeLit, Time).
 
 annotation_by_user(User, Annotation) :-
 	rdf(Annotation, oa:annotator, User).
