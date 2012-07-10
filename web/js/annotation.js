@@ -45,14 +45,14 @@ YUI.add('annotation', function(Y) {
 			this.tagList = Node.create(Annotation.LIST_TEMPLATE);
 			parentNode.append(this.tagList);
 			this.infoNode = new Y.Overlay({}).render(parentNode);
-			var overlay = new Y.Overlay({}).render(parentNode);
-			body = "<div h3 class='annotate-comment'>";
+			this.deleteNode = new Y.Overlay({}).render(parentNode);
+			body = "<div h3 class='annotate-comment delete-comment'>";
 			body += "<h3>Opmerkingen:</h3>";
 			body += "<textarea class='annotate-comment-input' />";
-			overlay.set("bodyContent", body);	
-			overlay.set("centered", true);
-			overlay.set("width", "33%");
-			overlay.hide();
+			this.deleteNode.set("bodyContent", body);	
+			this.deleteNode.set("centered", true);
+			this.deleteNode.set("width", "33%");
+			this.deleteNode.hide();
 
 			this.on("activeItemChange", this._onHover, this);
 			this.on("hoveredItemChange", this._onHover, this);
@@ -111,14 +111,18 @@ YUI.add('annotation', function(Y) {
 				tags = this.tags,
 				record = tags.getRecordByIndex(index),
 				annotation = record.getValue("annotation");
-				// My: Popup asking for a user comment 
-				// var delete_comment= prompt("You decided to delete this tag. Why?","Because...");
+			  	this.deleteNode.show();
+				Y.log(this.deleteNode.get("bodyContent"));
+				Y.one('.delete-comment').on("key", this._onDelete, "enter", this, annotation);
+		},
 
-			Y.log('remove annotation '+annotation+' at index: '+index);
-
+		_onDelete : function (e,annotation) {
+			// Y.log('remove annotation '+annotation+' at index: '+index);
+			Y.log(e.currentTarget.one('.delete-comment').get("value"));
 			Y.io(this.get("store.remove"), {
 				data:{
-					annotation:annotation
+					annotation:annotation,
+					comment:comment
 				},
 				on:{success: function(e) { tags.remove(index) }
 				}
