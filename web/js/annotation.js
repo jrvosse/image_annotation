@@ -46,10 +46,15 @@ YUI.add('annotation', function(Y) {
 			parentNode.append(this.tagList);
 			this.infoNode = new Y.Overlay({}).render(parentNode);
 			this.deleteNode = new Y.Overlay({}).render(parentNode);
+			head = "";
 			body = "<div h3 class='annotate-comment delete-comment'>";
 			body += "<h3>Opmerkingen:</h3>";
 			body += "<textarea class='annotate-comment-input delete-comment-input' />";
-			this.deleteNode.set("bodyContent", body);
+			foot  = "<button id='cancel-delete'>Annuleren</button>";
+			foot += "<button id='confirm-delete'>Verwijderen</button>";
+			this.deleteNode.set("headerContent", head);
+			this.deleteNode.set("bodyContent",   body);
+			this.deleteNode.set("footerContent", foot);
 			this.deleteNode.set("centered", true);
 			this.deleteNode.set("width", "33%");
 			this.deleteNode.hide();
@@ -114,7 +119,13 @@ YUI.add('annotation', function(Y) {
 			this.deleteNode.show();
 			Y.one('.delete-comment-input').on("key", this._onDelete, "enter", this,
 							  annotation, index);
+			Y.one('#confirm-delete').on("click", this._onDelete, this, annotation, index);
+			Y.one('#cancel-delete').on("click", this._onCancel, this, annotation, index);
 		},
+
+		_onCancel : function() {
+			       this.deleteNode.hide();
+			     },
 
 		_onDelete : function (e,annotation, index) {
 			var comment = e.currentTarget.get("value");
