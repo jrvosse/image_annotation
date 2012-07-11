@@ -48,8 +48,8 @@ YUI.add('annotation', function(Y) {
 			this.deleteNode = new Y.Overlay({}).render(parentNode);
 			body = "<div h3 class='annotate-comment delete-comment'>";
 			body += "<h3>Opmerkingen:</h3>";
-			body += "<textarea class='annotate-comment-input' />";
-			this.deleteNode.set("bodyContent", body);	
+			body += "<textarea class='annotate-comment-input delete-comment-input' />";
+			this.deleteNode.set("bodyContent", body);
 			this.deleteNode.set("centered", true);
 			this.deleteNode.set("width", "33%");
 			this.deleteNode.hide();
@@ -94,9 +94,9 @@ YUI.add('annotation', function(Y) {
 			var comment = tag.getValue("comment");
 			var link = tag.getValue("display_link");
 			html = '<div class="label">';
-			if (link == '') 
+			if (link == '')
 				html += label;
-			else 
+			else
 				html += '<a href="'+link+'">'+label+'</a>';
 
 			if (comment && comment != "") {
@@ -108,23 +108,26 @@ YUI.add('annotation', function(Y) {
 
 		_onTagRemoveClick : function(e) {
 			var index = this.tagList.all("li").indexOf(e.currentTarget.get("parentNode")),
-				tags = this.tags,
-				record = tags.getRecordByIndex(index),
-				annotation = record.getValue("annotation");
-			  	this.deleteNode.show();
-				Y.log(this.deleteNode.get("bodyContent"));
-				Y.one('.delete-comment').on("key", this._onDelete, "enter", this, annotation);
+			    tags = this.tags,
+			    record = tags.getRecordByIndex(index),
+			    annotation = record.getValue("annotation");
+			this.deleteNode.show();
+			Y.one('.delete-comment-input').on("key", this._onDelete, "enter", this,
+							  annotation, index);
 		},
 
-		_onDelete : function (e,annotation) {
-			// Y.log('remove annotation '+annotation+' at index: '+index);
-			Y.log(e.currentTarget.one('.delete-comment').get("value"));
+		_onDelete : function (e,annotation, index) {
+			var comment = e.currentTarget.get("value");
+			var tags = this.tags;
+			this.deleteNode.hide();
+			Y.log('remove annotation '+annotation+' with comment: '+comment);
 			Y.io(this.get("store.remove"), {
 				data:{
 					annotation:annotation,
 					comment:comment
 				},
-				on:{success: function(e) { tags.remove(index) }
+				on:{success: function(e) {
+					       tags.remove(index) }
 				}
 			});
 		},
