@@ -116,6 +116,12 @@ YUI.add('annotation', function(Y) {
 			    tags = this.tags,
 			    record = tags.getRecordByIndex(index),
 			    annotation = record.getValue("annotation");
+			    label = record.getValue("label");
+			this.deleteNode.setStdModContent(
+					    Y.WidgetStdMod.HEADER,        // Section
+					    "Verwijder: "+ label,	 // Content
+					    Y.WidgetStdMod.AFTER        // Where
+							);
 			this.deleteNode.show();
 			Y.one('.delete-comment-input').on("key", this._onDelete, "enter", this,
 							  annotation, index);
@@ -124,7 +130,7 @@ YUI.add('annotation', function(Y) {
 		},
 
 		_onCancel : function() {
-			       this.deleteNode.hide();
+			      this.deleteNode.hide();
 			     },
 
 		_onDelete : function (e,annotation, index) {

@@ -18,14 +18,15 @@ body {
 	margin-left: 1%;
 	background-color: #EEE;
 }
+
 #media {
 	width: 64%;
 }
 
 #media .resource { text-align: center }
-#media img { 
-	max-width: 90%; 
-	max-height: 600px; 
+#media img {
+	max-width: 90%;
+	max-height: 600px;
 }
 #media .title .metalabel { display: none }
 #media .description .metalabel { display: none }
@@ -51,6 +52,8 @@ body {
 }
 
 .annotate-comment {
+	      padding-bottom: 2%;
+	      overflow: auto;
 	      width: 100%;
 	      clear: both;
 	      }
@@ -104,6 +107,10 @@ body {
      border: 2px solid #AAA;
      padding: 0;
 }
+
+#confirm-delete {
+	    float: right;
+	       }
 .taglist {
 	font-size: 0.9em;
 	width: 40%;
