@@ -118,8 +118,10 @@ YUI.add('annotation', function(Y) {
 
 		_onDelete : function (e,annotation, index) {
 			var comment = e.currentTarget.get("value");
+			e.currentTarget.set("value", "");
 			var tags = this.tags;
 			this.deleteNode.hide();
+
 			Y.log('remove annotation '+annotation+' with comment: '+comment);
 			Y.io(this.get("store.remove"), {
 				data:{
@@ -194,11 +196,11 @@ YUI.add('annotation', function(Y) {
 		},
 
 		getcomment: function() {
-			      Y.log('getcomment');
 			      var commentNode = this.get("commentNode");
-			      Y.log(commentNode);
 			      if (!commentNode) return "";
-			      return commentNode.get("value");
+			      var c = commentNode.get("value");
+			      commentNode.set("value", "");
+			      return c;
 		},
 
 		submitAnnotation : function(body, label, comment) {
