@@ -31,12 +31,13 @@ http_dashboard_home(_Request) :-
 
 user_page(User, _Options) :-
 	findall(Prop, user_property(User, Prop), Props),
-	find_annotations(User, Annotations),
-	find_deletions(User, Deletions),
+	% find_annotations(User, Annotations),
+	% find_deletions(User, Deletions),
+	find_actions(User, Additions, Deletions),
 	reply_html_page([title(User)],
 			[style([],['.an_dashboard_table { text-align: right}']),
 			 table(\show_user_props(Props)),
-			 \show_annotations(User, Annotations, Deletions)
+			 \show_annotations(User, Additions, Deletions)
 			     ]).
 
 dashboard_page(_Options) :-
@@ -96,24 +97,26 @@ ann_time(Ann, Time-Ann) :-
 annotation_by_user(User, Annotation) :-
 	rdf(Annotation, oa:annotator, User).
 
-find_deletions(User, Deletions) :-
+find_actions(User, Additions, Deletions) :-
 	gv_current_branch(Branch),
 	gv_branch_head(Branch, Head),
 	find_user_commits(Head, User, [], Commits),
-	partition(is_deletion, Commits, Deletions, _Additions).
+	partition(is_deletion, Commits, Deletions, Additions).
 
 is_deletion(Commit) :-
 	gv_commit_property(Commit, comment(Comment)),
 	sub_atom(Comment, 0, _, _, 'rm annotation').
 
-
 find_user_commits(Commit, User, Accum, Result) :-
-	(   gv_commit_property(Commit, parent(Parent))
-	->  (   gv_commit_property(Commit, committer_name(User))
-	    ->  find_user_commits(Parent, User, [Commit|Accum], Result)
-	    ;   find_user_commits(Parent, User, Accum, Result)
+	(   gv_commit_property(Commit, committer_name(User))
+	->  (   gv_commit_property(Commit, parent(Parent))
+	    ->	find_user_commits(Parent, User, [Commit|Accum], Result)
+	    ;	Result = [Commit|Accum]
 	    )
-	;   Result = Accum
+	;   (   gv_commit_property(Commit, parent(Parent))
+	    ->	find_user_commits(Parent, User, Accum, Result)
+	    ;	Result = Accum
+	    )
 	).
 
 delete_all_annotations :-
