@@ -34,15 +34,13 @@ YUI.add('annotation', function(Y) {
 	Y.extend(Annotation, Y.Plugin.AutoComplete, {
 
 		initializer: function(args) {
-			var inputNode = args.inputNode,
-				parentNode = this.DEF_PARENT_NODE;
-
-			var tags = new Y.Recordset({records:{}});
-			tags.on("add", this._addTags, this);
-			tags.on("remove", this._removeTags, this);
-			this.tags = tags;
+			this.tags = new Y.Recordset({records:{}});
+			this.tags.on("add", this._addTags, this);
+			this.tags.on("remove", this._removeTags, this);
 
 			this.tagList = Node.create(Annotation.LIST_TEMPLATE);
+
+			var parentNode = this.DEF_PARENT_NODE;
 			parentNode.append(this.tagList);
 			this.infoNode = new Y.Overlay({}).render(parentNode);
 			this.deleteNode = new Y.Overlay({}).render(parentNode);
@@ -63,7 +61,7 @@ YUI.add('annotation', function(Y) {
 			this.on("hoveredItemChange", this._onHover, this);
 			this.on("select", this._onItemSelect, this);
 			Y.delegate("click", this._onTagRemoveClick, this.tagList, 'li .remove', this);
-			inputNode.on("key", this._onTextSubmit, 'enter', this);
+			this.get("inputNode").on("key", this._onTextSubmit, 'enter', this);
 
 			var commentNode = this.get('commentNode');
 			if (commentNode) {
@@ -197,7 +195,7 @@ YUI.add('annotation', function(Y) {
 		},
 		_onItemSelect : function(e) {
 			var item = e.details[0].result.raw;
-			var comm = this.getcomment();
+			var comm = this.getComment();
 			if (item.uri && item.label) {
 			  this.submitAnnotation({type:"uri", value:item.uri}, item.label, comm);
 			} else {
@@ -205,14 +203,21 @@ YUI.add('annotation', function(Y) {
 			}
 		},
 		_onTextSubmit : function(e) {
+			e.preventDefault();
 			if(!this.get("activeItem")) {
-				var value = this.get("inputNode").get("value");
-				var comm = this.getcomment();
+				var value = this.getTag();
+				var comm = this.getComment();
 				this.submitAnnotation({type:"literal", value:value}, value, comm);
 			}
 		},
 
-		getcomment: function() {
+		getTag: function() {
+			      var value = this.get("inputNode").get("value");
+			      this.get("inputNode").set("value", "");
+			      return value?value:'';
+		},
+
+		getComment: function() {
 			      var commentNode = this.get("commentNode");
 			      if (!commentNode) return "";
 			      var c = commentNode.get("value");
@@ -224,7 +229,6 @@ YUI.add('annotation', function(Y) {
 			Y.log('add tag: '+body.value+' with label: '+label+ ', comment: ' + comment);
 
 			var inputNode = this.get("inputNode");
-			var commentNode   = this.get("commentNode");
 			var tags = this.tags;
 
 			Y.io(this.get("store.add"), {
@@ -238,8 +242,7 @@ YUI.add('annotation', function(Y) {
 				on:{success: function(e,o) {
 					var r = Y.JSON.parse(o.responseText);
 					tags.add({body:body, label:label, annotation:r.annotation, comment:comment, display_link:r.display_link});
-					inputNode.set("value", "");
-					if (commentNode) commentNode.set("value", "");
+					inputNode.focus();
 				    }
 				}
 			});
