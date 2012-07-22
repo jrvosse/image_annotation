@@ -70,8 +70,13 @@ YUI.add('annotation', function(Y) {
 			  commentNode.on("key", this._onTextSubmit, 'enter', this);
 			}
 			this.getTags();
+			Y.Global.on("done", this._unload, this);
 		},
 
+		_unload : function(e) {
+				  Y.log("done event!");
+				  this._onTextSubmit({});
+			  },
 		_renderTags : function(tags, index) {
 			var tagList = this.tagList;
 			// format the tags
@@ -203,7 +208,7 @@ YUI.add('annotation', function(Y) {
 			}
 		},
 		_onTextSubmit : function(e) {
-			e.preventDefault();
+			if (e.preventDefault) e.preventDefault();
 			if(!this.get("activeItem")) {
 				var value = this.getTag();
 				var comm = this.getComment();
@@ -226,6 +231,7 @@ YUI.add('annotation', function(Y) {
 		},
 
 		submitAnnotation : function(body, label, comment) {
+		        if (!body.value) return;
 			Y.log('add tag: '+body.value+' with label: '+label+ ', comment: ' + comment);
 
 			var inputNode = this.get("inputNode");
@@ -253,6 +259,6 @@ YUI.add('annotation', function(Y) {
 	Y.Plugin.Annotation = Annotation;
 
 }, '0.0.1', { requires: [
-	'node','event','autocomplete','overlay','recordset','io-base','json','querystring-stringify-simple'
+	'node','event','event-custom', 'autocomplete','overlay','recordset','io-base','json','querystring-stringify-simple'
 	]
 });

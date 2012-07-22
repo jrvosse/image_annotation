@@ -145,8 +145,10 @@ get_metafields(URI, ExtraFields, Fields) :-
 annotation_page(Options) :-
 	option(target(Target), Options, notarget),
 	option(annotation_fields(AnFields), Options, []),
-	option(buttons(Buttons), Options, []),
 	option(footer(Footer), Options, []),
+	option(buttons(Buttons), Options, DefaultButtons),
+	default_buttons(DefaultButtons),
+
 	reply_html_page(
 	    [ \annotation_page_header(Options) ],
 	    [ \html_requires(yui3('cssgrids/grids-min.css')),
@@ -167,7 +169,10 @@ annotation_page(Options) :-
 		    div(id(ft), Footer)
 		  ]),
 	      script(type('text/javascript'),
-		     \yui_script(Target, AnFields))
+		     \yui_script(Target, AnFields)),
+	      script([type('text/javascript')],
+		    \done_script)
+
 	    ]).
 
 annotation_page_header(Options) --> annotation:page_header(Options).
@@ -413,3 +418,19 @@ rdf_has_lang(Subject, Predicate, Text) :-
 	->  true
 	;   rdf_has(Subject, Predicate, literal(Text))
 	).
+
+default_buttons(B) :-
+	B = [ a([class('image_annotation_done')], ['Done'])].
+
+:- style_check(-atom).
+
+done_script -->
+	html('function done()
+	{
+	   YUI().use("node", "event-custom", function(Y)
+			{ Y.log("done");
+			  Y.publish("done", { broadcast: 2 });
+			  Y.fire("done", {});
+			});
+	}
+	').
