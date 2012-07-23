@@ -432,10 +432,10 @@ done_script(Options) -->
 	 format(atom(DoneHandler),
 		'function done() {
 			      YUI().use("node", "event-custom", function(Y)
-					{ Y.log("firing done event");
+					{
 					  Y.publish("done", { broadcast: 2 });
 					  Y.fire("done", {});
-					  ~w;
+					  setTimeout(function() {~w;}, 200);
 					});
 		}
 	', [DoneAction])
@@ -447,5 +447,5 @@ done_script(Options) -->
 		   }
 		  );
 	'),
-	html(DoneHandler).
+       html(DoneHandler).
 
