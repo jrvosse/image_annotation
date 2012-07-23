@@ -44,9 +44,10 @@ YUI.add('annotation', function(Y) {
 			parentNode.append(this.tagList);
 			this.infoNode = new Y.Overlay({}).render(parentNode);
 			this.deleteNode = new Y.Overlay({}).render(parentNode);
+			this.deleteNode.hide();
 			head = "";
 			body = "<div h3 class='annotate-comment delete-comment'>";
-			body += "<h3>Opmerkingen:</h3>";
+			body += "<h3>Opmerkingen (optioneel):</h3>";
 			body += "<textarea class='annotate-comment-input delete-comment-input' />";
 			foot  = "<button id='cancel-delete'>Annuleren</button>";
 			foot += "<button id='confirm-delete'>Verwijderen</button>";
@@ -55,7 +56,6 @@ YUI.add('annotation', function(Y) {
 			this.deleteNode.set("footerContent", foot);
 			this.deleteNode.set("centered", true);
 			this.deleteNode.set("width", "33%");
-			this.deleteNode.hide();
 
 			this.on("activeItemChange", this._onHover, this);
 			this.on("hoveredItemChange", this._onHover, this);
@@ -120,26 +120,27 @@ YUI.add('annotation', function(Y) {
 			    record = tags.getRecordByIndex(index),
 			    annotation = record.getValue("annotation");
 			    label = record.getValue("label");
-			this.deleteNode.setStdModContent(
-					    Y.WidgetStdMod.HEADER,        // Section
-					    "Verwijder: "+ label,	 // Content
-					    Y.WidgetStdMod.AFTER        // Where
-							);
+			this.deleteNode.set("headerContent", "<h3 class='delete_dialog'>Verwijder: "+ label +"</h3>");
 			this.deleteNode.show();
-			Y.one('.delete-comment-input').on("key", this._onDelete, "enter", this,
-							  annotation, index);
+			Y.one('.delete-comment-input').on("key", this._onDelete, "enter", this, annotation, index);
 			Y.one('#confirm-delete').on("click", this._onDelete, this, annotation, index);
 			Y.one('#cancel-delete').on("click", this._onCancel, this, annotation, index);
 		},
 
 		_onCancel : function() {
-			      this.deleteNode.hide();
+				Y.one('.delete-comment-input').detach("key", this._onDelete, "enter");
+				Y.one('#confirm-delete').detach("click", this._onDelete);
+				Y.one('#cancel-delete').detach("click", this._onCancel);
+			      	this.deleteNode.hide();
 			     },
 
 		_onDelete : function (e,annotation, index) {
 			var comment = e.currentTarget.get("value");
 			e.currentTarget.set("value", "");
 			var tags = this.tags;
+			Y.one('.delete-comment-input').detach("key", this._onDelete, "enter");
+			Y.one('#confirm-delete').detach("click", this._onDelete);
+			Y.one('#cancel-delete').detach("click", this._onCancel);
 			this.deleteNode.hide();
 
 			Y.log('remove annotation '+annotation+' with comment: '+comment);
