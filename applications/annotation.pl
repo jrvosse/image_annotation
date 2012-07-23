@@ -109,10 +109,15 @@ get_anfields('', [], Fields, Labels) :-
 get_anfields('', Fields, Fields, [title(annotation), done_label(done)]) :-
 	Fields = [_|_],
 	!.
-get_anfields(URI, ExtraFields, Fields, [title(Title), done_label(Done)]) :-
+get_anfields(URI, ExtraFields, Fields,
+	     [title(Title),
+	      done_label(Done),
+	      unsure_label(Unsure)
+	     ]) :-
 	(   rdf_has(URI, an:fields, RdfList)
 	->  rdf_display_label(URI, Title),
 	    rdf_has_lang(URI, an:doneLabel, Done, 'done'),
+	    rdf_has_lang(URI, an:unsureLabel, Unsure, ''),
 	    rdfs_list_to_prolog_list(RdfList, UiFields),
 	    append(UiFields, ExtraFields, Fields)
 	;   Title = 'Undefined UI configuration: ~p'-[URI],
@@ -162,7 +167,7 @@ annotation_page(Options) :-
 			      div([id(media), class('yui3-u')],
 				  \html_resource(Target, Options)),
 			      div([id(fields), class('yui3-u')],
-				  [ \html_annotation_fields(AnFields),
+				  [ \html_annotation_fields(AnFields, Options),
 				    div([id(anbuttons)], Buttons)
 				  ])
 			    ])
@@ -194,26 +199,26 @@ html_resource(URI, Options) -->
 	{
 	 option(metadata_fields(Fields), Options)
 	},
-	html(div(class('resource'), [ \html_metadata_fields(URI, Fields)])).
+	html(div(class('resource'), [ \html_metadata_fields(URI, Fields, Options)])).
 
-html_metadata_fields(_URI, []) --> !.
-html_metadata_fields(URI, [Field|Tail]) -->
-	html_metadata_field(URI, Field),
-	html_metadata_fields(URI, Tail).
+html_metadata_fields(_URI, [], _) --> !.
+html_metadata_fields(URI, [Field|Tail], Options) -->
+	html_metadata_field(URI, Field, Options),
+	html_metadata_fields(URI, Tail, Options).
 
-html_metadata_field(URI, Field) -->
+html_metadata_field(URI, Field, _Options) -->
 	{
 	 rdfs_subproperty_of(Field, an:imageURL)
 	},
 	html_resource_image(URI).
 
-html_metadata_field(URI, Field) -->
+html_metadata_field(URI, Field, _Options) -->
 	{
 	 rdfs_subproperty_of(Field, an:url)
 	},
 	html(div(class(link), \rdf_link(URI))).
 
-html_metadata_field(URI, Field) -->
+html_metadata_field(URI, Field, _Options) -->
 	{
 	 rdf_has(URI, Field, Object),
 	 rdf_display_label(Field, Label),
@@ -228,7 +233,7 @@ html_metadata_field(URI, Field) -->
 	       )
 	    ).
 
-html_metadata_field(_,_) --> !.
+html_metadata_field(_,_,_) --> !.
 
 
 html_resource_image(URI) -->
@@ -255,15 +260,14 @@ image(R,R) :-
 	catch(url_cache(R, _, MimeType), _, fail),
 	sub_atom(MimeType, 0, 5, _, 'image'),!.
 
-%%	html_annotation_fields(+FieldURIs)
+%%	html_annotation_fields(+FieldURIs, +Options)
 %
 %	Write html for annotation fields.
 
-html_annotation_fields([]) --> !.
-html_annotation_fields([URI|T]) -->
-	html(
-		 \html_annotation_field(URI)),
-	html_annotation_fields(T).
+html_annotation_fields([],_) --> !.
+html_annotation_fields([URI|T], Options) -->
+	html(\html_annotation_field(URI, Options)),
+	html_annotation_fields(T, Options).
 
 comment_node_id(URI, NodeId) :-
 	rdf(URI, an:comment, an:enabled),
@@ -276,7 +280,14 @@ comment_node_id(URI, NodeId) :-
 
 comment_node_id(_, @null).
 
-html_annotation_field(URI) -->
+unsure_node_id(URI, NodeId) :-
+	(   rdf_global_id(_:Id, URI)
+	->  true
+	;   Id = URI
+	),
+	atomic_concat(Id, '_unsure', NodeId).
+
+html_annotation_field(URI, Options) -->
 	{ rdf_display_label(URI, Label),
 	  (   rdf_global_id(_:Id, URI)
 	  ->  true
@@ -284,6 +295,18 @@ html_annotation_field(URI) -->
 	  ),
 	  rdf_has_lang(URI, dcterms:comment, '',  FieldDescription),
 	  comment_node_id(URI, Cid),
+	  option(unsure_label(UnsureLabel), Options, ''),
+	  (   UnsureLabel == ''
+	  ->  Unsure = ''
+	  ;   unsure_node_id(URI, Uid),
+	      Unsure = div([class('annotate-unsure')],
+			   [input([type(checkbox),
+				   id(Uid)
+				  ]),
+			    label([for(Uid)],
+				  [UnsureLabel])
+			   ])
+	  ),
 	  (   Cid \= @null
 	  ->  (rdf_has_lang(URI, an:commentLabel, CommentLabel)
 	      ->  true
@@ -305,7 +328,8 @@ html_annotation_field(URI) -->
 			 div([class('annotate-description')], FieldDescription)
 		       ]),
 		   input([id(Id), type(text)]),
-		   Comment
+		   Comment,
+		   Unsure
 		 ])),
 	!.
 
@@ -354,6 +378,7 @@ js_annotation_field(FieldURI, Target) -->
 	  ;   Id = FieldURI
 	  ),
 	  comment_node_id(FieldURI, CommentNode),
+	  unsure_node_id(FieldURI, UnsureNode),
 	  http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
 	  http_location_by_id(http_get_annotation, Get),
@@ -371,6 +396,7 @@ js_annotation_field(FieldURI, Target) -->
 				 remove:Remove
 			       },
 			commentNode: CommentNode,
+			unsureNode:  UnsureNode,
 			minQueryLength:MinQueryLength,
 			resultListLocator: results,
 			resultTextLocator: label,
@@ -385,22 +411,23 @@ js_annotation_field(FieldURI, Target) -->
 			field:FieldURI,
 			source:Source,
 			commentNode: CommentNode,
+			unsureNode:  UnsureNode,
 			store: { add:Add,
 				 get:Get,
 				 remove:Remove
 			       }
 		       }
 	  ;   Config = {
-			target:Target,
-			field:FieldURI,
-			commentNode: CommentNode,
-			store: { add:Add,
-				 get:Get,
-				 remove:Remove
-			       }
-		       }
-	  )
-	},
+			    target:Target,
+			    field:FieldURI,
+			    commentNode: CommentNode,
+			    unsureNode:  UnsureNode,
+			    store: { add:Add,
+				     get:Get,
+				     remove:Remove
+				   }
+			    }
+	  )},
 	yui3_plug(one(id(Id)), 'Y.Plugin.Annotation', Config).
 
 

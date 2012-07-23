@@ -11,6 +11,9 @@ YUI.add('annotation', function(Y) {
 		commentNode: {
 			value: null
 		},
+		unsureNode: {
+			value: null
+		},
 		target: {
 			value: null
 		},
@@ -71,6 +74,11 @@ YUI.add('annotation', function(Y) {
 			  this.set('commentNode', commentNode);
 			  commentNode.on("key", this._onTextSubmit, 'enter', this);
 			}
+			var unsureNode = this.get('unsureNode');
+			if (unsureNode) {
+			  unsureNode = Y.one('#'+unsureNode);
+			  this.set('unsureNode', unsureNode);
+			}
 			Y.Global.on("done", this._onDone, this);
 			var firstkey = true;
 			this._setKeyInputHandler(firstkey);
@@ -90,8 +98,6 @@ YUI.add('annotation', function(Y) {
 		_onFirstKey : function(e) {
 			if (e.button == 13) return; // ? not sure why I get the submit return here ...
 			this.set("startTyping", new Date());
-			Y.log("startTyping reset");
-			Y.log(e);
 			var firstkey = false;
 			this._setKeyInputHandler(firstkey);
 
@@ -234,12 +240,14 @@ YUI.add('annotation', function(Y) {
 		_onTextSubmit : function(e) {
 			if (e.preventDefault) e.preventDefault();
 			this._setKeyInputHandler(true);
-			var now = new Date();
-			var delta = now - this.get("startTyping");
 			if(!this.get("activeItem")) {
+				var unode = this.get("unsureNode");
+				var unsure = Y.Node.getDOMNode(unode).checked;
+				var now = new Date();
+				var delta = now - this.get("startTyping");
 				var value = this.getTag();
 				var comm = this.getComment();
-				this.submitAnnotation({type:"literal", value:value}, value, comm, delta);
+				this.submitAnnotation({type:"literal", value:value}, value, comm, delta, unsure);
 			}
 		},
 
@@ -257,9 +265,10 @@ YUI.add('annotation', function(Y) {
 			      return c;
 		},
 
-		submitAnnotation : function(body, label, comment, timing) {
+		submitAnnotation : function(body, label, comment, timing, unsure) {
 		        if (!body.value) return;
 			if (!timing) timing = -1;
+			if (!unsure) unsure = false;
 			Y.log('add tag: '+body.value+' with label: '+label+ ', time: ' + timing);
 
 			var inputNode = this.get("inputNode");
@@ -272,6 +281,7 @@ YUI.add('annotation', function(Y) {
 					body:Y.JSON.stringify(body),
 					label:label,
 					typing_time: timing,
+					unsure: unsure,
 					comment: comment
 				},
 				on:{success: function(e,o) {
