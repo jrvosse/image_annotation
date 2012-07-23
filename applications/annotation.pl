@@ -94,25 +94,25 @@ http_annotation(Request) :-
         ->  authorized(write(default, annotate))
         ;   true
         ),
-	get_anfields(UI, ExtraFields, Title, AnnotationFields),
+	get_anfields(UI, ExtraFields, AnnotationFields, Labels),
 	get_metafields(UI, MetaFields, MetadataFields),
 	Options = [
 		   target(Target),
-		   title(Title),
 		   annotation_fields(AnnotationFields),
-		   metadata_fields(MetadataFields)
+		   metadata_fields(MetadataFields) | Labels
 		  ],
 	annotation_page(Options).
 
-get_anfields('', [], Title, Fields) :-
+get_anfields('', [], Fields, Labels) :-
 	rdfs_individual_of(URI, an:'AnnotationUI'),
-	get_anfields(URI, [], Title, Fields).
-get_anfields('', Fields, 'Annotate', Fields) :-
+	get_anfields(URI, [], Fields, Labels).
+get_anfields('', Fields, Fields, [title(annotation), done_label(done)]) :-
 	Fields = [_|_],
 	!.
-get_anfields(URI, ExtraFields, Title, Fields) :-
+get_anfields(URI, ExtraFields, Fields, [title(Title), done_label(Done)]) :-
 	(   rdf_has(URI, an:fields, RdfList)
 	->  rdf_display_label(URI, Title),
+	    rdf_has_lang(URI, an:doneLabel, Done, 'done'),
 	    rdfs_list_to_prolog_list(RdfList, UiFields),
 	    append(UiFields, ExtraFields, Fields)
 	;   Title = 'Undefined UI configuration: ~p'-[URI],
@@ -129,7 +129,6 @@ get_metafields('', ExtraFields, ExtraFields) :-
 get_metafields(URI, ExtraFields, Fields) :-
 	(   rdf_has(URI, an:metadata, RdfList)
 	->  rdfs_list_to_prolog_list(RdfList, Fields)
-
 	;   setting(default_metadata, UiFields)
 	),
 	append(UiFields, ExtraFields, Fields).
@@ -147,12 +146,14 @@ annotation_page(Options) :-
 	option(annotation_fields(AnFields), Options, []),
 	option(footer(Footer), Options, []),
 	option(buttons(Buttons), Options, DefaultButtons),
-	default_buttons(DefaultButtons),
+	option(stylesheet(StyleSheet), Options, ''),
+	default_buttons(DefaultButtons, Options),
 
 	reply_html_page(
 	    [ \annotation_page_header(Options) ],
 	    [ \html_requires(yui3('cssgrids/grids-min.css')),
 	      \html_requires(css('annotation.css')),
+	      \html_requires(StyleSheet),
 	      div(class('yui3-skin-sam yui-skin-sam'),
 		  [ div(id(hd), []),
 		    div(id(bd),
@@ -171,7 +172,7 @@ annotation_page(Options) :-
 	      script(type('text/javascript'),
 		     \yui_script(Target, AnFields)),
 	      script([type('text/javascript')],
-		    \done_script)
+		    \done_script(Options))
 
 	    ]).
 
@@ -404,7 +405,7 @@ js_annotation_field(FieldURI, Target) -->
 
 
 
-rdf_has_lang(Subject, Predicate, Default, Text) :-
+rdf_has_lang(Subject, Predicate, Text, Default) :-
 	(   rdf_has_lang(Subject, Predicate, Text)
 	->  true
 	;   Text = Default
@@ -419,18 +420,32 @@ rdf_has_lang(Subject, Predicate, Text) :-
 	;   rdf_has(Subject, Predicate, literal(Text))
 	).
 
-default_buttons(B) :-
-	B = [ a([class('image_annotation_done')], ['Done'])].
+default_buttons(B, Options) :-
+	option(done_label(DoneLabel), Options, done),
+	B = [ a([id('image_annotation_done')], [DoneLabel])].
 
 :- style_check(-atom).
 
-done_script -->
-	html('function done()
+done_script(Options) -->
 	{
-	   YUI().use("node", "event-custom", function(Y)
-			{ Y.log("done");
-			  Y.publish("done", { broadcast: 2 });
-			  Y.fire("done", {});
-			});
-	}
-	').
+	 option(done_action(DoneAction), Options),
+	 format(atom(DoneHandler),
+		'function done() {
+			      YUI().use("node", "event-custom", function(Y)
+					{ Y.log("firing done event");
+					  Y.publish("done", { broadcast: 2 });
+					  Y.fire("done", {});
+					  ~w;
+					});
+		}
+	', [DoneAction])
+	},
+	html('
+	   YUI().use("node", "event", function(Y)
+		   {
+		    Y.one("#image_annotation_done").on("click", done);
+		   }
+		  );
+	'),
+	html(DoneHandler).
+
