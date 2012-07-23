@@ -62,7 +62,8 @@ body {
 {
  float: left;
  width: 48%;
- margin: 0 0 1%;
+ margin: 0 0 1% 0;
+ font-size: 0.85em;
 }
 
 .annotate-header h3 {
@@ -111,6 +112,11 @@ body {
 #confirm-delete {
 	    float: right;
 	       }
+.delete_dialog {
+		   margin-top: 0;
+		   margin-bottom: 0;
+}
+
 .taglist {
 	font-size: 0.9em;
 	width: 40%;
