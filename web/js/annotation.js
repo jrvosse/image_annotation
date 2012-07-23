@@ -243,6 +243,7 @@ YUI.add('annotation', function(Y) {
 			if(!this.get("activeItem")) {
 				var unode = this.get("unsureNode");
 				var unsure = Y.Node.getDOMNode(unode).checked;
+				Y.Node.getDOMNode(unode).checked=0;
 				var now = new Date();
 				var delta = now - this.get("startTyping");
 				var value = this.getTag();
