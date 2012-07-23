@@ -23,6 +23,9 @@ YUI.add('annotation', function(Y) {
 		tags: {
 			value: []
 		},
+		startTyping: {
+			value: []
+		},
 		allowTextSubmit: {
 			value:true
 		}
@@ -61,7 +64,6 @@ YUI.add('annotation', function(Y) {
 			this.on("hoveredItemChange", this._onHover, this);
 			this.on("select", this._onItemSelect, this);
 			Y.delegate("click", this._onTagRemoveClick, this.tagList, 'li .remove', this);
-			this.get("inputNode").on("key", this._onTextSubmit, 'enter', this);
 
 			var commentNode = this.get('commentNode');
 			if (commentNode) {
@@ -69,11 +71,32 @@ YUI.add('annotation', function(Y) {
 			  this.set('commentNode', commentNode);
 			  commentNode.on("key", this._onTextSubmit, 'enter', this);
 			}
+			Y.Global.on("done", this._onDone, this);
+			var firstkey = true;
+			this._setKeyInputHandler(firstkey);
 			this.getTags();
-			Y.Global.on("done", this._unload, this);
 		},
 
-		_unload : function(e) {
+		_setKeyInputHandler : function(first) {
+			if (first) {
+				this.get("inputNode").on("key", this._onFirstKey, 'press:', this);
+				this.get("inputNode").detach("key", this._onTextSubmit, 'enter');
+			} else {
+				this.get("inputNode").detach("key", this._onFirstKey, 'press:');
+				this.get("inputNode").on("key",	 this._onTextSubmit, 'enter', this);
+			}
+
+		},
+		_onFirstKey : function(e) {
+			if (e.button == 13) return; // ? not sure why I get the submit return here ...
+			this.set("startTyping", new Date());
+			Y.log("startTyping reset");
+			Y.log(e);
+			var firstkey = false;
+			this._setKeyInputHandler(firstkey);
+
+		},
+		_onDone : function(e) {
 				  Y.log("done event!");
 				  this._onTextSubmit({});
 			  },
@@ -210,10 +233,13 @@ YUI.add('annotation', function(Y) {
 		},
 		_onTextSubmit : function(e) {
 			if (e.preventDefault) e.preventDefault();
+			this._setKeyInputHandler(true);
+			var now = new Date();
+			var delta = now - this.get("startTyping");
 			if(!this.get("activeItem")) {
 				var value = this.getTag();
 				var comm = this.getComment();
-				this.submitAnnotation({type:"literal", value:value}, value, comm);
+				this.submitAnnotation({type:"literal", value:value}, value, comm, delta);
 			}
 		},
 
@@ -231,9 +257,10 @@ YUI.add('annotation', function(Y) {
 			      return c;
 		},
 
-		submitAnnotation : function(body, label, comment) {
+		submitAnnotation : function(body, label, comment, timing) {
 		        if (!body.value) return;
-			Y.log('add tag: '+body.value+' with label: '+label+ ', comment: ' + comment);
+			if (!timing) timing = -1;
+			Y.log('add tag: '+body.value+' with label: '+label+ ', time: ' + timing);
 
 			var inputNode = this.get("inputNode");
 			var tags = this.tags;
@@ -244,6 +271,7 @@ YUI.add('annotation', function(Y) {
 					field:this.get("field"),
 					body:Y.JSON.stringify(body),
 					label:label,
+					typing_time: timing,
 					comment: comment
 				},
 				on:{success: function(e,o) {
