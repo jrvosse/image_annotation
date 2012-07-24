@@ -52,7 +52,7 @@ body {
 }
 
 .annotate-comment {
-	      padding-bottom: 2%;
+	      padding-top: 3%;
 	      overflow: auto;
 	      width: 100%;
 	      clear: both;
@@ -66,6 +66,17 @@ body {
  font-size: 0.85em;
 }
 
+.annotate-unsure {
+ overflow: auto;
+ clear: both;
+ font-size: 0.85em;
+ float: right;
+ width: 48%;
+ margin: .5% ;
+ border: 2px solid #EEE;
+}
+.annotate-unsure label {
+}
 .annotate-header h3 {
 	margin: 0 0 1%;
 		    }

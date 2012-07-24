@@ -328,8 +328,8 @@ html_annotation_field(URI, Options) -->
 			 div([class('annotate-description')], FieldDescription)
 		       ]),
 		   input([id(Id), type(text)]),
-		   Comment,
-		   Unsure
+		   Unsure,
+		   Comment
 		 ])),
 	!.
 
