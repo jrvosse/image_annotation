@@ -142,12 +142,13 @@ body {
 	overflow: auto;
 }
 .taglist .label {
-	width: 93%;
-	margin: 0 1%;
+	width: 90%;
+	margin: 0%;
 	float: left;
 }
 .taglist .remove {
-	width: 5%;
+	width: 10%;
+	overflow: hidden;
 	float: right;
 }
 
