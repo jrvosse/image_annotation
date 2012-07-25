@@ -13,7 +13,8 @@
 :- http_handler(cliopatria(annotate/dashboard/home), http_dashboard_home, []).
 :- http_handler(cliopatria(annotate/dashboard/user), http_dashboard_user, []).
 
-:- setting(annotation:admin_only, boolean, true, 'Dashboard only for users with admin rights').
+:- setting(annotation:dashboard_admin_only, boolean, true,
+	   'Dashboard only for users with admin rights').
 
 cliopatria:menu_popup_order(accurator, 120).
 cliopatria:menu_label(accurator,			'Niche Accurator').
