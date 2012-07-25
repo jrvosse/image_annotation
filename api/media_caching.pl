@@ -3,8 +3,14 @@
 :- use_module(library(http/url_cache)).
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/http_dispatch)).
+:- use_module(api(thumbnail)).
 
-:- http_handler(root(cache/original),  http_original,  [spawn(media)]).
+:- http_handler(root(cache/original),
+		http_original,  [spawn(media)]).
+:- http_handler(root(cache/thumbnail),
+		http_thumbnail(thumbnail_size),  [spawn(media)]).
+:- http_handler(root(cache/medium),
+		http_thumbnail(medium_size),  [spawn(media)]).
 
 %%      original(+Request)
 %
@@ -21,6 +27,14 @@ http_original(Request) :-
         url_cache(URI, File, MimeType),
         debug(url_cache, 'Original for ~w (~w)', [URI,MimeType]),
         throw(http_reply(file(MimeType, File))).
+
+http_thumbnail(Size, Request) :-
+        http_parameters(Request,
+                        [ uri(URI, [])
+                        ]),
+        debug(thumbnail, 'Thumbnail for ~w', [URI]),
+        uri_thumbnail(URI, ThumbnailFile, Size),
+        http_reply_file(ThumbnailFile, [unsafe(true)], Request).
 
 %%	map_uri(+URIin, -URIout) is det.
 %
