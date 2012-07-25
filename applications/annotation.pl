@@ -26,8 +26,8 @@
 :- use_module(user(user_db)).
 :- use_module(user(preferences)).
 
-:- use_module(api(annotation)). % needed for http api handlers
-:- use_module(media_caching).	% needed for http api handlers
+:- use_module(api(annotation)).    % needed for http api handlers
+:- use_module(api(media_caching)). % needed for http api handlers
 :- use_module(dashboard).
 
 :- rdf_meta
