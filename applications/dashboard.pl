@@ -13,6 +13,8 @@
 :- http_handler(cliopatria(annotate/dashboard/home), http_dashboard_home, []).
 :- http_handler(cliopatria(annotate/dashboard/user), http_dashboard_user, []).
 
+:- setting(annotation:admin_only, boolean, true, 'Dashboard only for users with admin rights').
+
 cliopatria:menu_popup_order(accurator, 120).
 cliopatria:menu_label(accurator,			'Niche Accurator').
 cliopatria:menu_item(100=accurator/http_dashboard_home, 'Dashboard').
@@ -22,17 +24,17 @@ cliopatria:menu_item(110=accurator/http_annotation,     'Denice annotation').
 	show_user_annotations//3.
 
 http_dashboard_user(Request) :-
+	(setting(annotation:admin_only, true) -> authorized(admin(dashboard)); true),
 	http_parameters(Request, [user(User, [])]),
 	user_page(User, []).
 
 http_dashboard_home(_Request) :-
+	(setting(annotation:admin_only, true) -> authorized(admin(dashboard)); true),
 	dashboard_page([]).
 
 
 user_page(User, _Options) :-
 	findall(Prop, user_property(User, Prop), Props),
-	% find_annotations(User, Annotations),
-	% find_deletions(User, Deletions),
 	find_actions(User, Additions, Deletions),
 	reply_html_page([title(User)],
 			[style([],['.an_dashboard_table { text-align: right}']),
