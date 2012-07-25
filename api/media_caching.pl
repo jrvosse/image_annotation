@@ -8,9 +8,9 @@
 :- http_handler(root(cache/original),
 		http_original,  [spawn(media)]).
 :- http_handler(root(cache/thumbnail),
-		http_thumbnail(thumbnail_size),  [spawn(media)]).
+		http_thumbnail,  [spawn(media)]).
 :- http_handler(root(cache/medium),
-		http_thumbnail(medium_size),  [spawn(media)]).
+		http_mediumscale,  [spawn(media)]).
 
 %%      original(+Request)
 %
@@ -28,7 +28,10 @@ http_original(Request) :-
         debug(url_cache, 'Original for ~w (~w)', [URI,MimeType]),
         throw(http_reply(file(MimeType, File))).
 
-http_thumbnail(Size, Request) :-
+http_thumbnail(R)  :- do_http_thumbnail(thumbnail_size, R).
+http_mediumscale(R):- do_http_thumbnail(medium_size, R).
+
+do_http_thumbnail(Size, Request) :-
         http_parameters(Request,
                         [ uri(URI, [])
                         ]),

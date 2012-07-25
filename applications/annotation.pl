@@ -238,10 +238,11 @@ html_metadata_field(_,_,_) --> !.
 
 html_resource_image(URI) -->
 	{ image(URI, Image),
-	  http_link_to_id(http_original, [uri(Image)], Href)
+	  http_link_to_id(http_mediumscale, [uri(Image)], Medium),
+	  http_link_to_id(http_original,    [uri(Image)], Full)
 	}, !,
-	html(a([href(Href), target('_blank')],
-	       img([src(Href)])
+	html(a([href(Full), target('_blank')],
+	       img([src(Medium)])
 	      )).
 html_resource_image(URI) -->
 	{
