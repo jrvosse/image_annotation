@@ -25,12 +25,14 @@ cliopatria:menu_item(110=accurator/http_annotation,     'Denice annotation').
 	show_user_annotations//3.
 
 http_dashboard_user(Request) :-
-	(setting(annotation:admin_only, true) -> authorized(admin(dashboard)); true),
+	(setting(annotation:dashboard_admin_only, true)
+	-> authorized(admin(dashboard)); true),
 	http_parameters(Request, [user(User, [])]),
 	user_page(User, []).
 
 http_dashboard_home(_Request) :-
-	(setting(annotation:admin_only, true) -> authorized(admin(dashboard)); true),
+	(setting(annotation:dashboard_admin_only, true)
+	-> authorized(admin(dashboard)); true),
 	dashboard_page([]).
 
 
