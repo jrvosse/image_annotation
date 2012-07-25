@@ -458,29 +458,26 @@ done_script(Options) -->
 	 option(done_action(DoneAction), Options),
 	 format(atom(DoneHandler),
 		'function done() {
-		     YUI().use("node", "event-custom", function(Y)
-		     {
 		      var fields = Y.all("input.yui3-aclist-input");
 		      var textleft = "";
 		      fields.each(function(node) {
 			Y.log(node);
 			if (node.get("value")) textleft = node.get("value");
-		      });
+		      }); //foo
 		      if (textleft == "") { ~w }
 		      else {
 			  window.alert("Please first submit or delete your unsubitted tag " + textleft);
-			   }
-		      });
-		}
-	', [DoneAction])
-	},
-	html('
-	   YUI().use("node", "event", function(Y)
+		      }
+		 }
+		', [DoneAction]),
+	 format(atom(DoneSubscribe), '
+		YUI().use("node", "event", function(Y)
 		   {
-		    Y.one("#image_annotation_done").on("click", done);
+		    Y.one("#image_annotation_done").on("click", ~w);
 		   }
 		  );
-	'),
-       html(DoneHandler).
+		', [DoneHandler])
+	},
+       html(DoneSubscribe).
 
 
