@@ -459,16 +459,21 @@ done_script(Options) -->
 	 option(done_action(DoneAction), Options),
 	 format(atom(DoneHandler),
 		'function done() {
-		      var fields = Y.all("input.yui3-aclist-input");
-		      var textleft = "";
-		      fields.each(function(node) {
-			Y.log(node);
-			if (node.get("value")) textleft = node.get("value");
-		      }); //foo
-		      if (textleft == "") { ~w }
-		      else {
-			  window.alert("Please first submit or delete your unsubitted tag " + textleft);
+		    var fields = Y.all("input.yui3-aclist-input");
+            var comments = Y.all("input.annotate-comment-input");
+            var textleft = "";
+            var commentleft = "";
+		    fields.each(function(node) {
+			if (node.get("value")) textleft = node.get("value");});
+            comments.each(function(node) {
+			if (node.get("value")) commentleft = node.get("value");});
+		      if (textleft == "" && commentleft == "") { ~w }
+		      else if (textleft != ""){
+			  window.alert("Gelieve op de enter-toets te drukken om het woord " +textleft+ " op te slaan voordat je naar de volgende afbeelding gaat." );
 		      }
+              else if (commentleft != "" ){
+                  window.alert("Gelieve op de enter-toets te drukken om de opmerking " +commentleft+ " op te slaan voordat je naar de volgende afbeelding gaat." );
+              }
 		 }
 		', [DoneAction]),
 	 format(atom(DoneSubscribe), '
