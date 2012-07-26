@@ -458,22 +458,23 @@ done_script(Options) -->
 	{
 	 option(done_action(DoneAction), Options),
 	 format(atom(DoneHandler),
-		'function done() {
-		    var fields = Y.all("input.yui3-aclist-input");
-            var comments = Y.all("input.annotate-comment-input");
-            var textleft = "";
-            var commentleft = "";
-		    fields.each(function(node) {
-			if (node.get("value")) textleft = node.get("value");});
-            comments.each(function(node) {
-			if (node.get("value")) commentleft = node.get("value");});
-		      if (textleft == "" && commentleft == "") { ~w }
-		      else if (textleft != ""){
+		'function done()
+		{
+		  var fields = Y.all("input.yui3-aclist-input");
+		  var comments = Y.all(".annotate-comment-input");
+		  var textleft = "";
+		  var commentleft = "";
+		  fields.each(function(node) {
+			       if (node.get("value")) textleft = node.get("value");});
+		  comments.each(function(node) {
+			       if (node.get("value")) commentleft = node.get("value")});
+		  if (false && textleft == "" && commentleft == "") { ~w }
+		  else if (textleft != ""){
 			  window.alert("Gelieve op de enter-toets te drukken om het woord " +textleft+ " op te slaan voordat je naar de volgende afbeelding gaat." );
-		      }
-              else if (commentleft != "" ){
-                  window.alert("Gelieve op de enter-toets te drukken om de opmerking " +commentleft+ " op te slaan voordat je naar de volgende afbeelding gaat." );
-              }
+		  }
+                  else if (commentleft != "" ){
+                     window.alert("Gelieve op de enter-toets te drukken om de opmerking " +commentleft+ " op te slaan voordat je naar de volgende afbeelding gaat." );
+                  }
 		 }
 		', [DoneAction]),
 	 format(atom(DoneSubscribe), '
