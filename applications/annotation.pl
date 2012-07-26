@@ -484,6 +484,6 @@ done_script(Options) -->
 		  );
 		', [DoneHandler])
 	},
-       html(DoneSubscribe).
+       html(\[DoneSubscribe]).
 
 
