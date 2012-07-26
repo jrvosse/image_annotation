@@ -160,12 +160,13 @@ YUI.add('annotation', function(Y) {
 				Y.one('.delete-comment-input').detach("key", this._onDelete, "enter");
 				Y.one('#confirm-delete').detach("click", this._onDelete);
 				Y.one('#cancel-delete').detach("click", this._onCancel);
-			      	this.deleteNode.hide();
+				this.deleteNode.hide();
 			     },
 
 		_onDelete : function (e,annotation, index) {
-			var comment = e.currentTarget.get("value");
-			e.currentTarget.set("value", "");
+			var commentNode =  Y.one('.delete-comment-input');
+			var comment = commentNode.get("value");
+			commentNode.set("value", "");
 			var tags = this.tags;
 			Y.one('.delete-comment-input').detach("key", this._onDelete, "enter");
 			Y.one('#confirm-delete').detach("click", this._onDelete);
