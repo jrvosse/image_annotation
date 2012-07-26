@@ -150,14 +150,21 @@ YUI.add('annotation', function(Y) {
 			    annotation = record.getValue("annotation");
 			    label = record.getValue("label");
 			this.deleteNode.set("headerContent", "<h3 class='delete_dialog'>Verwijder: "+ label +"</h3>");
-			this.deleteNode.show();
+			Y.one('.delete-comment-input').detach();
+			Y.one('#confirm-delete').detach();
+			Y.one('#cancel-delete').detach();
+
 			Y.one('.delete-comment-input').on("key", this._onDelete, "enter", this, annotation, index);
 			Y.one('#confirm-delete').on("click", this._onDelete, this, annotation, index);
 			Y.one('#cancel-delete').on("click", this._onCancel, this, annotation, index);
+			this.deleteNode.show();
+
+
 		},
 
 		_onCancel : function() {
 				Y.one('.delete-comment-input').detach("key", this._onDelete, "enter");
+				Y.one('.delete-comment-input').set("value", "");
 				Y.one('#confirm-delete').detach("click", this._onDelete);
 				Y.one('#cancel-delete').detach("click", this._onCancel);
 				this.deleteNode.hide();
