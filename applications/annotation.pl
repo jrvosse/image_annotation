@@ -468,7 +468,7 @@ done_script(Options) -->
 			       if (node.get("value")) textleft = node.get("value");});
 		  comments.each(function(node) {
 			       if (node.get("value")) commentleft = node.get("value")});
-		  if (false && textleft == "" && commentleft == "") { ~w }
+		  if (textleft == "" && commentleft == "") { ~w }
 		  else if (textleft != ""){
 			  window.alert("Gelieve op de enter-toets te drukken om het woord " +textleft+ " op te slaan voordat je naar de volgende afbeelding gaat." );
 		  }
