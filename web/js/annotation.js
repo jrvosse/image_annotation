@@ -275,7 +275,7 @@ YUI.add('annotation', function(Y) {
 		},
 
 		submitAnnotation : function(body, label, comment, timing, unsure) {
-		        if (!body.value) return;
+		        if (!body.value && !comment) return;
 			if (!timing) timing = -1;
 			if (!unsure) unsure = false;
 			Y.log('add tag: '+body.value+' with label: '+label+ ', time: ' + timing);
