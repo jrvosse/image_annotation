@@ -48,6 +48,7 @@ YUI.add('annotation', function(Y) {
 
 			var parentNode = this.DEF_PARENT_NODE;
 			parentNode.append(this.tagList);
+			parentNode.on("key", this._onTextSubmit, "enter", this);
 			this.infoNode = new Y.Overlay({}).render(parentNode);
 			this.deleteNode = new Y.Overlay({}).render(parentNode);
 			this.deleteNode.hide();
@@ -72,7 +73,7 @@ YUI.add('annotation', function(Y) {
 			if (commentNode) {
 			  commentNode = Y.one('#'+commentNode);
 			  this.set('commentNode', commentNode);
-			  commentNode.on("key", this._onTextSubmit, 'enter', this);
+			  // commentNode.on("key", this._onTextSubmit, 'enter', this);
 			}
 			var unsureNode = this.get('unsureNode');
 			if (unsureNode) {
@@ -88,10 +89,10 @@ YUI.add('annotation', function(Y) {
 		_setKeyInputHandler : function(first) {
 			if (first) {
 				this.get("inputNode").on("key", this._onFirstKey, 'press:', this);
-				this.get("inputNode").detach("key", this._onTextSubmit, 'enter');
+				// this.get("inputNode").detach("key", this._onTextSubmit, 'enter');
 			} else {
 				this.get("inputNode").detach("key", this._onFirstKey, 'press:');
-				this.get("inputNode").on("key",	 this._onTextSubmit, 'enter', this);
+				// this.get("inputNode").on("key",	 this._onTextSubmit, 'enter', this);
 			}
 
 		},
@@ -129,12 +130,14 @@ YUI.add('annotation', function(Y) {
 			var label = tag.getValue("label");
 			var body = tag.getValue("body");
 			var comment = tag.getValue("comment");
+			var unsure_value = tag.getValue("unsure");
+			var unsure = (unsure_value != '')?'?':'';
 			var link = tag.getValue("display_link");
 			html = '<div class="label">';
 			if (link == '')
-				html += label;
+				html += label+unsure;
 			else
-				html += '<a href="'+link+'">'+label+'</a>';
+				html += '<a href="'+link+'">'+label+unsure+'</a>';
 
 			if (comment && comment != "") {
 			  html += ' (' + comment +')';
@@ -295,7 +298,7 @@ YUI.add('annotation', function(Y) {
 				},
 				on:{success: function(e,o) {
 					var r = Y.JSON.parse(o.responseText);
-					tags.add({body:body, label:label, annotation:r.annotation, comment:comment, display_link:r.display_link});
+					tags.add({body:body, label:label, annotation:r.annotation, comment:comment, unsure:unsure, display_link:r.display_link});
 					inputNode.focus();
 				    }
 				}
