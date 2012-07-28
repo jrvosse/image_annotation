@@ -42,10 +42,6 @@ body {
 	padding: 1% 0% 1% 0%;
 	border-bottom: 1px solid #CCC;
 }
-.annotate-field .endoffield {  /* hack to fix height calculation of div.annotate-field */
-		     visibility: hidden;
-		     height: 1px;
-			    }
 .annotate-header {
 	float: left;
 	width: 48%;
