@@ -460,7 +460,7 @@ default_buttons(B, Options) :-
 
 done_script(Options) -->
 	{
-	 option(done_action(DoneAction), Options),
+	 option(done_action(DoneAction), Options),!,
 	 format(atom(DoneHandler),
 		'function done()
 		{
@@ -491,4 +491,5 @@ done_script(Options) -->
 	},
        html(\[DoneSubscribe]).
 
+done_script(_Options) --> !.
 
