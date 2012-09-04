@@ -76,6 +76,23 @@ body {
 .annotate-header h3 {
 	margin: 0 0 1%;
 		    }
+
+#image_annotation_done {
+  background-color: white;
+  border: 2px solid #AAAAAA;
+  color: #3333AA;
+  display: block;
+  font-family: sans-serif;
+  font-style: italic;
+  margin: 5% 0.5% 0.5% 0.5%;
+  min-width: 10em;
+  width: 10%;
+  padding: 1%;
+  float: right;
+  text-align: center;
+  text-decoration: none;
+}
+
 .xannotate-field:hover:before {
  content:attr(alt);
  position: absolute;
