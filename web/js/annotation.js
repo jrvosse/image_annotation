@@ -252,9 +252,12 @@ YUI.add('annotation', function(Y) {
 			if (e.preventDefault) e.preventDefault();
 			this._setKeyInputHandler(true);
 			if(!this.get("activeItem")) {
-				var unode = this.get("unsureNode");
-				var unsure = Y.Node.getDOMNode(unode).checked;
-				Y.Node.getDOMNode(unode).checked=0;
+			        var unsure = 0;
+				try {
+				      var unode = this.get("unsureNode");
+				      unsure = Y.Node.getDOMNode(unode).checked;
+				      Y.Node.getDOMNode(unode).checked=0;
+				    } catch (err) { unsure = 0; } // no unsure field present
 				var now = new Date();
 				var delta = now - this.get("startTyping");
 				var value = this.getTag();
