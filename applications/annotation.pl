@@ -448,9 +448,13 @@ rdf_has_lang(Subject, Predicate, Text) :-
 	;   rdf_has(Subject, Predicate, literal(Text))
 	).
 
+default_buttons([],_).
+
+/*
 default_buttons(B, Options) :-
 	option(done_label(DoneLabel), Options, done),
 	B = [ a([id('image_annotation_done')], [DoneLabel])].
+*/
 
 :- style_check(-atom).
 
