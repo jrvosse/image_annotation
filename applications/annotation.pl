@@ -94,40 +94,35 @@ http_annotation(Request) :-
         ->  authorized(write(default, annotate))
         ;   true
         ),
-	get_anfields(UI, ExtraFields, AnnotationFields, Labels),
+	get_anfields(UI, ExtraFields, AnnotationFields),
 	get_metafields(UI, MetaFields, MetadataFields),
+	(   var(UI)
+	->  Title = "Error: UI not defined ...", UI = undefined
+	;   rdf_display_label(UI, Title)
+	),
 	Options = [
+		   title(Title),
 		   ui(UI),
 		   target(Target),
 		   annotation_fields(AnnotationFields),
-		   metadata_fields(MetadataFields) | Labels
+		   metadata_fields(MetadataFields)
 		  ],
 	annotation_page(Options).
 
-get_anfields(UI, [], Fields, Labels) :-
+get_anfields(UI, [], Fields) :-
 	var(UI),
 	rdfs_individual_of(UI, an:'AnnotationUI'),
-	get_anfields(UI, [], Fields, Labels).
-get_anfields(UI, Fields, Fields, [title(annotation), done_label(done)]) :-
+	get_anfields(UI, [], Fields).
+get_anfields(UI, Fields, Fields) :-
 	var(UI),
 	Fields = [_|_],
 	!.
-get_anfields(URI, ExtraFields, Fields,
-	     [title(Title),
-	      done_label(Done),
-	      unsure_label(Unsure)
-	     ]) :-
+get_anfields(URI, ExtraFields, Fields) :-
 	(   rdf_has(URI, an:fields, RdfList)
-	->  rdf_display_label(URI, Title),
-	    rdf_lang(URI, an:doneLabel, Done, 'done'),
-	    rdf_lang(URI, an:unsureLabel, Unsure, ''),
-	    rdfs_list_to_prolog_list(RdfList, UiFields),
+	->  rdfs_list_to_prolog_list(RdfList, UiFields),
 	    append(UiFields, ExtraFields, Fields)
-	;   Title = 'Undefined UI configuration: ~p'-[URI],
-	    Fields=ExtraFields
+	;   Fields=ExtraFields
 	).
-
-
 get_metafields('', [], Fields) :-
 	rdfs_individual_of(URI, an:'AnnotationUI'),
 	get_metafields(URI, [], Fields).
@@ -285,37 +280,24 @@ comment_node_id(URI, NodeId) :-
 comment_node_id(_, @null).
 
 unsure_node_id(URI, NodeId) :-
+	rdf(URI, an:unsureCheck, an:enabled),
 	(   rdf_global_id(_:Id, URI)
 	->  true
 	;   Id = URI
 	),
 	atomic_concat(Id, '_unsure', NodeId).
+unsure_node_id(_, @null).
 
-html_annotation_field(URI, Options) -->
+html_annotation_field(URI, _Options) -->
 	{ rdf_display_label(URI, Label),
 	  (   rdf_global_id(_:Id, URI)
 	  ->  true
 	  ;   Id = URI
 	  ),
-	  rdf_lang(URI, dcterms:comment, '',  FieldDescription),
+	  rdf_lang(URI, dcterms:comment, FieldDescription, ''),
 	  comment_node_id(URI, Cid),
-	  option(unsure_label(UnsureLabel), Options, ''),
-	  (   UnsureLabel == ''
-	  ->  Unsure = ''
-	  ;   unsure_node_id(URI, Uid),
-	      Unsure = div([class('annotate-unsure')],
-			   [input([type(checkbox),
-				   id(Uid)
-				  ]),
-			    label([for(Uid)],
-				  [UnsureLabel])
-			   ])
-	  ),
 	  (   Cid \= @null
-	  ->  (rdf_lang(URI, an:commentLabel, CommentLabel)
-	      ->  true
-	      ;	  CommentLabel='Why? (optional)'
-	      ),
+	  ->  rdf_lang(URI, an:commentLabel, CommentLabel, 'Why? (optional)'),
 	      Comment = div(class('annotate-comment'),
 			[
 			 h3(CommentLabel),
@@ -324,6 +306,18 @@ html_annotation_field(URI, Options) -->
 			     [])
 			])
 	  ;   Comment = ''
+	  ),
+	  unsure_node_id(URI, Uid),
+	  (   Uid \= @null
+	  ->  rdf_lang(URI, an:unsureLabel, UnsureLabel, 'I am not sure'),
+	      Unsure = div([class('annotate-unsure')],
+			   [input([type(checkbox),
+				   id(Uid)
+				  ]),
+			    label([for(Uid)],
+				  [UnsureLabel])
+			   ])
+	  ;   Unsure = ''
 	  )
 	},
 	html(div([class('annotate-field'), alt(FieldDescription)],

@@ -8,6 +8,7 @@
 
 rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 
+:unsureLabel        rdfs:subPropertyOf :uiLabel.
 :commentLabel       rdfs:subPropertyOf :uiLabel.
 :deleteLabel        rdfs:subPropertyOf :uiLabel.
 :cancelDeleteLabel  rdfs:subPropertyOf :uiLabel.
@@ -16,8 +17,6 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 
 :NicheAccuratorDemoUi a :AnnotationUI ;
         dc:title "Niche Accurator"@en;
-        :comment :enabled ;
-        :deleteComment :enabled;
         :commentLabel "Opmerkingen (optioneel):"@nl;
         :commentLabel "Comments (optional):"@en;
 	:deleteLabel "Verwijder:"@nl;
@@ -92,6 +91,11 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 	rdfs:label "Soortnaam"@nl ;
 	dc:comment "add common name of the species"@en ;
 	dc:comment "voeg de in Nederland gebruikelijke naam van soort toe"@nl ;
+	:unsureLabel "not sure"@en;
+	:unsureLabel "ik ben niet zeker"@nl;
+        :comment :enabled ;
+	:unsureCheck :enabled;
+        :deleteComment :enabled;
 	:source "/api/autocomplete?q={query}&filter=[{\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"},{\"prop\":\"http://lod.taxonconcept.org/ontology/txn.owl%23inDBpediaClade\",\"uri\":\"http://dbpedia.org/ontology/FloweringPlant\"}]&labelrank=['http://lod.taxonconcept.org/ontology/txn.owl%23commonName'-0, 'http://lod.taxonconcept.org/ontology/txn.owl%23scientificName'-0.2]" .
 
 :TaxonConceptGenusNameAnnotation
