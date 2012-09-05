@@ -29,6 +29,8 @@ YUI.add('annotation', function(Y) {
 		startTyping: {
 			value: []
 		},
+		uiLabels: { value: []
+			  },
 		allowTextSubmit: {
 			value:true
 		}
@@ -40,6 +42,8 @@ YUI.add('annotation', function(Y) {
 	Y.extend(Annotation, Y.Plugin.AutoComplete, {
 
 		initializer: function(args) {
+			var labels = this.get('uiLabels');
+			Y.log(labels);
 			this.tags = new Y.Recordset({records:{}});
 			this.tags.on("add", this._addTags, this);
 			this.tags.on("remove", this._removeTags, this);
@@ -54,10 +58,10 @@ YUI.add('annotation', function(Y) {
 			this.deleteNode.hide();
 			head = "";
 			body = "<div h3 class='annotate-comment delete-comment'>";
-			body += "<h3>Opmerkingen (optioneel):</h3>";
+			body += "<h3>" + labels.commentLabel + "</h3>";
 			body += "<textarea class='annotate-comment-input delete-comment-input' />";
-			foot  = "<button id='cancel-delete'>Annuleren</button>";
-			foot += "<button id='confirm-delete'>Verwijderen</button>";
+			foot  = "<button id='cancel-delete'>" + labels.cancelDeleteLabel + "</button>";
+			foot += "<button id='confirm-delete'>" +labels.confirmDeleteLabel+ "</button>";
 			this.deleteNode.set("headerContent", head);
 			this.deleteNode.set("bodyContent",   body);
 			this.deleteNode.set("footerContent", foot);
@@ -150,9 +154,10 @@ YUI.add('annotation', function(Y) {
 			var index = this.tagList.all("li").indexOf(e.currentTarget.get("parentNode")),
 			    tags = this.tags,
 			    record = tags.getRecordByIndex(index),
-			    annotation = record.getValue("annotation");
-			    label = record.getValue("label");
-			this.deleteNode.set("headerContent", "<h3 class='delete_dialog'>Verwijder: "+ label +"</h3>");
+			    annotation = record.getValue("annotation"),
+			    labels = this.get("uiLabels");
+			    tag = record.getValue("label");
+			this.deleteNode.set("headerContent", "<h3 class='delete_dialog'>"+ labels.deleteLabel + " " + tag +"</h3>");
 			Y.one('.delete-comment-input').detach();
 			Y.one('#confirm-delete').detach();
 			Y.one('#cancel-delete').detach();

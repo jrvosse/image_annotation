@@ -8,8 +8,24 @@
 
 rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 
-:NicheAccurator a :AnnotationUI ;
+:commentLabel       rdfs:subPropertyOf :uiLabel.
+:deleteLabel        rdfs:subPropertyOf :uiLabel.
+:cancelDeleteLabel  rdfs:subPropertyOf :uiLabel.
+:confirmDeleteLabel rdfs:subPropertyOf :uiLabel.
+
+
+:NicheAccuratorDemoUi a :AnnotationUI ;
         dc:title "Niche Accurator"@en;
+        :comment :enabled ;
+        :deleteComment :enabled;
+        :commentLabel "Opmerkingen (optioneel):"@nl;
+        :commentLabel "Comments (optional):"@en;
+	:deleteLabel "Verwijder:"@nl;
+	:deleteLabel "Remove:"@en;
+        :cancelDeleteLabel "Annuleren"@nl;
+        :cancelDeleteLabel "Cancel"@en;
+        :confirmDeleteLabel "Verwijderen"@nl;
+        :confirmDeleteLabel "Delete"@en;
 	:fields (
 	     :TaxonConceptSpeciesCommonNameAnnotation
 	     :TaxonConceptGenusNameAnnotation

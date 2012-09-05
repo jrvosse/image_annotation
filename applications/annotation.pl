@@ -31,8 +31,8 @@
 :- use_module(dashboard).
 
 :- rdf_meta
-	rdf_has_lang(r,r,-),
-	rdf_has_lang(r,r,+,-).
+	rdf_lang(r,r,-),
+	rdf_lang(r,r,+,-).
 
 :- multifile
 	page_header//1.
@@ -78,7 +78,7 @@ http_annotation(Request) :-
 		     ]),
 		  ui(UI,
 		     [ uri,
-		       default(''),
+		       optional(true),
 		       description('URI of the UI configuration')
 		     ]),
 		  field(ExtraFields,
@@ -97,16 +97,19 @@ http_annotation(Request) :-
 	get_anfields(UI, ExtraFields, AnnotationFields, Labels),
 	get_metafields(UI, MetaFields, MetadataFields),
 	Options = [
+		   ui(UI),
 		   target(Target),
 		   annotation_fields(AnnotationFields),
 		   metadata_fields(MetadataFields) | Labels
 		  ],
 	annotation_page(Options).
 
-get_anfields('', [], Fields, Labels) :-
-	rdfs_individual_of(URI, an:'AnnotationUI'),
-	get_anfields(URI, [], Fields, Labels).
-get_anfields('', Fields, Fields, [title(annotation), done_label(done)]) :-
+get_anfields(UI, [], Fields, Labels) :-
+	var(UI),
+	rdfs_individual_of(UI, an:'AnnotationUI'),
+	get_anfields(UI, [], Fields, Labels).
+get_anfields(UI, Fields, Fields, [title(annotation), done_label(done)]) :-
+	var(UI),
 	Fields = [_|_],
 	!.
 get_anfields(URI, ExtraFields, Fields,
@@ -116,8 +119,8 @@ get_anfields(URI, ExtraFields, Fields,
 	     ]) :-
 	(   rdf_has(URI, an:fields, RdfList)
 	->  rdf_display_label(URI, Title),
-	    rdf_has_lang(URI, an:doneLabel, Done, 'done'),
-	    rdf_has_lang(URI, an:unsureLabel, Unsure, ''),
+	    rdf_lang(URI, an:doneLabel, Done, 'done'),
+	    rdf_lang(URI, an:unsureLabel, Unsure, ''),
 	    rdfs_list_to_prolog_list(RdfList, UiFields),
 	    append(UiFields, ExtraFields, Fields)
 	;   Title = 'Undefined UI configuration: ~p'-[URI],
@@ -175,7 +178,7 @@ annotation_page(Options) :-
 		    div(id(ft), Footer)
 		  ]),
 	      script(type('text/javascript'),
-		     \yui_script(Target, AnFields)),
+		     \yui_script(Options)),
 	      script([type('text/javascript')],
 		    \done_script(Options))
 
@@ -294,7 +297,7 @@ html_annotation_field(URI, Options) -->
 	  ->  true
 	  ;   Id = URI
 	  ),
-	  rdf_has_lang(URI, dcterms:comment, '',  FieldDescription),
+	  rdf_lang(URI, dcterms:comment, '',  FieldDescription),
 	  comment_node_id(URI, Cid),
 	  option(unsure_label(UnsureLabel), Options, ''),
 	  (   UnsureLabel == ''
@@ -309,7 +312,7 @@ html_annotation_field(URI, Options) -->
 			   ])
 	  ),
 	  (   Cid \= @null
-	  ->  (rdf_has_lang(URI, an:commentLabel, CommentLabel)
+	  ->  (rdf_lang(URI, an:commentLabel, CommentLabel)
 	      ->  true
 	      ;	  CommentLabel='Why? (optional)'
 	      ),
@@ -339,17 +342,18 @@ html_annotation_field(URI, Options) -->
 		 *	     JavaScript		*
 		 *******************************/
 
-%%	yui_script(+Graph)
+%%	yui_script(Options)
 %
 %	Emit YUI object.
 
-yui_script(Target, Fields) -->
+yui_script(Options) -->
 	{ findall(M-C, js_module(M,C), Modules),
-	  pairs_keys(Modules, Includes)
+	  pairs_keys(Modules, Includes),
+	  option(annotation_fields(Fields), Options, [])
 	},
 	yui3([json([modules(json(Modules))])],
 	     ['recordset-base'|Includes],
-	     [\js_annotation_fields(Fields, Target)]).
+	     [\js_annotation_fields(Fields, Options)]).
 
 js_module('annotation', json([fullpath(Path),
 				    requires(['recordset-base',
@@ -363,21 +367,40 @@ js_module('annotation', json([fullpath(Path),
 			  ])) :-
 	http_absolute_location(js('annotation.js'), Path, []).
 
+ui_labels(Field, Options, Labels) :-
+	option(ui(UI), Options),
+	findall(P, rdf_has(UI,    an:uiLabel, _, P), UILP),
+	findall(P, rdf_has(Field, an:uiLabel, _, P), FILP),
+	append(UILP, FILP, LP),
+	sort(LP, LP_Uniq),
+	maplist(get_label(UI, Field), LP_Uniq, List),
+	Labels = json(List).
+
+get_label(UI, Field, LabelProp, LabelOption) :-
+	(   rdf_lang(Field, LabelProp, LabelText)
+	->  true
+	;   rdf_lang(UI, LabelProp, LabelText)
+	),
+	rdf_global_id(_NS:LabelName, LabelProp),
+	LabelOption =.. [LabelName, LabelText].
+
 %%	js_annotation_fields(+FieldURIs, +AnnotationTarget)
 %
 %	Write JavaScript to init annotation fields
 %
 js_annotation_fields([], _) --> !.
-js_annotation_fields([URI|T], Target) -->
-	js_annotation_field(URI, Target),
-	js_annotation_fields(T, Target).
+js_annotation_fields([URI|T], Options) -->
+	js_annotation_field(URI, Options),
+	js_annotation_fields(T, Options).
 
-js_annotation_field(FieldURI, Target) -->
+js_annotation_field(FieldURI, Options) -->
 	 {
 	  (   rdf_global_id(_:Id, FieldURI)
 	  ->  true
 	  ;   Id = FieldURI
 	  ),
+	  option(target(Target), Options),
+	  ui_labels(FieldURI, Options, UI_labels),
 	  comment_node_id(FieldURI, CommentNode),
 	  unsure_node_id(FieldURI, UnsureNode),
 	  http_location_by_id(http_add_annotation, Add),
@@ -386,8 +409,9 @@ js_annotation_field(FieldURI, Target) -->
 	  user_preference(user:lang, literal(Lang)),
 	  setting(min_query_length, MinQueryLength),
 	  setting(http:prefix, Prefix),
-	  (   rdf_has_lang(FieldURI, an:source, Source)
+	  (   rdf_lang(FieldURI, an:source, Source)
 	  ->  atomic_concat(Prefix, Source, PrefixedSource),
+	      % Configure a field with autocompletion web service URI.
 	      Config = {
 			target:Target,
 			field:FieldURI,
@@ -396,6 +420,7 @@ js_annotation_field(FieldURI, Target) -->
 				 get:Get,
 				 remove:Remove
 			       },
+			uiLabels: UI_labels,
 			commentNode: CommentNode,
 			unsureNode:  UnsureNode,
 			minQueryLength:MinQueryLength,
@@ -407,10 +432,12 @@ js_annotation_field(FieldURI, Target) -->
 	      rdfs_list_to_prolog_list(RdfList, LiteralList),
 	      maplist(literal_text, LiteralList, TextList),
 	      prolog_to_json(TextList, Source)
-	  ->  Config = {
+	  ->  % Configure a field with autocomplete from given list
+	      Config = {
 			target:Target,
 			field:FieldURI,
 			source:Source,
+			uiLabels: UI_labels,
 			commentNode: CommentNode,
 			unsureNode:  UnsureNode,
 			store: { add:Add,
@@ -418,9 +445,11 @@ js_annotation_field(FieldURI, Target) -->
 				 remove:Remove
 			       }
 		       }
-	  ;   Config = {
+	  ;   % Configure a field without autocompletion
+	      Config = {
 			    target:Target,
 			    field:FieldURI,
+			    uiLabels: UI_labels,
 			    commentNode: CommentNode,
 			    unsureNode:  UnsureNode,
 			    store: { add:Add,
@@ -431,21 +460,28 @@ js_annotation_field(FieldURI, Target) -->
 	  )},
 	yui3_plug(one(id(Id)), 'Y.Plugin.Annotation', Config).
 
+%%	rdf_lang(+Subject, +Predicate, ?Text, +Default) is det.
+%
+%	Text is unified with the "preferred" textual value of literal
+%	property Predicate on Subject.  Order of preference:
+%	1. Text is in the user:lang defined by user_preference/2.
+%	2. Text is in the English language.
+%	3. Text is in a random other language
+%	4. Text is unified with Default.
 
-
-rdf_has_lang(Subject, Predicate, Text, Default) :-
-	(   rdf_has_lang(Subject, Predicate, Text)
+rdf_lang(Subject, Predicate, Text, Default) :-
+	(   rdf_lang(Subject, Predicate, Text)
 	->  true
 	;   Text = Default
 	).
 
-rdf_has_lang(Subject, Predicate, Text) :-
+rdf_lang(Subject, Predicate, Text) :-
 	user_preference(user:lang, literal(Lang)),
-	(   rdf_has(Subject, Predicate, literal(lang(Lang, Text)))
+	(   rdf(Subject, Predicate, literal(lang(Lang, Text)))
 	->  true
-	;   rdf_has(Subject, Predicate, literal(lang(en, Text)))
+	;   rdf(Subject, Predicate, literal(lang(en, Text)))
 	->  true
-	;   rdf_has(Subject, Predicate, literal(Text))
+	;   rdf(Subject, Predicate, literal(lang(_, Text)))
 	).
 
 default_buttons([],_).
@@ -492,4 +528,3 @@ done_script(Options) -->
        html(\[DoneSubscribe]).
 
 done_script(_Options) --> !.
-
