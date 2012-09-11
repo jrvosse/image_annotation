@@ -43,7 +43,6 @@ YUI.add('annotation', function(Y) {
 
 		initializer: function(args) {
 			var labels = this.get('uiLabels');
-			Y.log(labels);
 			this.tags = new Y.Recordset({records:{}});
 			this.tags.on("add", this._addTags, this);
 			this.tags.on("remove", this._removeTags, this);
@@ -52,7 +51,6 @@ YUI.add('annotation', function(Y) {
 
 			var parentNode = this.DEF_PARENT_NODE;
 			parentNode.append(this.tagList);
-			parentNode.on("key", this._onTextSubmit, "enter", this);
 			this.infoNode = new Y.Overlay({}).render(parentNode);
 			this.deleteNode = new Y.Overlay({}).render(parentNode);
 			this.deleteNode.hide();
@@ -77,7 +75,7 @@ YUI.add('annotation', function(Y) {
 			if (commentNode) {
 			  commentNode = Y.one('#'+commentNode);
 			  this.set('commentNode', commentNode);
-			  // commentNode.on("key", this._onTextSubmit, 'enter', this);
+			  commentNode.on("key", this._onTextSubmit, 'enter', this);
 			}
 			var unsureNode = this.get('unsureNode');
 			if (unsureNode) {
@@ -87,6 +85,7 @@ YUI.add('annotation', function(Y) {
 			Y.Global.on("done", this._onDone, this);
 			var firstkey = true;
 			this._setKeyInputHandler(firstkey);
+			this.get("inputNode").on("key", this._onTextSubmit, "enter", this);
 			this.getTags();
 		},
 
@@ -245,15 +244,24 @@ YUI.add('annotation', function(Y) {
 			}
 		},
 		_onItemSelect : function(e) {
+			Y.log('onItemSelect');
+			if (e.preventDefault) e.preventDefault();
 			var item = e.details[0].result.raw;
 			var comm = this.getComment();
+			this._setKeyInputHandler(true);
+			var now = new Date();
+			var delta = now - this.get("startTyping");
 			if (item.uri && item.label) {
-			  this.submitAnnotation({type:"uri", value:item.uri}, item.label, comm);
+			  this.submitAnnotation({type:"uri", value:item.uri}, item.label, comm, delta);
 			} else {
-			  this.submitAnnotation({type:"literal", value: item}, item, comm);
-			}
+			  this.submitAnnotation({type:"literal", value: item}, item, comm, delta);
+			};
+			this.get("inputNode").set("value", "");
 		},
+
 		_onTextSubmit : function(e) {
+			Y.log('onTextSubmit');
+			Y.log(e);
 			if (e.preventDefault) e.preventDefault();
 			this._setKeyInputHandler(true);
 			if(!this.get("activeItem")) {
