@@ -1,6 +1,6 @@
 :- module(annotation,
 	  [ annotation_page/1,
-	    get_anfields/4,
+	    get_anfields/3,
 	    get_metafields/3
 	  ]).
 
@@ -97,7 +97,7 @@ http_annotation(Request) :-
 	get_anfields(UI, ExtraFields, AnnotationFields),
 	get_metafields(UI, MetaFields, MetadataFields),
 	(   var(UI)
-	->  Title = "Error: UI not defined ...", UI = undefined
+	->  Title = 'Error: UI not defined ...', UI = undefined
 	;   rdf_display_label(UI, Title)
 	),
 	Options = [
