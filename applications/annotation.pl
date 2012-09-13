@@ -269,7 +269,7 @@ html_annotation_fields([URI|T], Options) -->
 	html_annotation_fields(T, Options).
 
 comment_node_id(URI, NodeId) :-
-	rdf(URI, an:comment, an:enabled),
+	rdf(URI, an:commentEnabled, literal(type(xsd:boolean, true))),
 	!,
 	(   rdf_global_id(_:Id, URI)
 	->  true
@@ -280,7 +280,7 @@ comment_node_id(URI, NodeId) :-
 comment_node_id(_, @null).
 
 unsure_node_id(URI, NodeId) :-
-	rdf(URI, an:unsureCheck, an:enabled),
+	rdf(URI, an:unsureEnabled, literal(type(xsd:boolean, true))),
 	(   rdf_global_id(_:Id, URI)
 	->  true
 	;   Id = URI
