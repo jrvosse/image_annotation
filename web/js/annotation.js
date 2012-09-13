@@ -136,7 +136,7 @@ YUI.add('annotation', function(Y) {
 			 var inputNode = this.get("inputNode");
 			 Y.io(this.get("store.remove"), {
 				data:{ annotation:annotation, comment:"update: unsure "+checked },
-				on:{success: function(e) { tags.remove(index) }
+				on:{success: function(e) { }
 				}
 			 });
 			 var body = tag.getValue('body');
@@ -155,7 +155,7 @@ YUI.add('annotation', function(Y) {
 				},
 				on:{success: function(e,o) {
 					var r = Y.JSON.parse(o.responseText);
-					tags.add({body: body, label:label, annotation:r.annotation, comment:comment, unsure:checked, display_link:display_link});
+					tags.update({body: body, label:label, annotation:r.annotation, comment:comment, unsure:checked, display_link:display_link}, index);
 					inputNode.focus();
 				    }
 				}
