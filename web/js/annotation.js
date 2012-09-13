@@ -115,7 +115,51 @@ YUI.add('annotation', function(Y) {
 			// format the tags
 			for(var i=0; i < tags.length; i++) {
 				tagList.append('<li>'+this.formatTag(tags[i])+'</li>');
-			}
+
+			};
+			Y.all('.unsureBox').detach('click').on('click', this._updateAnnotation, this);
+
+		},
+		_getTag : function(annotation) {
+			var tagList = this.tagList;
+			for(var i=0; i < tags.length; i++) {
+				tagList.append('<li>'+this.formatTag(tags[i])+'</li>');
+
+			};
+			  },
+		_updateAnnotation : function(ev) {
+			 var index = this.tagList.all("li").indexOf(ev.currentTarget.get("parentNode").get("parentNode"));
+			 var checked = Y.Node.getDOMNode(ev.currentTarget).checked;
+			 var tags = this.tags;
+			 var tag = tags.getRecordByIndex(index);
+			 var annotation = tag.getValue('annotation');
+			 var inputNode = this.get("inputNode");
+			 Y.io(this.get("store.remove"), {
+				data:{ annotation:annotation, comment:"update: unsure "+checked },
+				on:{success: function(e) { tags.remove(index) }
+				}
+			 });
+			 var body = tag.getValue('body');
+			 var label = tag.getValue('label');
+			 var comment = tag.getValue('comment');
+			 var display_link = tag.getValue('display_link');
+			 Y.io(this.get("store.add"), {
+				data:{
+					target:this.get("target"),
+					field:this.get("field"),
+					body:Y.JSON.stringify(body),
+					label:label,
+					typing_time: tag.getValue('typing_time'),
+					unsure: checked,
+					comment: comment
+				},
+				on:{success: function(e,o) {
+					var r = Y.JSON.parse(o.responseText);
+					tags.add({body: body, label:label, annotation:r.annotation, comment:comment, unsure:checked, display_link:display_link});
+					inputNode.focus();
+				    }
+				}
+			});
 		},
 		_addTags : function(o) {
 			this._renderTags(o.added, o.index);
@@ -133,14 +177,19 @@ YUI.add('annotation', function(Y) {
 			var label = tag.getValue("label");
 			var body = tag.getValue("body");
 			var comment = tag.getValue("comment");
-			var unsure_value = tag.getValue("unsure");
-			var unsure = (unsure_value != '')?'?':'';
 			var link = tag.getValue("display_link");
+			var unsure = '';
+			if (this.get('unsureNode')) {
+				var unsureLabel = this.get('uiLabels').unsureLabel;
+				var unsure_value = tag.getValue("unsure");
+				var checked = (unsure_value != '')?'checked':'';
+				unsure = "<input class='unsureBox' type='checkbox' "+checked+"/>";
+			}
 			html = '<div class="label">';
 			if (link == '')
-				html += label+unsure;
+				html += unsure+label;
 			else
-				html += '<a href="'+link+'">'+label+unsure+'</a>';
+				html += unsure+'<a href="'+link+'">'+label+'</a>';
 
 			if (comment && comment != "") {
 			  html += ' (' + comment +')';
@@ -189,12 +238,8 @@ YUI.add('annotation', function(Y) {
 
 			Y.log('remove annotation '+annotation+' with comment: '+comment);
 			Y.io(this.get("store.remove"), {
-				data:{
-					annotation:annotation,
-					comment:comment
-				},
-				on:{success: function(e) {
-					       tags.remove(index) }
+				data:{ annotation:annotation, comment:comment },
+				on:{success: function(e) { tags.remove(index) }
 				}
 			});
 		},
