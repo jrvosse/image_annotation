@@ -297,17 +297,6 @@ html_annotation_field(URI, _Options) -->
 			     [])
 			])
 	  ;   Comment = ''
-	  ),
-	  (   Uid \= @null
-	  ->  rdf_lang(URI, an:unsureLabel, UnsureLabel, 'I am not sure'),
-	      Unsure = div([class('annotate-unsure')],
-			   [input([type(checkbox),
-				   id(Uid)
-				  ]),
-			    label([for(Uid)],
-				  [UnsureLabel])
-			   ])
-	  ;   Unsure = ''
 	  )
 	},
 	html(div([class('annotate-field'), alt(FieldDescription)],
@@ -316,7 +305,6 @@ html_annotation_field(URI, _Options) -->
 			 div([class('annotate-description')], FieldDescription)
 		       ]),
 		   input([id(Id), type(text)]),
-		   % Unsure,
 		   Comment
 		 ])),
 	!.
