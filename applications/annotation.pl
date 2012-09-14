@@ -279,15 +279,6 @@ comment_node_id(URI, NodeId) :-
 
 comment_node_id(_, @null).
 
-unsure_node_id(URI, NodeId) :-
-	rdf(URI, an:unsureEnabled, literal(type(xsd:boolean, true))),
-	(   rdf_global_id(_:Id, URI)
-	->  true
-	;   Id = URI
-	),
-	atomic_concat(Id, '_unsure', NodeId).
-unsure_node_id(_, @null).
-
 html_annotation_field(URI, _Options) -->
 	{ rdf_display_label(URI, Label),
 	  (   rdf_global_id(_:Id, URI)
