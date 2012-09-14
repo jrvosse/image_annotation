@@ -42,7 +42,6 @@ YUI.add('annotation', function(Y) {
 	Y.extend(Annotation, Y.Plugin.AutoComplete, {
 
 		initializer: function(args) {
-			var labels = this.get('uiLabels');
 			this.tags = new Y.Recordset({records:{}});
 			this.tags.on("add", this._addTags, this);
 			this.tags.on("remove", this._removeTags, this);
@@ -52,20 +51,7 @@ YUI.add('annotation', function(Y) {
 			var parentNode = this.DEF_PARENT_NODE;
 			parentNode.append(this.tagList);
 			this.infoNode = new Y.Overlay({}).render(parentNode);
-			this.deleteNode = new Y.Overlay({}).render(parentNode);
-			this.deleteNode.hide();
-			head = "";
-			body = "<div h3 class='annotate-comment delete-comment'>";
-			body += "<h3>" + labels.commentLabel + "</h3>";
-			body += "<textarea class='annotate-comment-input delete-comment-input' />";
-			foot  = "<button id='cancel-delete'>" + labels.cancelDeleteLabel + "</button>";
-			foot += "<button id='confirm-delete'>" +labels.confirmDeleteLabel+ "</button>";
-			this.deleteNode.set("headerContent", head);
-			this.deleteNode.set("bodyContent",   body);
-			this.deleteNode.set("footerContent", foot);
-			this.deleteNode.set("centered", true);
-			this.deleteNode.set("width", "33%");
-
+			this._createDeleteNode(parentNode);
 			this.on("activeItemChange", this._onHover, this);
 			this.on("hoveredItemChange", this._onHover, this);
 			this.on("select", this._onItemSelect, this);
@@ -356,6 +342,24 @@ YUI.add('annotation', function(Y) {
 				    }
 				}
 			});
+		},
+
+		_createDeleteNode : function(parentNode) {
+			Node = new Y.Overlay({}).render(parentNode);
+			Node.hide();
+			var labels = this.get('uiLabels');
+			var head = "";
+			var body = "<div h3 class='annotate-comment delete-comment'>";
+			body += "<h3>" + labels.commentLabel + "</h3>";
+			body += "<textarea class='annotate-comment-input delete-comment-input' />";
+			var foot  = "<button id='cancel-delete'>" + labels.cancelDeleteLabel + "</button>";
+			foot += "<button id='confirm-delete'>" +labels.confirmDeleteLabel+ "</button>";
+			Node.set("headerContent", head);
+			Node.set("bodyContent",   body);
+			Node.set("footerContent", foot);
+			Node.set("centered", true);
+			Node.set("width", "33%");
+			this.deleteNode = Node;
 		}
 
 	});
