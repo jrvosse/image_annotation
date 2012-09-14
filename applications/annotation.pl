@@ -307,7 +307,6 @@ html_annotation_field(URI, _Options) -->
 			])
 	  ;   Comment = ''
 	  ),
-	  unsure_node_id(URI, Uid),
 	  (   Uid \= @null
 	  ->  rdf_lang(URI, an:unsureLabel, UnsureLabel, 'I am not sure'),
 	      Unsure = div([class('annotate-unsure')],
@@ -326,7 +325,7 @@ html_annotation_field(URI, _Options) -->
 			 div([class('annotate-description')], FieldDescription)
 		       ]),
 		   input([id(Id), type(text)]),
-		   Unsure,
+		   % Unsure,
 		   Comment
 		 ])),
 	!.
@@ -394,9 +393,9 @@ js_annotation_field(FieldURI, Options) -->
 	  ;   Id = FieldURI
 	  ),
 	  option(target(Target), Options),
+	  rdf(FieldURI, an:unsureEnabled, literal(type(xsd:boolean, Unsure))),
 	  ui_labels(FieldURI, Options, UI_labels),
 	  comment_node_id(FieldURI, CommentNode),
-	  unsure_node_id(FieldURI, UnsureNode),
 	  http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
 	  http_location_by_id(http_get_annotation, Get),
@@ -416,7 +415,7 @@ js_annotation_field(FieldURI, Options) -->
 			       },
 			uiLabels: UI_labels,
 			commentNode: CommentNode,
-			unsureNode:  UnsureNode,
+			unsureEnabled: Unsure,
 			minQueryLength:MinQueryLength,
 			resultListLocator: results,
 			resultTextLocator: label,
@@ -433,7 +432,7 @@ js_annotation_field(FieldURI, Options) -->
 			source:Source,
 			uiLabels: UI_labels,
 			commentNode: CommentNode,
-			unsureNode:  UnsureNode,
+			unsureEnabled: Unsure,
 			store: { add:Add,
 				 get:Get,
 				 remove:Remove
@@ -445,7 +444,7 @@ js_annotation_field(FieldURI, Options) -->
 			    field:FieldURI,
 			    uiLabels: UI_labels,
 			    commentNode: CommentNode,
-			    unsureNode:  UnsureNode,
+			    unsureEnabled:  Unsure,
 			    store: { add:Add,
 				     get:Get,
 				     remove:Remove

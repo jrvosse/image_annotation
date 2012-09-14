@@ -11,8 +11,8 @@ YUI.add('annotation', function(Y) {
 		commentNode: {
 			value: null
 		},
-		unsureNode: {
-			value: null
+		unsureEnabled: {
+			value: false
 		},
 		target: {
 			value: null
@@ -77,11 +77,8 @@ YUI.add('annotation', function(Y) {
 			  this.set('commentNode', commentNode);
 			  commentNode.on("key", this._onTextSubmit, 'enter', this);
 			}
-			var unsureNode = this.get('unsureNode');
-			if (unsureNode) {
-			  unsureNode = Y.one('#'+unsureNode);
-			  this.set('unsureNode', unsureNode);
-			}
+			var unsureEnabled = this.get('unsureEnabled');
+			this.set('unsureEnabled', unsureEnabled == "true");
 			Y.Global.on("done", this._onDone, this);
 			var firstkey = true;
 			this._setKeyInputHandler(firstkey);
@@ -179,7 +176,7 @@ YUI.add('annotation', function(Y) {
 			var comment = tag.getValue("comment");
 			var link = tag.getValue("display_link");
 			var unsure = '';
-			if (this.get('unsureNode')) {
+			if (this.get('unsureEnabled')) {
 				var unsureLabel = this.get('uiLabels').unsureLabel;
 				var unsure_value = tag.getValue("unsure");
 				var checked = (unsure_value != '')?'checked':'';
@@ -310,12 +307,7 @@ YUI.add('annotation', function(Y) {
 			if (e.preventDefault) e.preventDefault();
 			this._setKeyInputHandler(true);
 			if(!this.get("activeItem")) {
-			        var unsure = 0;
-				try {
-				      var unode = this.get("unsureNode");
-				      unsure = Y.Node.getDOMNode(unode).checked;
-				      Y.Node.getDOMNode(unode).checked=0;
-				    } catch (err) { unsure = 0; } // no unsure field present
+			        var unsure = false;
 				var now = new Date();
 				var delta = now - this.get("startTyping");
 				var value = this.getTag();
