@@ -149,14 +149,13 @@ annotation_page(Options) :-
 	option(annotation_fields(AnFields), Options, []),
 	option(footer(Footer), Options, []),
 	option(buttons(Buttons), Options, DefaultButtons),
-	option(stylesheet(StyleSheet), Options, ''),
 	default_buttons(DefaultButtons, Options),
 
 	reply_html_page(
 	    [ \annotation_page_header(Options) ],
 	    [ \html_requires(yui3('cssgrids/grids-min.css')),
 	      \html_requires(css('annotation.css')),
-	      \html_requires(StyleSheet),
+	      \conditional_html_requires(Options),
 	      div(class('yui3-skin-sam yui-skin-sam'),
 		  [ div(id(hd), []),
 		    div(id(bd),
@@ -348,8 +347,14 @@ js_annotation_field(FieldURI, Options) -->
 	  ;   Id = FieldURI
 	  ),
 	  option(target(Target), Options),
-	  rdf(FieldURI, an:unsureEnabled, literal(type(xsd:boolean, Unsure))),
-	  rdf(FieldURI, an:commentEnabled, literal(type(xsd:boolean, Comment))),
+	  (   rdf(FieldURI, an:unsureEnabled, literal(type(xsd:boolean, Unsure)))
+	  ->  true
+	  ;   Unsure=true
+	  ),
+	  (   rdf(FieldURI, an:commentEnabled, literal(type(xsd:boolean, Comment)))
+	  ->  true
+	  ;   Comment=false
+	  ),
 	  ui_labels(FieldURI, Options, UI_labels),
 	  http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
