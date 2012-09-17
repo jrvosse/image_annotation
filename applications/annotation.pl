@@ -273,7 +273,8 @@ html_annotation_field(URI, _Options) -->
 	  (   rdf_global_id(_:Id, URI)
 	  ->  true
 	  ;   Id = URI
-	  )
+	  ),
+	  rdf_lang(URI, dcterms:comment, FieldDescription, '')
 	},
 	html(div([class('annotate-field'), alt(FieldDescription)],
 		 [ div(class('annotate-header'),
