@@ -52,17 +52,12 @@ YUI.add('annotation', function(Y) {
 			parentNode.append(this.tagList);
 			this.infoNode = new Y.Overlay({}).render(parentNode);
 			this._createDeleteNode(parentNode);
+			this._createCommentNode(parentNode);
 			this.on("activeItemChange", this._onHover, this);
 			this.on("hoveredItemChange", this._onHover, this);
 			this.on("select", this._onItemSelect, this);
 			Y.delegate("click", this._onTagRemoveClick, this.tagList, 'li .remove', this);
 
-			var commentNode = this.get('commentNode');
-			if (commentNode) {
-			  commentNode = Y.one('#'+commentNode);
-			  this.set('commentNode', commentNode);
-			  commentNode.on("key", this._onTextSubmit, 'enter', this);
-			}
 			var unsureEnabled = this.get('unsureEnabled');
 			this.set('unsureEnabled', unsureEnabled == "true");
 			Y.Global.on("done", this._onDone, this);
@@ -310,8 +305,10 @@ YUI.add('annotation', function(Y) {
 
 		getComment: function() {
 			      var commentNode = this.get("commentNode");
+			      Y.log(commentNode);
 			      if (!commentNode) return "";
 			      var c = commentNode.get("value");
+			      Y.log(c);
 			      commentNode.set("value", "");
 			      return c;
 		},
@@ -349,7 +346,7 @@ YUI.add('annotation', function(Y) {
 			Node.hide();
 			var labels = this.get('uiLabels');
 			var head = "";
-			var body = "<div h3 class='annotate-comment delete-comment'>";
+			var body = "<div class='annotate-comment delete-comment'>";
 			body += "<h3>" + labels.commentLabel + "</h3>";
 			body += "<textarea class='annotate-comment-input delete-comment-input' />";
 			var foot  = "<button id='cancel-delete'>" + labels.cancelDeleteLabel + "</button>";
@@ -360,8 +357,20 @@ YUI.add('annotation', function(Y) {
 			Node.set("centered", true);
 			Node.set("width", "33%");
 			this.deleteNode = Node;
-		}
+		},
 
+		_createCommentNode : function(parentNode) {
+			var labels = this.get('uiLabels');
+			var body = "<div class='annotate-comment add-comment'>";
+			body += "<h3>" + labels.commentLabel + "</h3>";
+			body += "<textarea class='annotate-comment-input' />";
+			parentNode.one('input').insert(body, 'after');
+			var commentNode = parentNode.one('.add-comment .annotate-comment-input');
+			this.set('commentNode', commentNode);
+			commentNode.on("key", this._onTextSubmit, 'enter', this);
+
+
+		}
 	});
 
 	Y.Plugin.Annotation = Annotation;

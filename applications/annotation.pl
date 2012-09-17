@@ -268,35 +268,11 @@ html_annotation_fields([URI|T], Options) -->
 	html(\html_annotation_field(URI, Options)),
 	html_annotation_fields(T, Options).
 
-comment_node_id(URI, NodeId) :-
-	rdf(URI, an:commentEnabled, literal(type(xsd:boolean, true))),
-	!,
-	(   rdf_global_id(_:Id, URI)
-	->  true
-	;   Id = URI
-	),
-	atomic_concat(Id, '_comment', NodeId).
-
-comment_node_id(_, @null).
-
 html_annotation_field(URI, _Options) -->
 	{ rdf_display_label(URI, Label),
 	  (   rdf_global_id(_:Id, URI)
 	  ->  true
 	  ;   Id = URI
-	  ),
-	  rdf_lang(URI, dcterms:comment, FieldDescription, ''),
-	  comment_node_id(URI, Cid),
-	  (   Cid \= @null
-	  ->  rdf_lang(URI, an:commentLabel, CommentLabel, 'Why? (optional)'),
-	      Comment = div(class('annotate-comment'),
-			[
-			 h3(CommentLabel),
-			 textarea(
-			     [id(Cid),class('annotate-comment-input')],
-			     [])
-			])
-	  ;   Comment = ''
 	  )
 	},
 	html(div([class('annotate-field'), alt(FieldDescription)],
@@ -304,8 +280,7 @@ html_annotation_field(URI, _Options) -->
 		       [ h3(Label),
 			 div([class('annotate-description')], FieldDescription)
 		       ]),
-		   input([id(Id), type(text)]),
-		   Comment
+		   input([id(Id), type(text)])
 		 ])),
 	!.
 
@@ -373,8 +348,8 @@ js_annotation_field(FieldURI, Options) -->
 	  ),
 	  option(target(Target), Options),
 	  rdf(FieldURI, an:unsureEnabled, literal(type(xsd:boolean, Unsure))),
+	  rdf(FieldURI, an:commentEnabled, literal(type(xsd:boolean, Comment))),
 	  ui_labels(FieldURI, Options, UI_labels),
-	  comment_node_id(FieldURI, CommentNode),
 	  http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
 	  http_location_by_id(http_get_annotation, Get),
@@ -393,8 +368,8 @@ js_annotation_field(FieldURI, Options) -->
 				 remove:Remove
 			       },
 			uiLabels: UI_labels,
-			commentNode: CommentNode,
 			unsureEnabled: Unsure,
+			commentEnabled: Comment,
 			minQueryLength:MinQueryLength,
 			resultListLocator: results,
 			resultTextLocator: label,
@@ -410,8 +385,8 @@ js_annotation_field(FieldURI, Options) -->
 			field:FieldURI,
 			source:Source,
 			uiLabels: UI_labels,
-			commentNode: CommentNode,
 			unsureEnabled: Unsure,
+			commentEnabled: Comment,
 			store: { add:Add,
 				 get:Get,
 				 remove:Remove
@@ -422,8 +397,8 @@ js_annotation_field(FieldURI, Options) -->
 			    target:Target,
 			    field:FieldURI,
 			    uiLabels: UI_labels,
-			    commentNode: CommentNode,
 			    unsureEnabled:  Unsure,
+			    commentEnabled: Comment,
 			    store: { add:Add,
 				     get:Get,
 				     remove:Remove
