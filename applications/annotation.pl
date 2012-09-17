@@ -331,6 +331,15 @@ get_label(UI, Field, LabelProp, LabelOption) :-
 	rdf_global_id(_NS:LabelName, LabelProp),
 	LabelOption =.. [LabelName, LabelText].
 
+conditional_html_requires(Options) -->
+	{
+	 option(stylesheet(Stylesheet), Options),!
+	},
+	html_requires(Stylesheet).
+
+conditional_html_requires(_) --> !.
+
+
 %%	js_annotation_fields(+FieldURIs, +AnnotationTarget)
 %
 %	Write JavaScript to init annotation fields
