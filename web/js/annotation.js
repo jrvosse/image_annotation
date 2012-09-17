@@ -1,7 +1,4 @@
 YUI.add('annotation', function(Y) {
-
-	var Node = Y.Node;
-
 	function Annotation(config) {
 		Annotation.superclass.constructor.apply(this, arguments);
 	}
@@ -10,6 +7,9 @@ YUI.add('annotation', function(Y) {
 	Annotation.ATTRS = {
 		commentNode: {
 			value: null
+		},
+		commentEnabled: {
+			value: false
 		},
 		unsureEnabled: {
 			value: false
@@ -42,11 +42,16 @@ YUI.add('annotation', function(Y) {
 	Y.extend(Annotation, Y.Plugin.AutoComplete, {
 
 		initializer: function(args) {
+			var unsureEnabled = this.get('unsureEnabled');
+			this.set('unsureEnabled', unsureEnabled == "true");
+			var commentEnabled = this.get('commentEnabled');
+			this.set('commentEnabled', commentEnabled == "true");
+
 			this.tags = new Y.Recordset({records:{}});
 			this.tags.on("add", this._addTags, this);
 			this.tags.on("remove", this._removeTags, this);
 
-			this.tagList = Node.create(Annotation.LIST_TEMPLATE);
+			this.tagList = Y.Node.create(Annotation.LIST_TEMPLATE);
 
 			var parentNode = this.DEF_PARENT_NODE;
 			parentNode.append(this.tagList);
@@ -58,8 +63,6 @@ YUI.add('annotation', function(Y) {
 			this.on("select", this._onItemSelect, this);
 			Y.delegate("click", this._onTagRemoveClick, this.tagList, 'li .remove', this);
 
-			var unsureEnabled = this.get('unsureEnabled');
-			this.set('unsureEnabled', unsureEnabled == "true");
 			Y.Global.on("done", this._onDone, this);
 			var firstkey = true;
 			this._setKeyInputHandler(firstkey);
@@ -360,6 +363,7 @@ YUI.add('annotation', function(Y) {
 		},
 
 		_createCommentNode : function(parentNode) {
+			if (! this.get('commentEnabled')) return;
 			var labels = this.get('uiLabels');
 			var body = "<div class='annotate-comment add-comment'>";
 			body += "<h3>" + labels.commentLabel + "</h3>";
@@ -368,8 +372,6 @@ YUI.add('annotation', function(Y) {
 			var commentNode = parentNode.one('.add-comment .annotate-comment-input');
 			this.set('commentNode', commentNode);
 			commentNode.on("key", this._onTextSubmit, 'enter', this);
-
-
 		}
 	});
 
