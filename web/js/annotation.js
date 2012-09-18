@@ -18,6 +18,7 @@ YUI.add('annotation', function(Y) {
 		startTyping: 		{ value: [] },   // timestamp when users start typing
 		commentEnabled: 	{ value: false },// when true comment field is shown for this field
 		unsureEnabled: 		{ value: true }, // when true "I'm not sure" checkboxes will be shown for each tag
+		deleteCommentEnabled:	{ value: true }, // when true comment overlay is shown for deletions on this field
 		commentNode: 		{ value: null }, // node that holds the comment field if enabled
 		uiLabels: 		{ value: [] },   // dictionairy with ui labels in the prefered language of the user
 		// disallowing this is not yet implemented:
@@ -30,10 +31,9 @@ YUI.add('annotation', function(Y) {
 	Y.extend(Annotation, Y.Plugin.AutoComplete, {
 
 		initializer: function(args) {
-			var unsureEnabled = this.get('unsureEnabled');
-			this.set('unsureEnabled', unsureEnabled == "true");
-			var commentEnabled = this.get('commentEnabled');
-			this.set('commentEnabled', commentEnabled == "true");
+			var unsureEnabled = this.get('unsureEnabled'); 	this.set('unsureEnabled', unsureEnabled == "true");
+			var commentEnabled = this.get('commentEnabled'); this.set('commentEnabled', commentEnabled == "true");
+			var deleteCommentEnabled = this.get('deleteCommentEnabled'); this.set('deleteCommentEnabled', deleteCommentEnabled == "true");
 
 			this.tags = new Y.Recordset({records:{}});
 			this.tags.on("add", this._addTags, this);
@@ -44,12 +44,16 @@ YUI.add('annotation', function(Y) {
 			var parentNode = this.DEF_PARENT_NODE;
 			parentNode.append(this.tagList);
 			this.infoNode = new Y.Overlay({}).render(parentNode);
-			this._createDeleteNode(parentNode);
 			this._createCommentNode(parentNode);
 			this.on("activeItemChange", this._onHover, this);
 			this.on("hoveredItemChange", this._onHover, this);
 			this.on("select", this._onItemSelect, this);
-			Y.delegate("click", this._onTagRemoveClick, this.tagList, 'li .remove', this);
+			if (deleteCommentEnabled) {
+				Y.delegate("click", this._onTagRemoveClick, this.tagList, 'li .remove', this);
+				this._createDeleteNode(parentNode);
+			} else {
+				Y.delegate("click", this._onDelete, this.tagList, 'li .remove', this);
+			}
 
 			Y.Global.on("done", this._onDone, this);
 			var firstkey = true;
@@ -183,7 +187,7 @@ YUI.add('annotation', function(Y) {
 
 			n.one('.delete-comment-input').on("key", this._onDelete, "enter", this, annotation, index);
 			n.one('#confirm-delete').on("click", this._onDelete, this, annotation, index);
-			n.one('#cancel-delete').on("click", this._onCancel, this, annotation, index);
+			n.one('#cancel-delete').on("click", this._onCancel, this);
 			ov.show();
 
 
@@ -198,15 +202,24 @@ YUI.add('annotation', function(Y) {
 				this.deleteOverlay.hide();
 			     },
 
-		_onDelete : function (e,annotation, index) {
-			var commentNode =  Y.one('.delete-comment-input');
-			var comment = commentNode.get("value");
-			commentNode.set("value", "");
+		_onDelete : function (e, annotation, index) {
 			var tags = this.tags;
-			Y.one('.delete-comment-input').detach("key", this._onDelete, "enter");
-			Y.one('#confirm-delete').detach("click", this._onDelete);
-			Y.one('#cancel-delete').detach("click", this._onCancel);
-			this.deleteOverlay.hide();
+			var ov = this.deleteOverlay;
+			if (ov) {
+			    var n = ov.get('srcNode');
+		            var commentNode =  n.one('.delete-comment-input');
+			    var comment = commentNode.get("value");
+			    commentNode.set("value", "");
+			    n.one('.delete-comment-input').detach("key", this._onDelete, "enter");
+			    n.one('#confirm-delete').detach("click", this._onDelete);
+			    n.one('#cancel-delete').detach("click", this._onCancel);
+			    ov.hide();
+			} else {
+		            var comment = '';
+			    var index = this.tagList.all("li").indexOf(e.currentTarget.get("parentNode"));
+			    var record = tags.getRecordByIndex(index);
+			    var annotation = record.getValue("annotation");
+			}
 
 			Y.log('remove annotation '+annotation+' with comment: '+comment);
 			Y.io(this.get("store.remove"), {
