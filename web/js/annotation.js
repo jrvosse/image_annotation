@@ -1,3 +1,9 @@
+/*
+ * Annotation class represents a single annotation field.
+ * More complex interfaces can be built by combining multiple fields.
+ * 
+ */
+
 YUI.add('annotation', function(Y) {
 	function Annotation(config) {
 		Annotation.superclass.constructor.apply(this, arguments);
@@ -5,35 +11,17 @@ YUI.add('annotation', function(Y) {
 	Annotation.NAME = "aclist"; // use same name as Y.Plugin.AutoComplete to inherit css
 	Annotation.NS = "annotation";
 	Annotation.ATTRS = {
-		commentNode: {
-			value: null
-		},
-		commentEnabled: {
-			value: false
-		},
-		unsureEnabled: {
-			value: false
-		},
-		target: {
-			value: null
-		},
-		field: {
-			value: null
-		},
-		store: {
-			value: null
-		},
-		tags: {
-			value: []
-		},
-		startTyping: {
-			value: []
-		},
-		uiLabels: { value: []
-			  },
-		allowTextSubmit: {
-			value:true
-		}
+		target: 		{ value: null }, // URI of target image to be annotated
+		field: 			{ value: null }, // URI identifying annotation field
+		store: 			{ value: null }, // URIs of web services to CRUD http annotation api
+		tags: 			{ value: [] },	 // tags already exisiting
+		startTyping: 		{ value: [] },   // timestamp when users start typing
+		commentEnabled: 	{ value: false },// when true comment field is shown for this field
+		unsureEnabled: 		{ value: true }, // when true "I'm not sure" checkboxes will be shown for each tag
+		commentNode: 		{ value: null }, // node that holds the comment field if enabled
+		uiLabels: 		{ value: [] },   // dictionairy with ui labels in the prefered language of the user
+		// disallowing this is not yet implemented:
+		allowTextSubmit:	{ value:true }   // if true, plain tags are allowed, if false, only terms with a uri.
 	};
 
 	Annotation.LIST_CLASS = 'taglist';
