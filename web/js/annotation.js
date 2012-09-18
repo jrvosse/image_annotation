@@ -184,27 +184,30 @@ YUI.add('annotation', function(Y) {
 			    tags = this.tags,
 			    record = tags.getRecordByIndex(index),
 			    annotation = record.getValue("annotation"),
-			    labels = this.get("uiLabels");
-			    tag = record.getValue("label");
-			this.deleteNode.set("headerContent", "<h3 class='delete_dialog'>"+ labels.deleteLabel + " " + tag +"</h3>");
-			Y.one('.delete-comment-input').detach();
-			Y.one('#confirm-delete').detach();
-			Y.one('#cancel-delete').detach();
+			    labels = this.get("uiLabels"),
+			    tag = record.getValue("label"),
+			    ov = this.deleteOverlay,
+			    n = ov.get('srcNode');
+			ov.set("headerContent", "<h3 class='delete_dialog'>"+ labels.deleteLabel + " " + tag +"</h3>");
+			n.one('.delete-comment-input').detach();
+			n.one('#confirm-delete').detach();
+			n.one('#cancel-delete').detach();
 
-			Y.one('.delete-comment-input').on("key", this._onDelete, "enter", this, annotation, index);
-			Y.one('#confirm-delete').on("click", this._onDelete, this, annotation, index);
-			Y.one('#cancel-delete').on("click", this._onCancel, this, annotation, index);
-			this.deleteNode.show();
+			n.one('.delete-comment-input').on("key", this._onDelete, "enter", this, annotation, index);
+			n.one('#confirm-delete').on("click", this._onDelete, this, annotation, index);
+			n.one('#cancel-delete').on("click", this._onCancel, this, annotation, index);
+			ov.show();
 
 
 		},
 
 		_onCancel : function() {
+				Y.log('onCancel');
 				Y.one('.delete-comment-input').detach("key", this._onDelete, "enter");
 				Y.one('.delete-comment-input').set("value", "");
 				Y.one('#confirm-delete').detach("click", this._onDelete);
 				Y.one('#cancel-delete').detach("click", this._onCancel);
-				this.deleteNode.hide();
+				this.deleteOverlay.hide();
 			     },
 
 		_onDelete : function (e,annotation, index) {
@@ -215,7 +218,7 @@ YUI.add('annotation', function(Y) {
 			Y.one('.delete-comment-input').detach("key", this._onDelete, "enter");
 			Y.one('#confirm-delete').detach("click", this._onDelete);
 			Y.one('#cancel-delete').detach("click", this._onCancel);
-			this.deleteNode.hide();
+			this.deleteOverlay.hide();
 
 			Y.log('remove annotation '+annotation+' with comment: '+comment);
 			Y.io(this.get("store.remove"), {
@@ -359,7 +362,7 @@ YUI.add('annotation', function(Y) {
 			Node.set("footerContent", foot);
 			Node.set("centered", true);
 			Node.set("width", "33%");
-			this.deleteNode = Node;
+			this.deleteOverlay = Node;
 		},
 
 		_createCommentNode : function(parentNode) {
