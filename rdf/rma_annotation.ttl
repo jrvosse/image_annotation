@@ -15,7 +15,24 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 :confirmDeleteLabel rdfs:subPropertyOf :uiLabel.
 
 
-:NicheAccuratorFullDemoUi a :AnnotationUI ;
+:nicheAccuratorFlowerDemoUi a :AnnotationUI ;
+        dc:title            "Niche Accurator - Flower Edition"@en;
+        :commentLabel       "Opmerkingen (optioneel):"@nl;
+        :commentLabel       "Comments (optional):"@en;
+	:deleteLabel        "Verwijder:"@nl;
+	:deleteLabel 	    "Remove:"@en;
+        :cancelDeleteLabel  "Annuleren"@nl;
+        :cancelDeleteLabel  "Cancel"@en;
+        :confirmDeleteLabel "Verwijderen"@nl;
+        :confirmDeleteLabel "Delete"@en;
+	:fields (
+	     :TaxonConceptSpeciesCommonNameAnnotation
+	     :TaxonConceptGenusNameAnnotation
+	     :symbolicField
+	     :biblioField
+	 ) .
+
+:nicheAccuratorFullDemoUi a :AnnotationUI ;
         dc:title "Niche Accurator"@en;
         :commentLabel "Opmerkingen (optioneel):"@nl;
         :commentLabel "Comments (optional):"@en;
@@ -37,7 +54,7 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 	     :AestheticsAnnotation
 	 ) .
 
-:NicheAccuratorSmallDemoUi a :AnnotationUI ;
+:nicheAccuratorSmallDemoUi a :AnnotationUI ;
         dc:title "Niche Accurator"@en;
         :commentLabel "Opmerkingen (optioneel):"@nl;
         :commentLabel "Comments (optional):"@en;
@@ -50,6 +67,18 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 	:fields (
 	     :TaxonConceptSpeciesCommonNameAnnotation
 	 ) .
+
+:biblioField a :Field ;
+        rdfs:label "Bibliografie"@nl ;
+	rdfs:label "Bibliography"@en ;
+	dc:comment "gebruikte bronnen (optioneel)"@nl ;
+	dc:comment "references used (optional)"@en .
+
+:symbolicField a :Field ;
+        rdfs:label "Iconologie"@nl ;
+	rdfs:label "Iconology"@en ;
+	dc:comment "(symbolische) interpretatie, optioneel"@nl ;
+	dc:comment "(symbolic) interpretation, optional"@en .
 
 :LocationAnnotation a :Field ;
         rdfs:label "Binnen/buiten"@nl ;
@@ -107,7 +136,7 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 	dc:comment "voeg de in Nederland gebruikelijke naam van soort toe"@nl ;
 	:unsureLabel "not sure"@en;
 	:unsureLabel "ik ben niet zeker"@nl;
-        :commentEnabled true ;
+        :commentEnabled false ;
 	:unsureEnabled true;
         :deleteCommentEnabled true;
 	:source "/api/autocomplete?q={query}&filter=[{\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"},{\"prop\":\"http://lod.taxonconcept.org/ontology/txn.owl%23inDBpediaClade\",\"uri\":\"http://dbpedia.org/ontology/FloweringPlant\"}]&labelrank=['http://lod.taxonconcept.org/ontology/txn.owl%23commonName'-0, 'http://lod.taxonconcept.org/ontology/txn.owl%23scientificName'-0.2]" .
