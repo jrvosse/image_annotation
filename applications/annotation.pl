@@ -52,7 +52,7 @@
 	   'Minimum number of characters that must be entered before a query event will be fired. A value of 0 allows empty queries; a negative value will effectively disable all query events and turn AutoComplete off. ').
 
 :- setting(default_ui, uri,
-	   'http://semanticweb.cs.vu.nl/annotate/NicheAccuratorFlowerDemoUi',
+	   'http://semanticweb.cs.vu.nl/annotate/nicheAccuratorFlowerDemoUi',
 	   'URI of the default UI configuration object').
 
 :- setting(default_target, uri,
@@ -117,6 +117,7 @@ http_annotation(Request) :-
 
 get_anfields(UI, [], Fields) :-
 	var(UI),
+	setting(default_ui, UI),
 	rdfs_individual_of(UI, an:'AnnotationUI'),
 	get_anfields(UI, [], Fields).
 get_anfields(UI, Fields, Fields) :-
