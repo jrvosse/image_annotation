@@ -51,7 +51,13 @@
 :- setting(min_query_length, integer, 3,
 	   'Minimum number of characters that must be entered before a query event will be fired. A value of 0 allows empty queries; a negative value will effectively disable all query events and turn AutoComplete off. ').
 
-:- setting(default_target, uri, 'http://www.public-domain-image.com/plants/flowers/slides/chrysanthemum-flower.jpg', 'Default target object to annotate if none given').
+:- setting(default_ui, uri,
+	   'http://semanticweb.cs.vu.nl/annotate/NicheAccuratorFlowerDemoUi',
+	   'URI of the default UI configuration object').
+
+:- setting(default_target, uri,
+	   'http://www.public-domain-image.com/plants/flowers/slides/chrysanthemum-flower.jpg',
+	   'Default target object to annotate if none given').
 
 :- setting(default_metadata, list(uri),
 	   [ 'http://purl.org/dc/terms/title',
