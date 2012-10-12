@@ -15,6 +15,8 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 :confirmDeleteLabel rdfs:subPropertyOf :uiLabel.
 
 
+% Castle name, location, monumnent number, arch style (from aat, cornetto), biblio.
+
 :nicheAccuratorFlowerDemoUi a :AnnotationUI ;
         dc:title            "Niche Accurator - Flower Edition"@en;
         :commentLabel       "Opmerkingen (optioneel):"@nl;
@@ -142,10 +144,10 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 	:source "/api/autocomplete?q={query}&filter=[{\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"},{\"prop\":\"http://lod.taxonconcept.org/ontology/txn.owl%23inDBpediaClade\",\"uri\":\"http://dbpedia.org/ontology/FloweringPlant\"}]&labelrank=['http://lod.taxonconcept.org/ontology/txn.owl%23commonName'-0, 'http://lod.taxonconcept.org/ontology/txn.owl%23scientificName'-0.2]" .
 
 :TaxonConceptGenusNameAnnotation
-	rdfs:label "Genus"@en ;
-	rdfs:label "Geslacht"@nl ;
-	dc:comment "add genus name of the species"@en ;
-	dc:comment "voeg de in Nederland gebruikelijke geslachtsnaam toe wanneer u de soortnaam niet weet"@nl ;
+	rdfs:label "Scientific name"@en ;
+	rdfs:label "Wetenschappelijke naam"@nl ;
+	dc:comment "add scientificly accepted species or genus name"@en ;
+	dc:comment "voeg de wetenschappelijke soortnaam"@nl ;
 	:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"}" .
 
 
