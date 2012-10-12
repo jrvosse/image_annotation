@@ -87,6 +87,11 @@ http_annotation(Request) :-
 		       optional(true),
 		       description('URI of the UI configuration')
 		     ]),
+		  stylesheet(Stylesheet,
+		     [ uri,
+		       optional(true),
+		       description('URI of an optional stylesheet')
+		     ]),
 		  field(ExtraFields,
 			[list(uri),
 			 description('URIs of annotation field, adding to UI defs')
@@ -108,6 +113,7 @@ http_annotation(Request) :-
 	),
 	Options = [
 		   title(Title),
+		   stylesheet(Stylesheet),
 		   ui(UI),
 		   target(Target),
 		   annotation_fields(AnnotationFields),
@@ -132,16 +138,15 @@ get_anfields(URI, ExtraFields, Fields) :-
 	).
 get_metafields('', [], Fields) :-
 	rdfs_individual_of(URI, an:'AnnotationUI'),
-	get_metafields(URI, [], Fields).
-get_metafields('', ExtraFields, ExtraFields) :-
-	ExtraFields = [_|_],
-	!.
-get_metafields(URI, ExtraFields, Fields) :-
+	get_metafields(URI, [], Fields),!.
+
+get_metafields(URI, [], Fields) :-
 	(   rdf_has(URI, an:metadata, RdfList)
 	->  rdfs_list_to_prolog_list(RdfList, Fields)
-	;   setting(default_metadata, UiFields)
-	),
-	append(UiFields, ExtraFields, Fields).
+	;   setting(default_metadata, Fields)
+	),!.
+
+get_metafields(_URI, Fields, Fields) :-!.
 
 /***************************************************
 * annotation page
@@ -340,7 +345,9 @@ get_label(UI, Field, LabelProp, LabelOption) :-
 
 conditional_html_requires(Options) -->
 	{
-	 option(stylesheet(Stylesheet), Options),!
+	 option(stylesheet(Stylesheet), Options),
+	 ground(Stylesheet),
+	 !
 	},
 	html_requires(Stylesheet).
 
