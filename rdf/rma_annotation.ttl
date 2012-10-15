@@ -15,14 +15,14 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 :confirmDeleteLabel rdfs:subPropertyOf :uiLabel.
 
 
-% Castle name, location, monumnent number, arch style (from aat, cornetto), biblio.
+# Castle name, location, monumnent number, arch style (from aat, cornetto), biblio.
 
 :nicheAccuratorFlowerDemoUi a :AnnotationUI ;
         dc:title            "Niche Accurator - Flower Edition"@en;
         :commentLabel       "Opmerkingen (optioneel):"@nl;
         :commentLabel       "Comments (optional):"@en;
 	:deleteLabel        "Verwijder:"@nl;
-	:deleteLabel 	    "Remove:"@en;
+	:deleteLabel	    "Remove:"@en;
         :cancelDeleteLabel  "Annuleren"@nl;
         :cancelDeleteLabel  "Cancel"@en;
         :confirmDeleteLabel "Verwijderen"@nl;
