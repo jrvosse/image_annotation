@@ -1,6 +1,4 @@
-:- module(ann_preferences, [
-			   set_user_preferences/2
-			  ]).
+:- module(ann_preferences, []).
 
 :- use_module(library(http/http_session)).
 :- use_module(library(semweb/rdf_db)).
@@ -10,11 +8,13 @@
 
 :- rdf_meta
 	cliopatria:user_preference_db(r,o),
-	cliopatria:user_preference_default(r,o),
-	set_user_preferences(r,o).
+	cliopatria:user_preference_default(r,o).
 
-
+:- if(current_setting(user:lang)).
+% do nothing
+:- else.
 :- setting(user:lang, atom, en, 'Preferred language').
+:- endif.
 
                  /*******************************
                  *   USER/SESSION PREFERENCES   *
@@ -28,16 +28,9 @@
 %       values are compatible with RDF to   allow  implementing the user
 %       database in RDF, typically using the OpenID as subject.
 
-cliopatria:user_preferences_db(Property, Value) :-
+cliopatria:user_preference_db(Property, Value) :-
 	logged_on(User, anonymous),
 	http_session_data(rdf(User, Property, Value)).
-
-set_user_preferences(Property, Value) :-
-	cliopatria:user_preferences_db(Property, Value), !.
-
-set_user_preferences(Property, Value) :-
-	logged_on(User, anonymous),
-	http_session_assert(rdf(User, Property, Value)).
 
 %%      cliopatria:user_preference_default(?Property:atom, ?Value:rdf_object) is nondet.
 %
