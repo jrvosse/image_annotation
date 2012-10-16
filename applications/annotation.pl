@@ -96,6 +96,10 @@ http_annotation(Request) :-
 			[list(uri),
 			 description('URIs of annotation field, adding to UI defs')
 			]),
+		  disableField(DisabledFields,
+			       [list(uri),
+				description('URIs of annotation field, deleted from the UI defs')
+			       ]),
 		  metadata(MetaFields,
 			   [list(uri),
 			    description('URIs of metadata properties to display')
@@ -105,7 +109,7 @@ http_annotation(Request) :-
         ->  authorized(write(default, annotate))
         ;   true
         ),
-	get_anfields(UI, ExtraFields, AnnotationFields),
+	get_anfields(UI, ExtraFields, DisabledFields, AnnotationFields),
 	get_metafields(UI, MetaFields, MetadataFields),
 	(   var(UI)
 	->  Title = 'Error: UI not defined ...', UI = undefined
@@ -121,32 +125,38 @@ http_annotation(Request) :-
 		  ],
 	annotation_page(Options).
 
-get_anfields(UI, [], Fields) :-
+get_anfields(UI, [], [], Fields) :-
 	var(UI),
 	setting(default_ui, UI),
 	rdfs_individual_of(UI, an:'AnnotationUI'),
-	get_anfields(UI, [], Fields).
-get_anfields(UI, Fields, Fields) :-
+	get_anfields(UI, [], [], Fields).
+get_anfields(UI, Fields, [], Fields) :-
 	var(UI),
 	Fields = [_|_],
 	!.
-get_anfields(URI, ExtraFields, Fields) :-
+get_anfields(URI, ExtraFields, DisabledFields, Fields) :-
 	(   rdf_has(URI, an:fields, RdfList)
 	->  rdfs_list_to_prolog_list(RdfList, UiFields),
-	    append(UiFields, ExtraFields, Fields)
+	    append(UiFields, ExtraFields, Fields1),
+	    subtract(Fields1, DisabledFields, Fields)
 	;   Fields=ExtraFields
 	).
+
+
 get_metafields('', [], Fields) :-
 	rdfs_individual_of(URI, an:'AnnotationUI'),
 	get_metafields(URI, [], Fields),!.
 
-get_metafields(URI, [], Fields) :-
+get_metafields('', Fields, Fields) :-!.
+
+get_metafields(URI, ExtraFields, Fields) :-
 	(   rdf_has(URI, an:metadata, RdfList)
-	->  rdfs_list_to_prolog_list(RdfList, Fields)
+	->  rdfs_list_to_prolog_list(RdfList, UiFields),
+	    append(UiFields, ExtraFields, Fields)
 	;   setting(default_metadata, Fields)
 	),!.
 
-get_metafields(_URI, Fields, Fields) :-!.
+
 
 /***************************************************
 * annotation page
