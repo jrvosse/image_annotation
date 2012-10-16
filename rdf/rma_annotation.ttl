@@ -15,7 +15,22 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 :confirmDeleteLabel rdfs:subPropertyOf :uiLabel.
 
 
-# Castle name, location, monumnent number, arch style (from aat, cornetto), biblio.
+:nicheAccuratorCastleDemoUi a :AnnotationUI ;
+        dc:title            "Niche Accurator - Castle Edition"@en;
+        :commentLabel       "Opmerkingen (optioneel):"@nl;
+        :commentLabel       "Comments (optional):"@en;
+	:deleteLabel        "Verwijder:"@nl;
+	:deleteLabel	    "Remove:"@en;
+        :cancelDeleteLabel  "Annuleren"@nl;
+        :cancelDeleteLabel  "Cancel"@en;
+        :confirmDeleteLabel "Verwijderen"@nl;
+        :confirmDeleteLabel "Delete"@en;
+	:fields (
+	   :monumentNameField
+	   :monumentNumberField
+	   :archStyleField
+	   :biblioField
+	).
 
 :nicheAccuratorFlowerDemoUi a :AnnotationUI ;
         dc:title            "Niche Accurator - Flower Edition"@en;
@@ -69,6 +84,26 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 	:fields (
 	     :TaxonConceptSpeciesCommonNameAnnotation
 	 ) .
+
+# Castle name, location, monumnent number, arch style (from aat, cornetto), biblio.
+# monument naam, monument nummer, architectural style, References:AnnotationUI ;
+:monumentNameField a :Field ;
+        rdfs:label "Monument naam"@nl ;
+	rdfs:label "Monument name"@en ;
+	dc:comment "Naam van dit monument"@nl ;
+	dc:comment "Name of the monument"@en .
+
+:monumentNumberField a :Field ;
+        rdfs:label "Monument nummer"@nl ;
+	rdfs:label "Monument number"@en ;
+	dc:comment "RCE nummer van dit monument"@nl ;
+	dc:comment "(RCE) number of the monument"@en .
+
+:archStyleField a :Field ;
+        rdfs:label "Stijl"@nl ;
+	rdfs:label "Style"@en ;
+	dc:comment "architectonische stijl (optioneel)"@nl ;
+	dc:comment "architectural style (optional)"@en .
 
 :biblioField a :Field ;
         rdfs:label "Bibliografie"@nl ;
