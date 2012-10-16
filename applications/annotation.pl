@@ -1,6 +1,6 @@
 :- module(annotation,
 	  [ annotation_page/1,
-	    get_anfields/3,
+	    get_anfields/4,
 	    get_metafields/3
 	  ]).
 
