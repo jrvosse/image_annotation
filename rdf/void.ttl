@@ -4,8 +4,8 @@
 @prefix       owl: <http://www.w3.org/2002/07/owl#> .
 @prefix   dcterms: <http://purl.org/dc/terms/> .
 
-<annotation-ui-sealinc>
+<annotation-ui-example>
 	a void:Dataset ;
 	dcterms:title "Annotation UI configuration for the sealinc accurator demo";
 	void:dataDump
-		<rma_annotation.ttl> .
+		<annotation_ui_example.ttl> .
