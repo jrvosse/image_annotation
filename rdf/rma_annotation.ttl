@@ -28,6 +28,7 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 	:fields (
 	   :monumentNameField
 	   :monumentNumberField
+	   :locationField
 	   :archStyleField
 	   :biblioField
 	).
@@ -90,8 +91,8 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 :monumentNameField a :Field ;
         rdfs:label "Monument naam"@nl ;
 	rdfs:label "Monument name"@en ;
-	dc:comment "Naam van dit monument"@nl ;
-	dc:comment "Name of the monument"@en .
+	dc:comment "naam van dit monument"@nl ;
+	dc:comment "name of the monument"@en .
 
 :monumentNumberField a :Field ;
         rdfs:label "Monument nummer"@nl ;
@@ -102,14 +103,20 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 :archStyleField a :Field ;
         rdfs:label "Stijl"@nl ;
 	rdfs:label "Style"@en ;
-	dc:comment "architectonische stijl (optioneel)"@nl ;
-	dc:comment "architectural style (optional)"@en .
+	dc:comment "architectonische stijl"@nl ;
+	dc:comment "architectural style"@en .
 
 :biblioField a :Field ;
         rdfs:label "Bibliografie"@nl ;
 	rdfs:label "Bibliography"@en ;
-	dc:comment "URL of referentie naar gebruikte bronnen (optioneel)"@nl ;
-	dc:comment "URL or book reference to sources used (optional)"@en .
+	dc:comment "URL of referentie naar gebruikte bronnen"@nl ;
+	dc:comment "URL or book reference to sources used"@en .
+
+:locationField a :Field ;
+        rdfs:label "Lokatie"@nl ;
+	rdfs:label "Location"@en ;
+	dc:comment "plaats waar dit object zich bevindt"@nl ;
+	dc:comment "place where this object is located"@en .
 
 :symbolicField a :Field ;
         rdfs:label "Iconologie"@nl ;
