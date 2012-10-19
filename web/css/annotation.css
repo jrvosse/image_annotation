@@ -30,6 +30,11 @@ body {
 #media .description  { max-width: 800px }
 #media .title .metalabel { display: none }
 #media .description .metalabel { display: none }
+#media .title  {
+	color: #222;
+	font-size: 1.3em;
+	font-weight: bold;
+}
 #media .link a.r_def {
 	color: #222;
 	font-size: 1.3em;
