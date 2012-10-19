@@ -104,7 +104,8 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
         rdfs:label "Stijl"@nl ;
 	rdfs:label "Style"@en ;
 	dc:comment "architectonische stijl"@nl ;
-	dc:comment "architectural style"@en .
+	dc:comment "architectural style"@en ;
+	:source "/api/autocomplete?q={query}&filter={\"reachable\":\"http://www.w3.org/2004/02/skos/core%23broader\",\"uri\":\"http://purl.org/vocabularies/getty/aat/Styles_and_Periods\"}&labelrank=['http://www.w3.org/2004/02/skos/core%23prefLabel'-0, 'http://www.w3.org/2004/02/skos/core%23altLabel'-0.2]" .
 
 :biblioField a :Field ;
         rdfs:label "Bibliografie"@nl ;
