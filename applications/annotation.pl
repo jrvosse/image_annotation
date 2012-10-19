@@ -372,7 +372,7 @@ js_annotation_field(FieldURI, Options) -->
 	  option(target(Target), Options),
 	  (   rdf(FieldURI, an:unsureEnabled, literal(type(xsd:boolean, Unsure)))
 	  ->  true
-	  ;   Unsure=true
+	  ;   Unsure=false
 	  ),
 	  (   rdf(FieldURI, an:commentEnabled, literal(type(xsd:boolean, Comment)))
 	  ->  true
