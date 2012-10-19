@@ -60,7 +60,7 @@
 	   'Default target object to annotate if none given').
 
 :- setting(default_metadata, list(uri),
-	   [ 'http://purl.org/dc/terms/title',
+	   [ % 'http://purl.org/dc/terms/title',
 	     'http://semanticweb.cs.vu.nl/annotate/imageURL',
 	     'http://semanticweb.cs.vu.nl/annotate/url',
 	     'http://purl.org/dc/terms/description'
