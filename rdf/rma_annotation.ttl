@@ -108,8 +108,8 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 :biblioField a :Field ;
         rdfs:label "Bibliografie"@nl ;
 	rdfs:label "Bibliography"@en ;
-	dc:comment "gebruikte bronnen (optioneel)"@nl ;
-	dc:comment "references used (optional)"@en .
+	dc:comment "URL of referentie naar gebruikte bronnen (optioneel)"@nl ;
+	dc:comment "URL or book reference to sources used (optional)"@en .
 
 :symbolicField a :Field ;
         rdfs:label "Iconologie"@nl ;
