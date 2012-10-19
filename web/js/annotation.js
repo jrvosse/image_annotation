@@ -267,7 +267,7 @@ YUI.add('annotation', function(Y) {
 			if(body) {
 				infoNode.set("bodyContent", body);
 				infoNode.set("align", {node:active,
-				                      points:[Y.WidgetPositionAlign.TL, Y.WidgetPositionAlign.TR]});
+				                      points:[Y.WidgetPositionAlign.TR, Y.WidgetPositionAlign.TL]});
 				infoNode.show();
 			} else {
 				infoNode.hide();
