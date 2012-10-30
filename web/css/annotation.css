@@ -78,8 +78,6 @@ body {
  margin: .5% ;
  border: 2px solid #EEE;
 }
-.annotate-unsure label {
-}
 .annotate-header h3 {
 	margin: 0 0 1%;
 		    }
@@ -180,6 +178,19 @@ body {
 	text-decoration: none;
 }
 
+.taglist .judgeButton:hover {
+	background-color: gray;
+}
+.taglist .judgeButton {
+	padding-left: .3em;
+	padding-right: .3em;
+	padding-top: .3em;
+	cursor: crosshair;
+}
+.taglist .judgeButton img {
+	height: 2ex;
+	vertical-align: middle;
+}
 /* resource */
 .resource h3 {
 	margin: 0 0 6px;

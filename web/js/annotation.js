@@ -130,19 +130,25 @@ YUI.add('annotation', function(Y) {
 				var agreeLabel = this.get('uiLabels').agreeLabel;
 				var agree_value = tag.getValue("agree");
 				var checked = (agree_value != '')?'checked':'';
-				judgement_buttons += "<span class='agreeButton " + checked + "'>[" + agreeLabel +"]</span>";
+				judgement_buttons += "<span class='judgeButton agreeButton " + checked + "'>";
+				judgement_buttons += "<img src='../icons/thumbUp.png' title='" + agreeLabel + "'/>";
+				judgement_buttons += "</span>";
 			} 
 			if (this.get('unsureEnabled')) {
 				var unsureLabel = this.get('uiLabels').unsureLabel;
 				var unsure_value = tag.getValue("unsure");
 				var checked = (unsure_value != '')?'checked':'';
-				judgement_buttons += "<span class='unsureButton " + checked + "'>[" + unsureLabel +"]</span>";
+				judgement_buttons += "<span class='judgeButton unsureButton " + checked + "'>";
+				judgement_buttons += "<img src='../icons/unsure.png' title='" + unsureLabel + "'/>";
+				judgement_buttons += "</span>";
 			}
 			if (this.get('disagreeEnabled')) {
 				var disagreeLabel = this.get('uiLabels').disagreeLabel;
 				var disagree_value = tag.getValue("disagree");
 				var checked = (disagree_value != '')?'checked':'';
-				judgement_buttons += "<span class='disagreeButton " + checked + "'>[" + disagreeLabel +"]</span>";
+				judgement_buttons += "<span class='judgeButton disagreeButton " + checked + "'>";
+				judgement_buttons += "<img src='../icons/thumbDown.png' title='" + disagreeLabel + "'/>";
+				judgement_buttons += "</span>";
 			} 
 			html = '<div class="label">';
 			if (link == '')
