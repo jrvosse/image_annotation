@@ -14,15 +14,15 @@ YUI.add('annotation', function(Y) {
 		target: 		{ value: null }, // URI of target image to be annotated
 		field: 			{ value: null }, // URI identifying annotation field
 		store: 			{ value: null }, // URIs of web services to CRUD http annotation api
-		tags: 			{ value: [] },	 // tags already exisiting
-		startTyping: 		{ value: [] },   // timestamp when users start typing
+		metatags: 		{ value: {} },	   // metatags dictionary
+		startTyping: 		{ value: null },   // timestamp when users start typing
 		commentEnabled: 	{ value: "false" },// when true comment field is shown for this field
 		unsureEnabled: 		{ value: "true" }, // when true "I'm not sure" checkboxes will be shown for each tag
 		agreeEnabled: 		{ value: "true" }, // when true "I agree" checkboxes will be shown for each tag
 		disagreeEnabled:	{ value: "true" }, // when true "I disagree" checkboxes will be shown for each tag
 		deleteCommentEnabled:	{ value: "true" }, // when true comment overlay is shown for deletions on this field
 		commentNode: 		{ value: null }, // node that holds the comment field if enabled
-		uiLabels: 		{ value: [] },   // dictionairy with ui labels in the prefered language of the user
+		uiLabels: 		{ value: [] },   // dictionary with ui labels in the prefered language of the user
 		// disallowing this is not yet implemented:
 		allowTextSubmit:	{ value:true }   // if true, plain tags are allowed, if false, only terms with a uri.
 	};
@@ -42,6 +42,7 @@ YUI.add('annotation', function(Y) {
 
 			this.tags = new Y.Recordset({records:{}});
 			this.tags.on("add", this._addTags, this);
+			this.tags.on("update", this._updateTags, this);
 			this.tags.on("remove", this._removeTags, this);
 
 			this.tagList = Y.Node.create(Annotation.LIST_TEMPLATE);
@@ -89,27 +90,27 @@ YUI.add('annotation', function(Y) {
 				  this._onTextSubmit({});
 			  },
 		_renderTags : function(tags, index) {
+			this.DEF_PARENT_NODE.all('.judgeButton').detach('click');
 			var tagList = this.tagList;
+			var tagNodes = this.tagList.all("li");
+			Y.log('rendering ' + tags.length + ' tags at index ' + index);
+			if (index < tagNodes.size()) {
+				this._removeTags({index:index, range:tags.length});
+			}
 			// format the tags
 			for(var i=0; i < tags.length; i++) {
-				tagList.append('<li>'+this.formatTag(tags[i])+'</li>');
-
+				tagList.insert('<li>'+this.formatTag(tags[i])+'</li>', index+i);
 			};
-			this.DEF_PARENT_NODE.all('.unsureButton').detach('click').on(  'click', this.onJudgeAnnotation, this, 'unsure');
-			this.DEF_PARENT_NODE.all('.agreeButton').detach('click').on(   'click', this.onJudgeAnnotation, this, 'agree');
-			this.DEF_PARENT_NODE.all('.disagreeButton').detach('click').on('click', this.onJudgeAnnotation, this, 'disagree');
+			this.DEF_PARENT_NODE.all('.agreeButton.unchecked').on(   'click', this.onJudgeAnnotation, this, 'agree');
+			this.DEF_PARENT_NODE.all('.unsureButton.unchecked').on(  'click', this.onJudgeAnnotation, this, 'unsure');
+			this.DEF_PARENT_NODE.all('.disagreeButton.unchecked').on('click', this.onJudgeAnnotation, this, 'disagree');
 
 		},
-		_getTag : function(annotation) {
-			var tagList = this.tagList;
-			for(var i=0; i < tags.length; i++) {
-				tagList.append('<li>'+this.formatTag(tags[i])+'</li>');
-
-			};
-		},
-
 		_addTags : function(o) {
 			this._renderTags(o.added, o.index);
+		},
+		_updateTags : function(o) {
+			this._renderTags(o.updated, o.index);
 		},
 		_removeTags : function(o) {
 			var tagNodes = this.tagList.all("li"),
@@ -121,31 +122,38 @@ YUI.add('annotation', function(Y) {
 		},
 
 		formatTag : function(tag) {
+			var target= tag.getValue("target");
+			var body  = tag.getValue("body");
 			var label = tag.getValue("label");
-			var body = tag.getValue("body");
+			var link  = tag.getValue("display_link");
+			var annot = tag.getValue("annotation");
 			var comment = tag.getValue("comment");
-			var link = tag.getValue("display_link");
+			var meta = this.get('metatags')[annot];
+			Y.log(meta);
 			var judgement_buttons = '';
 			if (this.get('agreeEnabled')) {
 				var agreeLabel = this.get('uiLabels').agreeLabel;
-				var agree_value = tag.getValue("agree");
-				var checked = (agree_value != '')?'checked':'';
+				var agree_value = undefined;
+				if (meta && meta.agree) agree_value = meta.agree.body.value;
+				var checked = (agree_value != undefined)?'checked':'unchecked';
 				judgement_buttons += "<span class='judgeButton agreeButton " + checked + "'>";
 				judgement_buttons += "<img src='../icons/thumbUp.png' title='" + agreeLabel + "'/>";
 				judgement_buttons += "</span>";
 			} 
 			if (this.get('unsureEnabled')) {
 				var unsureLabel = this.get('uiLabels').unsureLabel;
-				var unsure_value = tag.getValue("unsure");
-				var checked = (unsure_value != '')?'checked':'';
+				var unsure_value = undefined;
+				if (meta && meta.unsure) unsure_value = meta.unsure.body.value;
+				var checked = (unsure_value != undefined)?'checked':'unchecked';
 				judgement_buttons += "<span class='judgeButton unsureButton " + checked + "'>";
 				judgement_buttons += "<img src='../icons/unsure.png' title='" + unsureLabel + "'/>";
 				judgement_buttons += "</span>";
 			}
 			if (this.get('disagreeEnabled')) {
 				var disagreeLabel = this.get('uiLabels').disagreeLabel;
-				var disagree_value = tag.getValue("disagree");
-				var checked = (disagree_value != '')?'checked':'';
+				var disagree_value = undefined;
+				if (meta && meta.disagree) disagree_value = meta.disagree.body.value;
+				var checked = (disagree_value != undefined)?'checked':'unchecked';
 				judgement_buttons += "<span class='judgeButton disagreeButton " + checked + "'>";
 				judgement_buttons += "<img src='../icons/thumbDown.png' title='" + disagreeLabel + "'/>";
 				judgement_buttons += "</span>";
@@ -165,7 +173,6 @@ YUI.add('annotation', function(Y) {
 
 		_onTagRemoveClick : function(e) {
 			var eList = this.tagList;
-			Y.log(eList);
 			var index = this.tagList.all("li").indexOf(e.currentTarget.get("parentNode")),
 			    tags = this.tags,
 			    record = tags.getRecordByIndex(index),
@@ -223,8 +230,8 @@ YUI.add('annotation', function(Y) {
 			});
 		},
 		getTags : function() {
-			    var target = this.get('target'),
-				 field = this.get('field');
+			    var target = this.get('target');
+			    var field = this.get('field');
 			    var oSelf = this;
 			    Y.io(this.get("store.get"),
 				 { data: {
@@ -235,8 +242,24 @@ YUI.add('annotation', function(Y) {
 				       success: function(e,o) {
 						  var r = Y.JSON.parse(o.responseText);
 						  if (r && r[field] && r[field].annotations) {
-						    var data =  r[field].annotations;
-						    oSelf.tags.add(data);
+						  	var ans = r[field].annotations;
+							var len = ans.length;
+							var metatags = oSelf.get('metatags');
+						    	for (var i=0; i<len; i++) {
+								annotation_target = ans[i].target;
+								annotation_value = ans[i].body.value;
+						    		if (target != annotation_target) {
+									if (!metatags[annotation_target]) metatags[annotation_target] = {}
+									metatags[annotation_target][annotation_value] = ans[i];
+									oSelf.set('metatags', metatags);
+								}
+							}
+						    	for (var i=0; i<len; i++) {
+								annotation_target = ans[i].target;
+						    		if (target == annotation_target) {
+									oSelf.tags.add(ans[i]); // normal tag
+								}
+							}
 						  }
 						}
 				       }
@@ -309,10 +332,8 @@ YUI.add('annotation', function(Y) {
 
 		getComment: function() {
 			      var commentNode = this.get("commentNode");
-			      Y.log(commentNode);
 			      if (!commentNode) return "";
 			      var c = commentNode.get("value");
-			      Y.log(c);
 			      commentNode.set("value", "");
 			      return c;
 		},
@@ -324,9 +345,11 @@ YUI.add('annotation', function(Y) {
 			var record = tags.getRecordByIndex(index);
 			var target = record.getValue("annotation");
 			var type = "judgement";
+			Y.log('judging annotation index ' + index + ' for target ' + target);
+			Y.log(tags.getValuesByKey('annotation'));
+					
 			this.submitAnnotation(type, target, {type:"literal", value: value});
 		},
-
 		submitAnnotation : function(type, target, body, label, comment, timing) {
 		        if (!target) return;
 		        if (!body.value) return;
@@ -338,6 +361,8 @@ YUI.add('annotation', function(Y) {
 
 			var inputNode = this.get("inputNode");
 			var tags = this.tags;
+			var metatags = this.get("metatags");
+			var oSelf = this;
 
 			Y.io(this.get("store.add"), {
 				data:{
@@ -353,6 +378,17 @@ YUI.add('annotation', function(Y) {
 					var r = Y.JSON.parse(o.responseText);
 					if (type == "tag")
 						tags.add({body:body, label:label, annotation:r.annotation, comment:comment, type:type, display_link:r.display_link});
+					else if (type == "judgement") {
+						var values = tags.getValuesByKey('annotation');
+						var index = values.indexOf(target);
+						if (!metatags[target]) metatags[target] = {}
+						metatags[target][body.value] = {body:body, target:target, annotation:r.annotation, type:type};
+						oSelf.set('metatags', metatags);
+			    			var record = tags.getRecordByIndex(index);
+						tags.update(record, index);
+						Y.log('adding and removing at index ' + index);
+						Y.log(record);
+					}
 					
 					inputNode.focus();
 				    }
