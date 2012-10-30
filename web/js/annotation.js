@@ -16,9 +16,11 @@ YUI.add('annotation', function(Y) {
 		store: 			{ value: null }, // URIs of web services to CRUD http annotation api
 		tags: 			{ value: [] },	 // tags already exisiting
 		startTyping: 		{ value: [] },   // timestamp when users start typing
-		commentEnabled: 	{ value: false },// when true comment field is shown for this field
-		unsureEnabled: 		{ value: true }, // when true "I'm not sure" checkboxes will be shown for each tag
-		deleteCommentEnabled:	{ value: true }, // when true comment overlay is shown for deletions on this field
+		commentEnabled: 	{ value: "false" },// when true comment field is shown for this field
+		unsureEnabled: 		{ value: "true" }, // when true "I'm not sure" checkboxes will be shown for each tag
+		agreeEnabled: 		{ value: "true" }, // when true "I agree" checkboxes will be shown for each tag
+		disagreeEnabled:	{ value: "true" }, // when true "I disagree" checkboxes will be shown for each tag
+		deleteCommentEnabled:	{ value: "true" }, // when true comment overlay is shown for deletions on this field
 		commentNode: 		{ value: null }, // node that holds the comment field if enabled
 		uiLabels: 		{ value: [] },   // dictionairy with ui labels in the prefered language of the user
 		// disallowing this is not yet implemented:
@@ -31,7 +33,10 @@ YUI.add('annotation', function(Y) {
 	Y.extend(Annotation, Y.Plugin.AutoComplete, {
 
 		initializer: function(args) {
+			// convert string "true"/"false" to boolean true/false
 			var unsureEnabled = this.get('unsureEnabled'); 	this.set('unsureEnabled', unsureEnabled == "true");
+			var agreeEnabled = this.get('agreeEnabled'); 	this.set('agreeEnabled', agreeEnabled == "true");
+			var disagreeEnabled = this.get('disagreeEnabled'); this.set('disagreeEnabled', disagreeEnabled == "true");
 			var commentEnabled = this.get('commentEnabled'); this.set('commentEnabled', commentEnabled == "true");
 			var deleteCommentEnabled = this.get('deleteCommentEnabled'); this.set('deleteCommentEnabled', deleteCommentEnabled == "true");
 
@@ -90,7 +95,9 @@ YUI.add('annotation', function(Y) {
 				tagList.append('<li>'+this.formatTag(tags[i])+'</li>');
 
 			};
-			Y.all('.unsureBox').detach('click').on('click', this._updateAnnotation, this);
+			this.DEF_PARENT_NODE.all('.unsureButton').detach('click').on(  'click', this.onJudgeAnnotation, this, 'unsure');
+			this.DEF_PARENT_NODE.all('.agreeButton').detach('click').on(   'click', this.onJudgeAnnotation, this, 'agree');
+			this.DEF_PARENT_NODE.all('.disagreeButton').detach('click').on('click', this.onJudgeAnnotation, this, 'disagree');
 
 		},
 		_getTag : function(annotation) {
@@ -99,41 +106,8 @@ YUI.add('annotation', function(Y) {
 				tagList.append('<li>'+this.formatTag(tags[i])+'</li>');
 
 			};
-			  },
-		_updateAnnotation : function(ev) {
-			 var index = this.tagList.all("li").indexOf(ev.currentTarget.get("parentNode").get("parentNode"));
-			 var checked = Y.Node.getDOMNode(ev.currentTarget).checked;
-			 var tags = this.tags;
-			 var tag = tags.getRecordByIndex(index);
-			 var annotation = tag.getValue('annotation');
-			 var inputNode = this.get("inputNode");
-			 Y.io(this.get("store.remove"), {
-				data:{ annotation:annotation, comment:"update: unsure "+checked },
-				on:{success: function(e) { }
-				}
-			 });
-			 var body = tag.getValue('body');
-			 var label = tag.getValue('label');
-			 var comment = tag.getValue('comment');
-			 var display_link = tag.getValue('display_link');
-			 Y.io(this.get("store.add"), {
-				data:{
-					target:this.get("target"),
-					field:this.get("field"),
-					body:Y.JSON.stringify(body),
-					label:label,
-					typing_time: tag.getValue('typing_time'),
-					unsure: checked,
-					comment: comment
-				},
-				on:{success: function(e,o) {
-					var r = Y.JSON.parse(o.responseText);
-					tags.update({body: body, label:label, annotation:r.annotation, comment:comment, unsure:checked, display_link:display_link}, index);
-					inputNode.focus();
-				    }
-				}
-			});
 		},
+
 		_addTags : function(o) {
 			this._renderTags(o.added, o.index);
 		},
@@ -151,18 +125,30 @@ YUI.add('annotation', function(Y) {
 			var body = tag.getValue("body");
 			var comment = tag.getValue("comment");
 			var link = tag.getValue("display_link");
-			var unsure = '';
+			var judgement_buttons = '';
+			if (this.get('agreeEnabled')) {
+				var agreeLabel = this.get('uiLabels').agreeLabel;
+				var agree_value = tag.getValue("agree");
+				var checked = (agree_value != '')?'checked':'';
+				judgement_buttons += "<span class='agreeButton " + checked + "'>[" + agreeLabel +"]</span>";
+			} 
 			if (this.get('unsureEnabled')) {
 				var unsureLabel = this.get('uiLabels').unsureLabel;
 				var unsure_value = tag.getValue("unsure");
 				var checked = (unsure_value != '')?'checked':'';
-				unsure = "<input class='unsureBox' type='checkbox' "+checked+"/>";
+				judgement_buttons += "<span class='unsureButton " + checked + "'>[" + unsureLabel +"]</span>";
 			}
+			if (this.get('disagreeEnabled')) {
+				var disagreeLabel = this.get('uiLabels').disagreeLabel;
+				var disagree_value = tag.getValue("disagree");
+				var checked = (disagree_value != '')?'checked':'';
+				judgement_buttons += "<span class='disagreeButton " + checked + "'>[" + disagreeLabel +"]</span>";
+			} 
 			html = '<div class="label">';
 			if (link == '')
-				html += unsure+label;
+				html += judgement_buttons + label;
 			else
-				html += unsure+'<a href="'+link+'">'+label+'</a>';
+				html += judgement_buttons + '<a href="'+link+'">'+label+'</a>';
 
 			if (comment && comment != "") {
 			  html += ' (' + comment +')';
@@ -172,6 +158,8 @@ YUI.add('annotation', function(Y) {
 		},
 
 		_onTagRemoveClick : function(e) {
+			var eList = this.tagList;
+			Y.log(eList);
 			var index = this.tagList.all("li").indexOf(e.currentTarget.get("parentNode")),
 			    tags = this.tags,
 			    record = tags.getRecordByIndex(index),
@@ -275,16 +263,18 @@ YUI.add('annotation', function(Y) {
 		},
 		_onItemSelect : function(e) {
 			Y.log('onItemSelect');
+			var type = 'tag';
 			if (e.preventDefault) e.preventDefault();
 			var item = e.details[0].result.raw;
 			var comm = this.getComment();
 			this._setKeyInputHandler(true);
 			var now = new Date();
 			var delta = now - this.get("startTyping");
+			var target = this.get("target");
 			if (item.uri && item.label) {
-			  this.submitAnnotation({type:"uri", value:item.uri}, item.label, comm, delta);
+			  this.submitAnnotation(type, target, {type:"uri", value:item.uri }, item.label, comm, delta);
 			} else {
-			  this.submitAnnotation({type:"literal", value: item}, item, comm, delta);
+			  this.submitAnnotation(type, target, {type:"literal", value: item}, item,       comm, delta);
 			};
 			this.get("inputNode").set("value", "");
 		},
@@ -295,12 +285,13 @@ YUI.add('annotation', function(Y) {
 			if (e.preventDefault) e.preventDefault();
 			this._setKeyInputHandler(true);
 			if(!this.get("activeItem")) {
-			        var unsure = false;
+			        var type = 'tag';
 				var now = new Date();
 				var delta = now - this.get("startTyping");
 				var value = this.getTag();
 				var comm = this.getComment();
-				this.submitAnnotation({type:"literal", value:value}, value, comm, delta, unsure);
+				var target = this.get("target");
+				this.submitAnnotation(type, target, {type:"literal", value:value}, value, comm, delta);
 			}
 		},
 
@@ -320,10 +311,23 @@ YUI.add('annotation', function(Y) {
 			      return c;
 		},
 
-		submitAnnotation : function(body, label, comment, timing, unsure) {
-		        if (!body.value && !comment) return;
+	        onJudgeAnnotation : function (ev, value) {
+		        var eLi = ev.currentTarget.get("parentNode").get("parentNode");
+			var index = this.tagList.all("li").indexOf(eLi);
+			var tags = this.tags;
+			var record = tags.getRecordByIndex(index);
+			var target = record.getValue("annotation");
+			var type = "judgement";
+			this.submitAnnotation(type, target, {type:"literal", value: value});
+		},
+
+		submitAnnotation : function(type, target, body, label, comment, timing) {
+		        if (!target) return;
+		        if (!body.value) return;
+			if (!label) label = body.value;
+			if (!comment) comment = '';
 			if (!timing) timing = -1;
-			if (!unsure) unsure = false;
+			if (!type) type = 'default';
 			Y.log('add tag: '+body.value+' with label: '+label+ ', time: ' + timing);
 
 			var inputNode = this.get("inputNode");
@@ -331,17 +335,19 @@ YUI.add('annotation', function(Y) {
 
 			Y.io(this.get("store.add"), {
 				data:{
-					target:this.get("target"),
 					field:this.get("field"),
+					target:target,
 					body:Y.JSON.stringify(body),
 					label:label,
 					typing_time: timing,
-					unsure: unsure,
+					type: type,
 					comment: comment
 				},
 				on:{success: function(e,o) {
 					var r = Y.JSON.parse(o.responseText);
-					tags.add({body:body, label:label, annotation:r.annotation, comment:comment, unsure:unsure, display_link:r.display_link});
+					if (type == "tag")
+						tags.add({body:body, label:label, annotation:r.annotation, comment:comment, type:type, display_link:r.display_link});
+					
 					inputNode.focus();
 				    }
 				}
