@@ -191,6 +191,9 @@ body {
 	height: 2ex;
 	vertical-align: middle;
 }
+.taglist .checked img {
+	height: 3ex;
+}
 /* resource */
 .resource h3 {
 	margin: 0 0 6px;
