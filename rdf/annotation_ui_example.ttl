@@ -117,7 +117,8 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
         rdfs:label "Lokatie"@nl ;
 	rdfs:label "Location"@en ;
 	dc:comment "plaats waar dit object zich bevindt"@nl ;
-	dc:comment "place where this object is located"@en .
+	dc:comment "place where this object is located"@en ;
+	:source "/api/autocomplete?q={query}&filter=[{\"scheme\":\"http://purl.org/collections/nl/rma/schema%23thesaurus\"},{\"prop\":\"http://purl.org/collections/nl/rma/schema%23termType\",\"uri\":\"http://purl.org/collections/nl/rma/schema%23term-type-PLACE\"}]" .
 
 :symbolicField a :Field ;
         rdfs:label "Iconologie"@nl ;
