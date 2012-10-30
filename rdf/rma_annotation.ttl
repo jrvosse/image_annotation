@@ -28,6 +28,7 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 	:fields (
 	   :monumentNameField
 	   :monumentNumberField
+	   :locationField
 	   :archStyleField
 	   :biblioField
 	).
@@ -90,8 +91,8 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 :monumentNameField a :Field ;
         rdfs:label "Monument naam"@nl ;
 	rdfs:label "Monument name"@en ;
-	dc:comment "Naam van dit monument"@nl ;
-	dc:comment "Name of the monument"@en .
+	dc:comment "naam van dit monument"@nl ;
+	dc:comment "name of the monument"@en .
 
 :monumentNumberField a :Field ;
         rdfs:label "Monument nummer"@nl ;
@@ -102,14 +103,21 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 :archStyleField a :Field ;
         rdfs:label "Stijl"@nl ;
 	rdfs:label "Style"@en ;
-	dc:comment "architectonische stijl (optioneel)"@nl ;
-	dc:comment "architectural style (optional)"@en .
+	dc:comment "architectonische stijl"@nl ;
+	dc:comment "architectural style"@en ;
+	:source "/api/autocomplete?q={query}&filter={\"reachable\":\"http://www.w3.org/2004/02/skos/core%23broader\",\"uri\":\"http://purl.org/vocabularies/getty/aat/Styles_and_Periods\"}&labelrank=['http://www.w3.org/2004/02/skos/core%23prefLabel'-0, 'http://www.w3.org/2004/02/skos/core%23altLabel'-0.2]" .
 
 :biblioField a :Field ;
         rdfs:label "Bibliografie"@nl ;
 	rdfs:label "Bibliography"@en ;
-	dc:comment "gebruikte bronnen (optioneel)"@nl ;
-	dc:comment "references used (optional)"@en .
+	dc:comment "URL of referentie naar gebruikte bronnen"@nl ;
+	dc:comment "URL or book reference to sources used"@en .
+
+:locationField a :Field ;
+        rdfs:label "Lokatie"@nl ;
+	rdfs:label "Location"@en ;
+	dc:comment "plaats waar dit object zich bevindt"@nl ;
+	dc:comment "place where this object is located"@en .
 
 :symbolicField a :Field ;
         rdfs:label "Iconologie"@nl ;
@@ -174,7 +182,7 @@ rmaschema:imageURL rdfs:subPropertyOf :imageURL .
 	:unsureLabel "not sure"@en;
 	:unsureLabel "ik ben niet zeker"@nl;
         :commentEnabled false ;
-	:unsureEnabled true;
+	:unsureEnabled false;
         :deleteCommentEnabled true;
 	:source "/api/autocomplete?q={query}&filter=[{\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"},{\"prop\":\"http://lod.taxonconcept.org/ontology/txn.owl%23inDBpediaClade\",\"uri\":\"http://dbpedia.org/ontology/FloweringPlant\"}]&labelrank=['http://lod.taxonconcept.org/ontology/txn.owl%23commonName'-0, 'http://lod.taxonconcept.org/ontology/txn.owl%23scientificName'-0.2]" .
 

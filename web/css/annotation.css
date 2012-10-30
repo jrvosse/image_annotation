@@ -7,7 +7,7 @@ body {
 
 /* layout */
 #layout {
-	width: 90%
+	width: 95%
 	margin: 0 auto;
 	padding: 1%;
 	background-color: #FFF;
@@ -20,19 +20,26 @@ body {
 }
 
 #media {
-	width: 64%;
+	max-width: 64%;
 }
 
 #media .resource { text-align: center }
 #media img {
-	max-width: 90%;
-	max-height: 600px;
+	max-width: 100%;
 }
+#media .description  { max-width: 800px }
 #media .title .metalabel { display: none }
 #media .description .metalabel { display: none }
-#media .title .metavalue {
+#media .title  {
+	color: #222;
 	font-size: 1.3em;
 	font-weight: bold;
+}
+#media .link a.r_def {
+	color: #222;
+	font-size: 1.3em;
+	font-weight: bold;
+	text-decoration: none;
 }
 
 /* annotation field */

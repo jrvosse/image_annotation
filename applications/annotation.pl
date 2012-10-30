@@ -60,7 +60,7 @@
 	   'Default target object to annotate if none given').
 
 :- setting(default_metadata, list(uri),
-	   [ 'http://purl.org/dc/terms/title',
+	   [ % 'http://purl.org/dc/terms/title',
 	     'http://semanticweb.cs.vu.nl/annotate/imageURL',
 	     'http://semanticweb.cs.vu.nl/annotate/url',
 	     'http://purl.org/dc/terms/description'
@@ -382,7 +382,7 @@ js_annotation_field(FieldURI, Options) -->
 	  option(target(Target), Options),
 	  (   rdf(FieldURI, an:unsureEnabled, literal(type(xsd:boolean, Unsure)))
 	  ->  true
-	  ;   Unsure=true
+	  ;   Unsure=false
 	  ),
 	  (   rdf(FieldURI, an:commentEnabled, literal(type(xsd:boolean, Comment)))
 	  ->  true
