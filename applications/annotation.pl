@@ -380,11 +380,13 @@ js_annotation_field(FieldURI, Options) -->
 	  ;   Id = FieldURI
 	  ),
 	  option(target(Target), Options),
-	  (   rdf(FieldURI, an:unsureEnabled, literal(type(xsd:boolean, Unsure)))
-	  ->  true
-	  ;   Unsure=false
-	  ),
-	  (   rdf(FieldURI, an:commentEnabled, literal(type(xsd:boolean, Comment)))
+	  (   rdf(FieldURI, an:unsureEnabled,   literal(type(xsd:boolean, Unsure)))
+	  ->  true; Unsure=true ),
+	  (   rdf(FieldURI, an:agreeEnabled,    literal(type(xsd:boolean, Agree)))
+	  ->  true; Agree=true ),
+	  (   rdf(FieldURI, an:disagreeEnabled, literal(type(xsd:boolean, Disagree)))
+	  ->  true; Disagree=true ),
+	  (   rdf(FieldURI, an:commentEnabled,	literal(type(xsd:boolean, Comment)))
 	  ->  true
 	  ;   Comment=false
 	  ),
@@ -409,6 +411,8 @@ js_annotation_field(FieldURI, Options) -->
 			uiLabels: UI_labels,
 			unsureEnabled: Unsure,
 			commentEnabled: Comment,
+			agreeEnabled: Agree,
+			disagreeEnabled: Disagree,
 			minQueryLength:MinQueryLength,
 			resultListLocator: results,
 			resultTextLocator: label,
