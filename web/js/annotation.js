@@ -204,9 +204,9 @@ YUI.add('annotation', function(Y) {
 			     },
 
 		_onDelete : function (e, annotation, index) {
-			var tags = this.tags;
 			var ov = this.deleteOverlay;
-			if (ov) {
+			var type = "tag";
+			if (ov && index >= 0) {
 			    var n = ov.get('srcNode');
 		            var commentNode =  n.one('.delete-comment-input');
 			    var comment = commentNode.get("value");
@@ -216,16 +216,30 @@ YUI.add('annotation', function(Y) {
 			    n.one('#cancel-delete').detach("click", this._onCancel);
 			    ov.hide();
 			} else {
+			    var tags = this.tags;
 		            var comment = '';
 			    var index = this.tagList.all("li").indexOf(e.currentTarget.get("parentNode"));
 			    var record = tags.getRecordByIndex(index);
 			    var annotation = record.getValue("annotation");
 			}
+			this.deleteAnnotation(type, annotation, index, comment);
+		},
 
+		deleteAnnotation : function(type, annotation, index, comment) {
+			var oSelf = this;
 			Y.log('remove annotation '+annotation+' with comment: '+comment);
 			Y.io(this.get("store.remove"), {
 				data:{ annotation:annotation, comment:comment },
-				on:{success: function(e) { tags.remove(index) }
+				on:{success: function(e) { 
+					if (type == "tag") 
+						oSelf.tags.remove(index);
+					else if (type == "judgement") {
+						var metatags = oSelf.get("metatags");
+						Y.log(metatags);
+						Y.log(index);
+						delete metatags[index];
+					}
+				   }
 				}
 			});
 		},
@@ -345,9 +359,12 @@ YUI.add('annotation', function(Y) {
 			var record = tags.getRecordByIndex(index);
 			var target = record.getValue("annotation");
 			var type = "judgement";
+			var meta = this.get('metatags')[target];
 			Y.log('judging annotation index ' + index + ' for target ' + target);
-			Y.log(tags.getValuesByKey('annotation'));
-					
+			for (var prop in meta) {
+				var old_annotation = meta[prop].annotation;
+				this.deleteAnnotation(type, old_annotation, target, "overruled by new "+value+" judgement");
+			}
 			this.submitAnnotation(type, target, {type:"literal", value: value});
 		},
 		submitAnnotation : function(type, target, body, label, comment, timing) {
