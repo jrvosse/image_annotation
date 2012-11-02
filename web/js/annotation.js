@@ -128,8 +128,9 @@ YUI.add('annotation', function(Y) {
 			var link  = tag.getValue("display_link");
 			var annot = tag.getValue("annotation");
 			var comment = tag.getValue("comment");
+			var screenName  = tag.getValue("screenName");
 			var meta = this.get('metatags')[annot];
-			Y.log(meta);
+
 			var judgement_buttons = '';
 			if (this.get('agreeEnabled')) {
 				var agreeLabel = this.get('uiLabels').agreeLabel;
@@ -164,14 +165,18 @@ YUI.add('annotation', function(Y) {
 				judgement_buttons += "<img src='./icons/bubble.png' title='" + commentLabel + "'/>";
 				judgement_buttons += "</span>";
 			}
-			html = '<div class="label">';
+			var buttons = '<div class="commentButtons">' + judgement_buttons + '</div>';
+			var html = buttons + '<div class="label">';
 			if (link == '')
-				html += judgement_buttons + label;
+				html += label;
 			else
-				html += judgement_buttons + '<a href="'+link+'">'+label+'</a>';
+				html += '<a href="'+link+'">'+label+'</a>';
 
 			if (comment && comment != "") {
 			  html += ' (' + comment +')';
+			}
+			if (screenName && screenName != "") {
+			  html += ' @' + screenName;
 			}
 			html += '</div><div class="remove"><a href="javascript:{}">x</a></div>';
 			return html;
