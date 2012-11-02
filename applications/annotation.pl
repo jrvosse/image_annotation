@@ -387,8 +387,7 @@ js_annotation_field(FieldURI, Options) -->
 	  (   rdf(FieldURI, an:disagreeEnabled, literal(type(xsd:boolean, Disagree)))
 	  ->  true; Disagree=true ),
 	  (   rdf(FieldURI, an:commentEnabled,	literal(type(xsd:boolean, Comment)))
-	  ->  true
-	  ;   Comment=false
+	  ->  true; Comment=true
 	  ),
 	  ui_labels(FieldURI, Options, UI_labels),
 	  http_location_by_id(http_add_annotation, Add),

@@ -1,7 +1,7 @@
 /*
  * Annotation class represents a single annotation field.
  * More complex interfaces can be built by combining multiple fields.
- * 
+ *
  */
 
 YUI.add('annotation', function(Y) {
@@ -11,18 +11,18 @@ YUI.add('annotation', function(Y) {
 	Annotation.NAME = "aclist"; // use same name as Y.Plugin.AutoComplete to inherit css
 	Annotation.NS = "annotation";
 	Annotation.ATTRS = {
-		target: 		{ value: null }, // URI of target image to be annotated
-		field: 			{ value: null }, // URI identifying annotation field
-		store: 			{ value: null }, // URIs of web services to CRUD http annotation api
-		metatags: 		{ value: {} },	   // metatags dictionary
-		startTyping: 		{ value: null },   // timestamp when users start typing
-		commentEnabled: 	{ value: "false" },// when true comment field is shown for this field
-		unsureEnabled: 		{ value: "true" }, // when true "I'm not sure" checkboxes will be shown for each tag
-		agreeEnabled: 		{ value: "true" }, // when true "I agree" checkboxes will be shown for each tag
+		target:			{ value: null }, // URI of target image to be annotated
+		field:			{ value: null }, // URI identifying annotation field
+		store:			{ value: null }, // URIs of web services to CRUD http annotation api
+		metatags:		{ value: {} },	   // metatags dictionary
+		startTyping:		{ value: null },   // timestamp when users start typing
+		commentEnabled:		{ value: "true" }, // when true comment icon is shown for this field
+		unsureEnabled:		{ value: "true" }, // when true "I'm not sure" checkboxes will be shown for each tag
+		agreeEnabled:		{ value: "true" }, // when true "I agree" checkboxes will be shown for each tag
 		disagreeEnabled:	{ value: "true" }, // when true "I disagree" checkboxes will be shown for each tag
 		deleteCommentEnabled:	{ value: "true" }, // when true comment overlay is shown for deletions on this field
-		commentNode: 		{ value: null }, // node that holds the comment field if enabled
-		uiLabels: 		{ value: [] },   // dictionary with ui labels in the prefered language of the user
+		commentNode:		{ value: null }, // node that holds the comment field if enabled
+		uiLabels:		{ value: [] },   // dictionary with ui labels in the prefered language of the user
 		// disallowing this is not yet implemented:
 		allowTextSubmit:	{ value:true }   // if true, plain tags are allowed, if false, only terms with a uri.
 	};
@@ -34,8 +34,8 @@ YUI.add('annotation', function(Y) {
 
 		initializer: function(args) {
 			// convert string "true"/"false" to boolean true/false
-			var unsureEnabled = this.get('unsureEnabled'); 	this.set('unsureEnabled', unsureEnabled == "true");
-			var agreeEnabled = this.get('agreeEnabled'); 	this.set('agreeEnabled', agreeEnabled == "true");
+			var unsureEnabled = this.get('unsureEnabled');	this.set('unsureEnabled', unsureEnabled == "true");
+			var agreeEnabled = this.get('agreeEnabled');	this.set('agreeEnabled', agreeEnabled == "true");
 			var disagreeEnabled = this.get('disagreeEnabled'); this.set('disagreeEnabled', disagreeEnabled == "true");
 			var commentEnabled = this.get('commentEnabled'); this.set('commentEnabled', commentEnabled == "true");
 			var deleteCommentEnabled = this.get('deleteCommentEnabled'); this.set('deleteCommentEnabled', deleteCommentEnabled == "true");
@@ -137,16 +137,16 @@ YUI.add('annotation', function(Y) {
 				if (meta && meta.agree) agree_value = meta.agree.body.value;
 				var checked = (agree_value != undefined)?'checked':'unchecked';
 				judgement_buttons += "<span class='judgeButton agreeButton " + checked + "'>";
-				judgement_buttons += "<img src='../icons/thumbUp.png' title='" + agreeLabel + "'/>";
+				judgement_buttons += "<img src='./icons/thumbUp.png' title='" + agreeLabel + "'/>";
 				judgement_buttons += "</span>";
-			} 
+			}
 			if (this.get('unsureEnabled')) {
 				var unsureLabel = this.get('uiLabels').unsureLabel;
 				var unsure_value = undefined;
 				if (meta && meta.unsure) unsure_value = meta.unsure.body.value;
 				var checked = (unsure_value != undefined)?'checked':'unchecked';
 				judgement_buttons += "<span class='judgeButton unsureButton " + checked + "'>";
-				judgement_buttons += "<img src='../icons/unsure.png' title='" + unsureLabel + "'/>";
+				judgement_buttons += "<img src='./icons/unsure.png' title='" + unsureLabel + "'/>";
 				judgement_buttons += "</span>";
 			}
 			if (this.get('disagreeEnabled')) {
@@ -155,9 +155,15 @@ YUI.add('annotation', function(Y) {
 				if (meta && meta.disagree) disagree_value = meta.disagree.body.value;
 				var checked = (disagree_value != undefined)?'checked':'unchecked';
 				judgement_buttons += "<span class='judgeButton disagreeButton " + checked + "'>";
-				judgement_buttons += "<img src='../icons/thumbDown.png' title='" + disagreeLabel + "'/>";
+				judgement_buttons += "<img src='./icons/thumbDown.png' title='" + disagreeLabel + "'/>";
 				judgement_buttons += "</span>";
-			} 
+			}
+			if (this.get('commentEnabled')) {
+				var commentLabel = this.get('uiLabels').commentLabel;
+			        judgement_buttons += "<span class='commentButton'>";
+				judgement_buttons += "<img src='./icons/bubble.png' title='" + commentLabel + "'/>";
+				judgement_buttons += "</span>";
+			}
 			html = '<div class="label">';
 			if (link == '')
 				html += judgement_buttons + label;
@@ -230,8 +236,8 @@ YUI.add('annotation', function(Y) {
 			Y.log('remove annotation '+annotation+' with comment: '+comment);
 			Y.io(this.get("store.remove"), {
 				data:{ annotation:annotation, comment:comment },
-				on:{success: function(e) { 
-					if (type == "tag") 
+				on:{success: function(e) {
+					if (type == "tag")
 						oSelf.tags.remove(index);
 					else if (type == "judgement") {
 						var metatags = oSelf.get("metatags");
@@ -256,21 +262,21 @@ YUI.add('annotation', function(Y) {
 				       success: function(e,o) {
 						  var r = Y.JSON.parse(o.responseText);
 						  if (r && r[field] && r[field].annotations) {
-						  	var ans = r[field].annotations;
+							var ans = r[field].annotations;
 							var len = ans.length;
 							var metatags = oSelf.get('metatags');
-						    	for (var i=0; i<len; i++) {
+							for (var i=0; i<len; i++) {
 								annotation_target = ans[i].target;
 								annotation_value = ans[i].body.value;
-						    		if (target != annotation_target) {
+								if (target != annotation_target) {
 									if (!metatags[annotation_target]) metatags[annotation_target] = {}
 									metatags[annotation_target][annotation_value] = ans[i];
 									oSelf.set('metatags', metatags);
 								}
 							}
-						    	for (var i=0; i<len; i++) {
+							for (var i=0; i<len; i++) {
 								annotation_target = ans[i].target;
-						    		if (target == annotation_target) {
+								if (target == annotation_target) {
 									oSelf.tags.add(ans[i]); // normal tag
 								}
 							}
@@ -401,12 +407,12 @@ YUI.add('annotation', function(Y) {
 						if (!metatags[target]) metatags[target] = {}
 						metatags[target][body.value] = {body:body, target:target, annotation:r.annotation, type:type};
 						oSelf.set('metatags', metatags);
-			    			var record = tags.getRecordByIndex(index);
+						var record = tags.getRecordByIndex(index);
 						tags.update(record, index);
 						Y.log('adding and removing at index ' + index);
 						Y.log(record);
 					}
-					
+
 					inputNode.focus();
 				    }
 				}

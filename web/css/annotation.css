@@ -194,6 +194,10 @@ body {
 .taglist .checked img {
 	height: 3ex;
 }
+.taglist .commentButton img {
+	height: 2.5ex;
+	vertical-align: middle;
+	}
 /* resource */
 .resource h3 {
 	margin: 0 0 6px;
