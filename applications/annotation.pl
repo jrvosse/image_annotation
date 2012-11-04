@@ -61,8 +61,8 @@
 
 :- setting(default_metadata, list(uri),
 	   [ % 'http://purl.org/dc/terms/title',
-	     'http://semanticweb.cs.vu.nl/annotate/imageURL',
-	     'http://semanticweb.cs.vu.nl/annotate/url',
+	     'http://semanticweb.cs.vu.nl/annotate/ui/imageURL',
+	     'http://semanticweb.cs.vu.nl/annotate/ui/url',
 	     'http://purl.org/dc/terms/description'
 	   ], 'Default metadata fields to show').
 
@@ -105,10 +105,7 @@ http_annotation(Request) :-
 			    description('URIs of metadata properties to display')
 			   ])
 		]),
-	(   setting(annotation_api:login, true)
-        ->  authorized(write(default, annotate))
-        ;   true
-        ),
+	user_url(User),
 	get_anfields(UI, ExtraFields, DisabledFields, AnnotationFields),
 	get_metafields(UI, MetaFields, MetadataFields),
 	(   var(UI)
@@ -120,6 +117,7 @@ http_annotation(Request) :-
 		   stylesheet(Stylesheet),
 		   ui(UI),
 		   target(Target),
+		   user(User),
 		   annotation_fields(AnnotationFields),
 		   metadata_fields(MetadataFields)
 		  ],
@@ -380,15 +378,17 @@ js_annotation_field(FieldURI, Options) -->
 	  ;   Id = FieldURI
 	  ),
 	  option(target(Target), Options),
-	  (   rdf(FieldURI, ann_ui:unsureEnabled,   literal(type(xsd:boolean, Unsure)))
-	  ->  true; Unsure=true ),
-	  (   rdf(FieldURI, ann_ui:agreeEnabled,    literal(type(xsd:boolean, Agree)))
-	  ->  true; Agree=true ),
-	  (   rdf(FieldURI, ann_ui:disagreeEnabled, literal(type(xsd:boolean, Disagree)))
-	  ->  true; Disagree=true ),
-	  (   rdf(FieldURI, ann_ui:commentEnabled,	literal(type(xsd:boolean, Comment)))
-	  ->  true; Comment=true
-	  ),
+	  option(user(User), Options),
+	  (   rdf(FieldURI, ann_ui:unsureEnabled,   literal(Unsure))
+	  ->  true; Unsure=always ),
+	  (   rdf(FieldURI, ann_ui:agreeEnabled,    literal(Agree))
+	  ->  true; Agree=yours ),
+	  (   rdf(FieldURI, ann_ui:disagreeEnabled, literal(Disagree))
+	  ->  true; Disagree=yours ),
+	  (   rdf(FieldURI, ann_ui:commentEnabled,  literal(Comment))
+	  ->  true; Comment=always ),
+	  (   rdf(FieldURI, ann_ui:deleteEnabled,   literal(Delete))
+	  ->  true; Delete=mine ),
 	  ui_labels(FieldURI, Options, UI_labels),
 	  http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
@@ -407,11 +407,13 @@ js_annotation_field(FieldURI, Options) -->
 				 get:Get,
 				 remove:Remove
 			       },
+			user(User),
 			uiLabels: UI_labels,
 			unsureEnabled: Unsure,
 			commentEnabled: Comment,
 			agreeEnabled: Agree,
 			disagreeEnabled: Disagree,
+			deleteEnabled: Delete,
 			minQueryLength:MinQueryLength,
 			resultListLocator: results,
 			resultTextLocator: label,
@@ -426,9 +428,13 @@ js_annotation_field(FieldURI, Options) -->
 			target:Target,
 			field:FieldURI,
 			source:Source,
+			user(User),
 			uiLabels: UI_labels,
 			unsureEnabled: Unsure,
 			commentEnabled: Comment,
+			agreeEnabled: Agree,
+			disagreeEnabled: Disagree,
+			deleteEnabled: Delete,
 			store: { add:Add,
 				 get:Get,
 				 remove:Remove
@@ -436,16 +442,20 @@ js_annotation_field(FieldURI, Options) -->
 		       }
 	  ;   % Configure a field without autocompletion
 	      Config = {
-			    target:Target,
-			    field:FieldURI,
-			    uiLabels: UI_labels,
-			    unsureEnabled:  Unsure,
-			    commentEnabled: Comment,
-			    store: { add:Add,
-				     get:Get,
-				     remove:Remove
-				   }
-			    }
+			target:Target,
+			field:FieldURI,
+			user(User),
+			uiLabels: UI_labels,
+			unsureEnabled: Unsure,
+			commentEnabled: Comment,
+			agreeEnabled: Agree,
+			disagreeEnabled: Disagree,
+			deleteEnabled: Delete,
+			store: { add:Add,
+				 get:Get,
+				 remove:Remove
+			       }
+		       }
 	  )},
 	yui3_plug(one(id(Id)), 'Y.Plugin.Annotation', Config).
 
@@ -517,3 +527,13 @@ done_script(Options) -->
        html(\[DoneSubscribe]).
 
 done_script(_Options) --> !.
+
+user_url(User) :-
+	(   setting(annotation_api:login, true)
+        ->  ensure_logged_on(U),
+	    authorized(write(default, annotate)),
+	    user_property(U, url(User))
+        ;   logged_on(U)
+	->  user_property(U, url(User))
+	;   rdf_global_id(an:anonymous, User)
+        ).
