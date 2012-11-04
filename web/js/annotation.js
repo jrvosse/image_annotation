@@ -443,13 +443,16 @@ YUI.add('annotation', function(Y) {
 				on:{success: function(e,o) {
 					var r = Y.JSON.parse(o.responseText);
 					if (type == "tag")
-						tags.add({body:body, label:label, annotation:r.annotation,
-						type:type, display_link:r.display_link, screenName:r.screenName});
-					else if (type == "judgement") {
+						tags.add(r);
+					else {
 						var values = tags.getValuesByKey('annotation');
 						var index = values.indexOf(target);
 						if (!metatags[target]) metatags[target] = {}
-						metatags[target][body.value] = {body:body, target:target, annotation:r.annotation, type:type};
+						if (type == "judgement") {
+						  metatags[target][body.value] = r;
+						} else if (type == "comment") {
+						  metatags[target][type] = r;
+						}
 						oSelf.set('metatags', metatags);
 						var record = tags.getRecordByIndex(index);
 						tags.update(record, index);
