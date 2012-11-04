@@ -14,17 +14,16 @@ YUI.add('annotation', function(Y) {
 		target:			{ value: null }, // URI of target image to be annotated
 		field:			{ value: null }, // URI identifying annotation field
 		store:			{ value: null }, // URIs of web services to CRUD http annotation api
-		metatags:		{ value: {} },	   // metatags dictionary
-		startTyping:		{ value: null },   // timestamp when users start typing
+		startTyping:		{ value: null }, // timestamp when users start typing
+		metatags:		{ value: {} },   // metatags dictionary
+		uiLabels:		{ value: [] },   // dictionary with ui labels in the prefered language of the user
+
+		// configuration options:
 		commentEnabled:		{ value: "true" }, // when true comment icon is shown for this field
 		unsureEnabled:		{ value: "true" }, // when true "I'm not sure" checkboxes will be shown for each tag
 		agreeEnabled:		{ value: "true" }, // when true "I agree" checkboxes will be shown for each tag
 		disagreeEnabled:	{ value: "true" }, // when true "I disagree" checkboxes will be shown for each tag
 		deleteCommentEnabled:	{ value: "true" }, // when true comment overlay is shown for deletions on this field
-		commentNode:		{ value: null }, // node that holds the comment field if enabled
-		uiLabels:		{ value: [] },   // dictionary with ui labels in the prefered language of the user
-		// disallowing this is not yet implemented:
-		allowTextSubmit:	{ value:true }   // if true, plain tags are allowed, if false, only terms with a uri.
 	};
 
 	Annotation.LIST_CLASS = 'taglist';
@@ -33,69 +32,71 @@ YUI.add('annotation', function(Y) {
 	Y.extend(Annotation, Y.Plugin.AutoComplete, {
 
 		initializer: function(args) {
-			// convert string "true"/"false" to boolean true/false
+			var parentNode = this.DEF_PARENT_NODE;
+
+			// handler to call when item selected from autocompletion suggestions:
+			this.on("select", this.onItemSelect, this);
+
+			// handler to call when hitting return after string input (no autocomplete):
+			this.get("inputNode").on("key", this.onTextSubmit, "enter", this);
+
+			// convert string "true"/"false" to boolean true/false for all optional stuff:
 			var unsureEnabled = this.get('unsureEnabled');	this.set('unsureEnabled', unsureEnabled == "true");
 			var agreeEnabled = this.get('agreeEnabled');	this.set('agreeEnabled', agreeEnabled == "true");
 			var disagreeEnabled = this.get('disagreeEnabled'); this.set('disagreeEnabled', disagreeEnabled == "true");
 			var commentEnabled = this.get('commentEnabled'); this.set('commentEnabled', commentEnabled == "true");
 			var deleteCommentEnabled = this.get('deleteCommentEnabled'); this.set('deleteCommentEnabled', deleteCommentEnabled == "true");
 
+			// create tags recordset (tag model in mvc), bind events to auto-update the tagList node (tag view in mvc):
 			this.tags = new Y.Recordset({records:{}});
-			this.tags.on("add", this._addTags, this);
-			this.tags.on("update", this._updateTags, this);
-			this.tags.on("remove", this._removeTags, this);
+			this.tags.on("add", this.addTags, this);
+			this.tags.on("update", this.updateTags, this);
+			this.tags.on("remove", this.removeTags, this);
 
+			// create tagList node (tag view in mvc)
 			this.tagList = Y.Node.create(Annotation.LIST_TEMPLATE);
-
-			var parentNode = this.DEF_PARENT_NODE;
 			parentNode.append(this.tagList);
+
+			// infoNode is the overlay with tooltips when hovering over suggested terms
 			this.infoNode = new Y.Overlay({}).render(parentNode);
-			this._createCommentNode(parentNode);
-			this.on("activeItemChange", this._onHover, this);
-			this.on("hoveredItemChange", this._onHover, this);
-			this.on("select", this._onItemSelect, this);
+			this.on("activeItemChange", this.onHover, this);
+			this.on("hoveredItemChange", this.onHover, this);
+
+			// create overlays for comments on delete and add actions:
+			this.createCommentNode(parentNode);
 			if (deleteCommentEnabled) {
-				Y.delegate("click", this._onTagRemoveClick, this.tagList, 'li .remove', this);
-				this._createDeleteNode(parentNode);
+				Y.delegate("click", this.onTagRemoveClick, this.tagList, 'li .remove', this);
+				this.createDeleteNode(parentNode);
 			} else {
-				Y.delegate("click", this._onDelete, this.tagList, 'li .remove', this);
+				Y.delegate("click", this.onDelete, this.tagList, 'li .remove', this);
 			}
 
-			Y.Global.on("done", this._onDone, this);
+			// setup handlers to record typing time:
 			var firstkey = true;
-			this._setKeyInputHandler(firstkey);
-			this.get("inputNode").on("key", this._onTextSubmit, "enter", this);
+			this.setKeyInputHandler(firstkey);
+
+			// everything is ready to request server for existing tags:
 			this.getTags();
 		},
 
-		_setKeyInputHandler : function(first) {
-			if (first) {
-				this.get("inputNode").on("key", this._onFirstKey, 'press:', this);
-				// this.get("inputNode").detach("key", this._onTextSubmit, 'enter');
-			} else {
-				this.get("inputNode").detach("key", this._onFirstKey, 'press:');
-				// this.get("inputNode").on("key",	 this._onTextSubmit, 'enter', this);
+		// handlers for adding additions, updates or removals in the tag Recordset:
+		addTags : function(o) { this.renderTags(o.added, o.index); } ,
+		updateTags : function(o) { this.renderTags(o.updated, o.index); },
+		removeTags : function(o) {
+			var tagNodes = this.tagList.all("li");
+			for (var i=o.index; i < o.index+o.range; i++) {
+				tagNodes.item(i).remove();
 			}
-
 		},
-		_onFirstKey : function(e) {
-			if (e.button == 13) return; // ? not sure why I get the submit return here ...
-			this.set("startTyping", new Date());
-			var firstkey = false;
-			this._setKeyInputHandler(firstkey);
 
-		},
-		_onDone : function(e) {
-				  Y.log("done event!");
-				  this._onTextSubmit({});
-			  },
-		_renderTags : function(tags, index) {
+		renderTags : function(tags, index) {
 			this.DEF_PARENT_NODE.all('.judgeButton').detach('click');
+			this.DEF_PARENT_NODE.all('.commentButton').detach('click');
 			var tagList = this.tagList;
 			var tagNodes = this.tagList.all("li");
 			Y.log('rendering ' + tags.length + ' tags at index ' + index);
 			if (index < tagNodes.size()) {
-				this._removeTags({index:index, range:tags.length});
+				this.removeTags({index:index, range:tags.length});
 			}
 			// format the tags
 			for(var i=0; i < tags.length; i++) {
@@ -104,21 +105,7 @@ YUI.add('annotation', function(Y) {
 			this.DEF_PARENT_NODE.all('.agreeButton.unchecked').on(   'click', this.onJudgeAnnotation, this, 'agree');
 			this.DEF_PARENT_NODE.all('.unsureButton.unchecked').on(  'click', this.onJudgeAnnotation, this, 'unsure');
 			this.DEF_PARENT_NODE.all('.disagreeButton.unchecked').on('click', this.onJudgeAnnotation, this, 'disagree');
-
-		},
-		_addTags : function(o) {
-			this._renderTags(o.added, o.index);
-		},
-		_updateTags : function(o) {
-			this._renderTags(o.updated, o.index);
-		},
-		_removeTags : function(o) {
-			var tagNodes = this.tagList.all("li"),
-				index = o.index,
-				range = o.range;
-			for (var i=index; i < index+range; i++) {
-				tagNodes.item(i).remove();
-			}
+			this.DEF_PARENT_NODE.all('.commentButton').on(           'click', this.onCommentAnnotation, this);
 		},
 
 		formatTag : function(tag) {
@@ -127,9 +114,10 @@ YUI.add('annotation', function(Y) {
 			var label = tag.getValue("label");
 			var link  = tag.getValue("display_link");
 			var annot = tag.getValue("annotation");
-			var comment = tag.getValue("comment");
+			var meta    = this.get('metatags')[annot];
+			var comment = (meta && meta.comment)?meta.comment.body.value:'';
 			var screenName  = tag.getValue("screenName");
-			var meta = this.get('metatags')[annot];
+			Y.log(meta);
 
 			var judgement_buttons = '';
 			if (this.get('agreeEnabled')) {
@@ -166,23 +154,26 @@ YUI.add('annotation', function(Y) {
 				judgement_buttons += "</span>";
 			}
 			var buttons = '<div class="commentButtons">' + judgement_buttons + '</div>';
-			var html = buttons + '<div class="label">';
+			var html = '';
+			html += buttons;
+
+			if (screenName && screenName != "") {
+			  html+= '<div class="screenName">'+screenName+'</div>';
+			}
+			html +=	'<div class="label">';
 			if (link == '')
 				html += label;
 			else
 				html += '<a href="'+link+'">'+label+'</a>';
 
 			if (comment && comment != "") {
-			  html += ' (' + comment +')';
-			}
-			if (screenName && screenName != "") {
-			  html += ' @' + screenName;
+			  html += ' ("' + comment +'")';
 			}
 			html += '</div><div class="remove"><a href="javascript:{}">x</a></div>';
 			return html;
 		},
 
-		_onTagRemoveClick : function(e) {
+		onTagRemoveClick : function(e) {
 			var eList = this.tagList;
 			var index = this.tagList.all("li").indexOf(e.currentTarget.get("parentNode")),
 			    tags = this.tags,
@@ -197,24 +188,56 @@ YUI.add('annotation', function(Y) {
 			n.one('#confirm-delete').detach();
 			n.one('#cancel-delete').detach();
 
-			n.one('.delete-comment-input').on("key", this._onDelete, "enter", this, annotation, index);
-			n.one('#confirm-delete').on("click", this._onDelete, this, annotation, index);
-			n.one('#cancel-delete').on("click", this._onCancel, this);
+			n.one('.delete-comment-input').on("key", this.onDelete, "enter", this, annotation, index);
+			n.one('#confirm-delete').on("click", this.onDelete, this, annotation, index);
+			n.one('#cancel-delete').on("click", this.onCancelDelete, this);
 			ov.show();
 
 
 		},
 
-		_onCancel : function() {
-				Y.log('onCancel');
-				Y.one('.delete-comment-input').detach("key", this._onDelete, "enter");
+		onCommentAnnotation : function(e) {
+			var eList = this.tagList;
+			var liNode = e.currentTarget.get("parentNode").get("parentNode");
+			var index = this.tagList.all("li").indexOf(liNode);
+			var tags = this.tags;
+			var record = this.tags.getRecordByIndex(index);
+			var annotation = record.getValue("annotation");
+			var labels = this.get("uiLabels");
+			var tag = record.getValue("label");
+			var ov = this.commentOverlay;
+			var n = ov.get('srcNode');
+
+			ov.set("headerContent", "<h3 class='add_dialog'>"+ labels.commentLabel + " " + tag +"</h3>");
+			n.one('.tag-comment-input').detach();
+			n.one('#confirm-tag-comment').detach();
+			n.one('#cancel-tag-comment').detach();
+
+			n.one('.tag-comment-input').on("key", this.onSubmitComment, "enter", this, annotation, index);
+			n.one('#confirm-tag-comment').on("click", this.onSubmitComment, this, annotation, index);
+			n.one('#cancel-tag-comment').on("click", this.onCancelComment, this);
+			ov.show();
+		},
+
+		onCancelDelete : function() {
+				Y.log('onCancelDelete');
+				Y.one('.delete-comment-input').detach("key", this.onDelete, "enter");
 				Y.one('.delete-comment-input').set("value", "");
-				Y.one('#confirm-delete').detach("click", this._onDelete);
-				Y.one('#cancel-delete').detach("click", this._onCancel);
+				Y.one('#confirm-delete').detach("click", this.onDelete);
+				Y.one('#cancel-delete').detach("click", this.onCancelDelete);
 				this.deleteOverlay.hide();
 			     },
 
-		_onDelete : function (e, annotation, index) {
+		onCancelComment : function() {
+				Y.log('onCancelcomment');
+				Y.one('.tag-comment-input').detach("key", this.onSubmitComment, "enter");
+				Y.one('.tag-comment-input').set("value", "");
+				Y.one('#confirm-tag-comment').detach("click", this.onSubmitComment);
+				Y.one('#cancel-tag-comment').detach("click", this.onCancelComment);
+				this.commentOverlay.hide();
+			     },
+
+		onDelete : function (e, annotation, index) {
 			var ov = this.deleteOverlay;
 			var type = "tag";
 			if (ov && index >= 0) {
@@ -222,9 +245,9 @@ YUI.add('annotation', function(Y) {
 		            var commentNode =  n.one('.delete-comment-input');
 			    var comment = commentNode.get("value");
 			    commentNode.set("value", "");
-			    n.one('.delete-comment-input').detach("key", this._onDelete, "enter");
-			    n.one('#confirm-delete').detach("click", this._onDelete);
-			    n.one('#cancel-delete').detach("click", this._onCancel);
+			    n.one('.delete-comment-input').detach("key", this.onDelete, "enter");
+			    n.one('#confirm-delete').detach("click", this.onDelete);
+			    n.one('#cancel-delete').detach("click", this.onCancelDelete);
 			    ov.hide();
 			} else {
 			    var tags = this.tags;
@@ -233,23 +256,28 @@ YUI.add('annotation', function(Y) {
 			    var record = tags.getRecordByIndex(index);
 			    var annotation = record.getValue("annotation");
 			}
-			this.deleteAnnotation(type, annotation, index, comment);
+			this.deleteAnnotation(annotation, index, comment);
 		},
 
-		deleteAnnotation : function(type, annotation, index, comment) {
+		deleteAnnotation : function(annotation, index, comment) {
 			var oSelf = this;
 			Y.log('remove annotation '+annotation+' with comment: '+comment);
 			Y.io(this.get("store.remove"), {
 				data:{ annotation:annotation, comment:comment },
 				on:{success: function(e) {
-					if (type == "tag")
-						oSelf.tags.remove(index);
-					else if (type == "judgement") {
-						var metatags = oSelf.get("metatags");
-						Y.log(metatags);
-						Y.log(index);
-						delete metatags[index];
-					}
+					delete oSelf.get("metatags")[annotation];
+					oSelf.tags.remove(index);
+				   }
+				}
+			});
+		},
+		deleteMetaAnnotation : function(metaindex, annotation, target, comment) {
+			var oSelf = this;
+			Y.log('remove meta annotation '+annotation+ ' on target ' + target +' with comment: '+comment);
+			Y.io(this.get("store.remove"), {
+				data:{ annotation:annotation, comment:comment },
+				on:{success: function(e) {
+					delete oSelf.get("metatags")[target][metaindex];
 				   }
 				}
 			});
@@ -271,14 +299,20 @@ YUI.add('annotation', function(Y) {
 							var len = ans.length;
 							var metatags = oSelf.get('metatags');
 							for (var i=0; i<len; i++) {
-								annotation_target = ans[i].target;
-								annotation_value = ans[i].body.value;
+								var annotation_target = ans[i].target;
+								var annotation_value = ans[i].body.value;
+								var annotation_type = ans[i].type;
 								if (target != annotation_target) {
-									if (!metatags[annotation_target]) metatags[annotation_target] = {}
-									metatags[annotation_target][annotation_value] = ans[i];
-									oSelf.set('metatags', metatags);
+									if (!metatags[annotation_target])
+									  metatags[annotation_target] = {};
+									if (annotation_type == "comment")
+									  metatags[annotation_target][annotation_type] = ans[i];
+									else
+									  metatags[annotation_target][annotation_value] = ans[i];
 								}
 							}
+							oSelf.set('metatags', metatags);
+
 							for (var i=0; i<len; i++) {
 								annotation_target = ans[i].target;
 								if (target == annotation_target) {
@@ -291,7 +325,7 @@ YUI.add('annotation', function(Y) {
 				 }
 				);
 			  },
-		_onHover : function(e) {
+		onHover : function(e) {
 			var infoNode = this.infoNode,
 				active = e.newVal,
 				body = '';
@@ -315,37 +349,35 @@ YUI.add('annotation', function(Y) {
 				infoNode.hide();
 			}
 		},
-		_onItemSelect : function(e) {
+		onItemSelect : function(e) {
 			Y.log('onItemSelect');
 			var type = 'tag';
 			if (e.preventDefault) e.preventDefault();
 			var item = e.details[0].result.raw;
-			var comm = this.getComment();
-			this._setKeyInputHandler(true);
+			this.setKeyInputHandler(true);
 			var now = new Date();
 			var delta = now - this.get("startTyping");
 			var target = this.get("target");
 			if (item.uri && item.label) {
-			  this.submitAnnotation(type, target, {type:"uri", value:item.uri }, item.label, comm, delta);
+			  this.submitAnnotation(type, target, {type:"uri", value:item.uri }, item.label, delta);
 			} else {
-			  this.submitAnnotation(type, target, {type:"literal", value: item}, item,       comm, delta);
+			  this.submitAnnotation(type, target, {type:"literal", value: item}, item,       delta);
 			};
 			this.get("inputNode").set("value", "");
 		},
 
-		_onTextSubmit : function(e) {
+		onTextSubmit : function(e) {
 			Y.log('onTextSubmit');
 			Y.log(e);
 			if (e.preventDefault) e.preventDefault();
-			this._setKeyInputHandler(true);
+			this.setKeyInputHandler(true);
 			if(!this.get("activeItem")) {
 			        var type = 'tag';
 				var now = new Date();
 				var delta = now - this.get("startTyping");
 				var value = this.getTag();
-				var comm = this.getComment();
 				var target = this.get("target");
-				this.submitAnnotation(type, target, {type:"literal", value:value}, value, comm, delta);
+				this.submitAnnotation(type, target, {type:"literal", value:value}, value, delta);
 			}
 		},
 
@@ -353,14 +385,6 @@ YUI.add('annotation', function(Y) {
 			      var value = this.get("inputNode").get("value");
 			      this.get("inputNode").set("value", "");
 			      return value?value:'';
-		},
-
-		getComment: function() {
-			      var commentNode = this.get("commentNode");
-			      if (!commentNode) return "";
-			      var c = commentNode.get("value");
-			      commentNode.set("value", "");
-			      return c;
 		},
 
 	        onJudgeAnnotation : function (ev, value) {
@@ -371,21 +395,40 @@ YUI.add('annotation', function(Y) {
 			var target = record.getValue("annotation");
 			var type = "judgement";
 			var meta = this.get('metatags')[target];
-			Y.log('judging annotation index ' + index + ' for target ' + target);
 			for (var prop in meta) {
-				var old_annotation = meta[prop].annotation;
-				this.deleteAnnotation(type, old_annotation, target, "overruled by new "+value+" judgement");
+				if (meta[prop].type == "judgement") {
+				  var old_annotation = meta[prop].annotation;
+				  this.deleteMetaAnnotation(prop, old_annotation, target, "overruled by new "+value+" judgement");
+				}
 			}
 			this.submitAnnotation(type, target, {type:"literal", value: value});
 		},
-		submitAnnotation : function(type, target, body, label, comment, timing) {
+
+		onSubmitComment : function(ev, ann, index) {
+			Y.log(ev);
+			Y.log(ann);
+			Y.log(index);
+			var ov = this.commentOverlay;
+			if (!ov) return;
+			ov.hide();
+			var type = "comment";
+			var n = ov.get('srcNode');
+			var commentNode =  n.one('.tag-comment-input');
+			var comment = commentNode.get("value");
+			commentNode.set("value", "");
+			n.one('.tag-comment-input').detach("key", this.onCommentAnnotation, "enter");
+			n.one('#confirm-tag-comment').detach("click", this.onCommentAnnotation);
+			n.one('#cancel-tag-comment').detach("click", this.onCancelComment);
+			this.submitAnnotation(type, ann, {type:"literal", value:comment});
+		},
+
+		submitAnnotation : function(type, target, body, label, timing) {
 		        if (!target) return;
 		        if (!body.value) return;
 			if (!label) label = body.value;
-			if (!comment) comment = '';
 			if (!timing) timing = -1;
 			if (!type) type = 'default';
-			Y.log('add tag: '+body.value+' with label: '+label+ ', time: ' + timing);
+			Y.log('add tag: '+ body.value +' with label: '+label+ ', time: ' + timing);
 
 			var inputNode = this.get("inputNode");
 			var tags = this.tags;
@@ -399,13 +442,12 @@ YUI.add('annotation', function(Y) {
 					body:Y.JSON.stringify(body),
 					label:label,
 					typing_time: timing,
-					type: type,
-					comment: comment
+					type: type
 				},
 				on:{success: function(e,o) {
 					var r = Y.JSON.parse(o.responseText);
 					if (type == "tag")
-						tags.add({body:body, label:label, annotation:r.annotation, comment:comment, type:type, display_link:r.display_link});
+						tags.add({body:body, label:label, annotation:r.annotation, type:type, display_link:r.display_link});
 					else if (type == "judgement") {
 						var values = tags.getValuesByKey('annotation');
 						var index = values.indexOf(target);
@@ -414,8 +456,6 @@ YUI.add('annotation', function(Y) {
 						oSelf.set('metatags', metatags);
 						var record = tags.getRecordByIndex(index);
 						tags.update(record, index);
-						Y.log('adding and removing at index ' + index);
-						Y.log(record);
 					}
 
 					inputNode.focus();
@@ -424,8 +464,8 @@ YUI.add('annotation', function(Y) {
 			});
 		},
 
-		_createDeleteNode : function(parentNode) {
-			Node = new Y.Overlay({}).render(parentNode);
+		createDeleteNode : function(parentNode) {
+			var Node = new Y.Overlay({}).render(parentNode);
 			Node.hide();
 			var labels = this.get('uiLabels');
 			var head = "";
@@ -442,17 +482,42 @@ YUI.add('annotation', function(Y) {
 			this.deleteOverlay = Node;
 		},
 
-		_createCommentNode : function(parentNode) {
+		createCommentNode : function(parentNode) {
 			if (! this.get('commentEnabled')) return;
+			var Node = new Y.Overlay({}).render(parentNode);
+			Node.hide();
 			var labels = this.get('uiLabels');
-			var body = "<div class='annotate-comment add-comment'>";
+			var head = "";
+			var body = "<div class='annotate-comment tag-comment'>";
 			body += "<h3>" + labels.commentLabel + "</h3>";
-			body += "<textarea class='annotate-comment-input' />";
-			parentNode.one('input').insert(body, 'after');
-			var commentNode = parentNode.one('.add-comment .annotate-comment-input');
-			this.set('commentNode', commentNode);
-			commentNode.on("key", this._onTextSubmit, 'enter', this);
+			body += "<textarea class='annotate-comment-input tag-comment-input' />";
+			var foot  = "<button id='cancel-tag-comment'>" + labels.cancelCommentLabel + "</button>";
+			foot += "<button id='confirm-tag-comment'>" +labels.confirmCommentLabel+ "</button>";
+			Node.set("headerContent", head);
+			Node.set("bodyContent",   body);
+			Node.set("footerContent", foot);
+			Node.set("centered", true);
+			Node.set("width", "33%");
+			this.commentOverlay = Node;
+		},
+
+		// handlers to record typing time if relevant:
+		setKeyInputHandler : function(first) {
+			if (first) {
+				this.get("inputNode").on(    "key", this.onFirstKey, 'press:', this);
+			} else {
+				this.get("inputNode").detach("key", this.onFirstKey, 'press:');
+			}
+
+		},
+		onFirstKey : function(e) {
+			if (e.button == 13) return; // ? not sure why I get the submit return here ...
+			this.set("startTyping", new Date());
+			var firstkey = false;
+			this.setKeyInputHandler(firstkey);
+
 		}
+
 	});
 
 	Y.Plugin.Annotation = Annotation;

@@ -160,10 +160,10 @@ body {
 	overflow: auto;
 }
 .taglist .commentButtons {
-	width: 49%;
+	width: 24%;
 	margin-right: 1%;
 	float: left;
-	text-align: right;
+	text-align: left;
 }
 
 .taglist .label {
@@ -184,9 +184,17 @@ body {
 .taglist .label a {
 	text-decoration: none;
 }
+.taglist .screenName:before { content: '@'; }
+.taglist .screenName:after { content: ':'; }
+.taglist .screenName {
+	float: left;
+	text-align: right;
+	width: 24%;
+	margin-right: 1%;
+}
 
 .taglist .judgeButton:hover {
-	background-color: gray;
+
 }
 .taglist .judgeButton {
 	padding-left: .3em;
