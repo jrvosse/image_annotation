@@ -107,10 +107,6 @@ YUI.add('annotation', function(Y) {
 			var when   = this.get(option);
 			var user   = this.get("user");
 			var author = tag?tag.getValue("user"):"no_user!";
-			Y.log(when);
-			Y.log(user);
-			Y.log(author);
-			Y.log(tag);
 			if (when == "always")
 			  return true;
 			else if (when == "never")
@@ -204,9 +200,9 @@ YUI.add('annotation', function(Y) {
 			n.one('.delete-comment-input').on("key", this.onDelete, "enter", this, annotation, index);
 			n.one('#confirm-delete').on("click", this.onDelete, this, annotation, index);
 			n.one('#cancel-delete').on("click", this.onCancelDelete, this);
+
 			ov.show();
-
-
+			n.one('.delete-comment-input').focus();
 		},
 
 		onCommentAnnotation : function(e) {
@@ -229,7 +225,9 @@ YUI.add('annotation', function(Y) {
 			n.one('.tag-comment-input').on("key", this.onSubmitComment, "enter", this, annotation, index);
 			n.one('#confirm-tag-comment').on("click", this.onSubmitComment, this, annotation, index);
 			n.one('#cancel-tag-comment').on("click", this.onCancelComment, this);
+
 			ov.show();
+			n.one('.tag-comment-input').focus();
 		},
 
 		onCancelDelete : function() {
@@ -495,7 +493,7 @@ YUI.add('annotation', function(Y) {
 			Node.set("bodyContent",   body);
 			Node.set("footerContent", foot);
 			Node.set("centered", true);
-			Node.set("width", "33%");
+			Node.set("width", "100%");
 			this.deleteOverlay = Node;
 		},
 
@@ -514,7 +512,7 @@ YUI.add('annotation', function(Y) {
 			Node.set("bodyContent",   body);
 			Node.set("footerContent", foot);
 			Node.set("centered", true);
-			Node.set("width", "33%");
+			Node.set("width", "100%");
 			this.commentOverlay = Node;
 		},
 
