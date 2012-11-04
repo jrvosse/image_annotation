@@ -117,7 +117,6 @@ YUI.add('annotation', function(Y) {
 			var meta    = this.get('metatags')[annot];
 			var comment = (meta && meta.comment)?meta.comment.body.value:'';
 			var screenName  = tag.getValue("screenName");
-			Y.log(meta);
 
 			var judgement_buttons = '';
 			if (this.get('agreeEnabled')) {
@@ -156,10 +155,7 @@ YUI.add('annotation', function(Y) {
 			var buttons = '<div class="commentButtons">' + judgement_buttons + '</div>';
 			var html = '';
 			html += buttons;
-
-			if (screenName && screenName != "") {
-			  html+= '<div class="screenName">'+screenName+'</div>';
-			}
+			html+= '<div class="screenName">'+screenName+'</div>';
 			html +=	'<div class="label">';
 			if (link == '')
 				html += label;
@@ -447,7 +443,8 @@ YUI.add('annotation', function(Y) {
 				on:{success: function(e,o) {
 					var r = Y.JSON.parse(o.responseText);
 					if (type == "tag")
-						tags.add({body:body, label:label, annotation:r.annotation, type:type, display_link:r.display_link});
+						tags.add({body:body, label:label, annotation:r.annotation,
+						type:type, display_link:r.display_link, screenName:r.screenName});
 					else if (type == "judgement") {
 						var values = tags.getValuesByKey('annotation');
 						var index = values.indexOf(target);
