@@ -128,14 +128,14 @@ http_annotation(Request) :-
 get_anfields(UI, [], [], Fields) :-
 	var(UI),
 	setting(default_ui, UI),
-	rdfs_individual_of(UI, an:'AnnotationUI'),
+	rdfs_individual_of(UI, ann_ui:'AnnotationUI'),
 	get_anfields(UI, [], [], Fields).
 get_anfields(UI, Fields, [], Fields) :-
 	var(UI),
 	Fields = [_|_],
 	!.
 get_anfields(URI, ExtraFields, DisabledFields, Fields) :-
-	(   rdf_has(URI, an:fields, RdfList)
+	(   rdf_has(URI, ann_ui:fields, RdfList)
 	->  rdfs_list_to_prolog_list(RdfList, UiFields),
 	    append(UiFields, ExtraFields, Fields1),
 	    subtract(Fields1, DisabledFields, Fields)
@@ -144,13 +144,13 @@ get_anfields(URI, ExtraFields, DisabledFields, Fields) :-
 
 
 get_metafields('', [], Fields) :-
-	rdfs_individual_of(URI, an:'AnnotationUI'),
+	rdfs_individual_of(URI, ann_ui:'AnnotationUI'),
 	get_metafields(URI, [], Fields),!.
 
 get_metafields('', Fields, Fields) :-!.
 
 get_metafields(URI, ExtraFields, Fields) :-
-	(   rdf_has(URI, an:metadata, RdfList)
+	(   rdf_has(URI, ann_ui:metadata, RdfList)
 	->  rdfs_list_to_prolog_list(RdfList, UiFields),
 	    append(UiFields, ExtraFields, Fields)
 	;   setting(default_metadata, Fields)
@@ -227,13 +227,13 @@ html_metadata_fields(URI, [Field|Tail], Options) -->
 
 html_metadata_field(URI, Field, _Options) -->
 	{
-	 rdfs_subproperty_of(Field, an:imageURL)
+	 rdfs_subproperty_of(Field, ann_ui:imageURL)
 	},
 	html_resource_image(URI).
 
 html_metadata_field(URI, Field, _Options) -->
 	{
-	 rdfs_subproperty_of(Field, an:url)
+	 rdfs_subproperty_of(Field, ann_ui:url)
 	},
 	html(div(class(link), \rdf_link(URI))).
 
@@ -271,7 +271,7 @@ html_resource_image(URI) -->
 
 % hack
 image(R, Image) :-
-	rdf_has(R, an:imageURL, Image).
+	rdf_has(R, ann_ui:imageURL, Image).
 
 image(R, Image) :-
 	rdf_has(Image, 'http://www.vraweb.org/vracore/vracore3#relation.depicts', R).
@@ -338,8 +338,8 @@ js_module('annotation', json([fullpath(Path),
 
 ui_labels(Field, Options, Labels) :-
 	option(ui(UI), Options),
-	findall(P, rdf_has(UI,    an:uiLabel, _, P), UILP),
-	findall(P, rdf_has(Field, an:uiLabel, _, P), FILP),
+	findall(P, rdf_has(UI,    ann_ui:uiLabel, _, P), UILP),
+	findall(P, rdf_has(Field, ann_ui:uiLabel, _, P), FILP),
 	append(UILP, FILP, LP),
 	sort(LP, LP_Uniq),
 	maplist(get_label(UI, Field), LP_Uniq, List),
@@ -380,13 +380,13 @@ js_annotation_field(FieldURI, Options) -->
 	  ;   Id = FieldURI
 	  ),
 	  option(target(Target), Options),
-	  (   rdf(FieldURI, an:unsureEnabled,   literal(type(xsd:boolean, Unsure)))
+	  (   rdf(FieldURI, ann_ui:unsureEnabled,   literal(type(xsd:boolean, Unsure)))
 	  ->  true; Unsure=true ),
-	  (   rdf(FieldURI, an:agreeEnabled,    literal(type(xsd:boolean, Agree)))
+	  (   rdf(FieldURI, ann_ui:agreeEnabled,    literal(type(xsd:boolean, Agree)))
 	  ->  true; Agree=true ),
-	  (   rdf(FieldURI, an:disagreeEnabled, literal(type(xsd:boolean, Disagree)))
+	  (   rdf(FieldURI, ann_ui:disagreeEnabled, literal(type(xsd:boolean, Disagree)))
 	  ->  true; Disagree=true ),
-	  (   rdf(FieldURI, an:commentEnabled,	literal(type(xsd:boolean, Comment)))
+	  (   rdf(FieldURI, ann_ui:commentEnabled,	literal(type(xsd:boolean, Comment)))
 	  ->  true; Comment=true
 	  ),
 	  ui_labels(FieldURI, Options, UI_labels),
@@ -396,7 +396,7 @@ js_annotation_field(FieldURI, Options) -->
 	  user_preference(user:lang, literal(Lang)),
 	  setting(min_query_length, MinQueryLength),
 	  setting(http:prefix, Prefix),
-	  (   rdf_lang(FieldURI, an:source, Source)
+	  (   rdf_lang(FieldURI, ann_ui:source, Source)
 	  ->  atomic_concat(Prefix, Source, PrefixedSource),
 	      % Configure a field with autocompletion web service URI.
 	      Config = {
@@ -416,7 +416,7 @@ js_annotation_field(FieldURI, Options) -->
 			resultListLocator: results,
 			resultTextLocator: label,
 			resultHighlighter: phraseMatch}
-	  ;   rdf_has(FieldURI, an:source, RdfList),
+	  ;   rdf_has(FieldURI, ann_ui:source, RdfList),
 	      rdfs_member(literal(lang(Lang, _)), RdfList),
 	      rdfs_list_to_prolog_list(RdfList, LiteralList),
 	      maplist(literal_text, LiteralList, TextList),
