@@ -15,7 +15,7 @@ YUI.add('annotation', function(Y) {
 		field:			{ value: null }, // URI identifying annotation field
 		store:			{ value: null }, // URIs of web services to CRUD http annotation api
 		startTyping:		{ value: null }, // timestamp when users start typing
-		metatags:		{ value: {} },   // metatags dictionary
+		myMetaTags:		{ value: {} },   // myMetaTags dictionary
 		uiLabels:		{ value: [] },   // dictionary with ui labels in the prefered language of the user
 		user:                   { value: "anonymous" },
 
@@ -130,7 +130,7 @@ YUI.add('annotation', function(Y) {
 			var label = tag.getValue("label");
 			var link  = tag.getValue("display_link");
 			var annot = tag.getValue("annotation");
-			var meta    = this.get('metatags')[annot];
+			var meta    = this.get('myMetaTags')[annot];
 			var comment = (meta && meta.comment)?meta.comment.body.value:'';
 			var screenName  = tag.getValue("screenName");
 
@@ -283,7 +283,7 @@ YUI.add('annotation', function(Y) {
 			Y.io(this.get("store.remove"), {
 				data:{ annotation:annotation, comment:comment },
 				on:{success: function(e) {
-					delete oSelf.get("metatags")[annotation];
+					delete oSelf.get("myMetaTags")[annotation];
 					oSelf.tags.remove(index);
 				   }
 				}
@@ -295,7 +295,7 @@ YUI.add('annotation', function(Y) {
 			Y.io(this.get("store.remove"), {
 				data:{ annotation:annotation, comment:comment },
 				on:{success: function(e) {
-					delete oSelf.get("metatags")[target][metaindex];
+					delete oSelf.get("myMetaTags")[target][metaindex];
 					var record = oSelf.tags.getRecordByIndex(tagindex);
 					oSelf.renderTags([record], tagindex);
 					Y.log("deleted " + metaindex + " for " + target);
@@ -318,21 +318,23 @@ YUI.add('annotation', function(Y) {
 						  if (r && r[field] && r[field].annotations) {
 							var ans = r[field].annotations;
 							var len = ans.length;
-							var metatags = oSelf.get('metatags');
+							var user = oSelf.get('user');
+							var myMetaTags = oSelf.get('myMetaTags');
 							for (var i=0; i<len; i++) {
 								var annotation_target = ans[i].target;
 								var annotation_value = ans[i].body.value;
 								var annotation_type = ans[i].type;
-								if (target != annotation_target) {
-									if (!metatags[annotation_target])
-									  metatags[annotation_target] = {};
+								var annotation_user = ans[i].user;
+								if (target != annotation_target && user == annotation_user) {
+									if (!myMetaTags[annotation_target])
+									  myMetaTags[annotation_target] = {};
 									if (annotation_type == "comment")
-									  metatags[annotation_target][annotation_type] = ans[i];
+									  myMetaTags[annotation_target][annotation_type] = ans[i];
 									else
-									  metatags[annotation_target][annotation_value] = ans[i];
+									  myMetaTags[annotation_target][annotation_value] = ans[i];
 								}
 							}
-							oSelf.set('metatags', metatags);
+							oSelf.set('myMetaTags', myMetaTags);
 
 							for (var i=0; i<len; i++) {
 								annotation_target = ans[i].target;
@@ -415,7 +417,7 @@ YUI.add('annotation', function(Y) {
 			var record = tags.getRecordByIndex(index);
 			var target = record.getValue("annotation");
 			var type = "judgement";
-			var meta = this.get('metatags')[target];
+			var meta = this.get('myMetaTags')[target];
 			for (var prop in meta) {
 				if (meta[prop].type == "judgement") {
 				  var old_annotation = meta[prop].annotation;
@@ -453,7 +455,7 @@ YUI.add('annotation', function(Y) {
 
 			var inputNode = this.get("inputNode");
 			var tags = this.tags;
-			var metatags = this.get("metatags");
+			var myMetaTags = this.get("myMetaTags");
 			var oSelf = this;
 
 			Y.io(this.get("store.add"), {
@@ -472,13 +474,13 @@ YUI.add('annotation', function(Y) {
 					else {
 						var values = tags.getValuesByKey('annotation');
 						var index = values.indexOf(target);
-						if (!metatags[target]) metatags[target] = {}
+						if (!myMetaTags[target]) myMetaTags[target] = {}
 						if (type == "judgement") {
-						  metatags[target][body.value] = r;
+						  myMetaTags[target][body.value] = r;
 						} else if (type == "comment") {
-						  metatags[target][type] = r;
+						  myMetaTags[target][type] = r;
 						}
-						oSelf.set('metatags', metatags);
+						oSelf.set('myMetaTags', myMetaTags);
 						var record = tags.getRecordByIndex(index);
 						tags.update(record, index);
 					}
