@@ -505,7 +505,7 @@ YUI.add('annotation', function(Y) {
 			Node.set("bodyContent",   body);
 			Node.set("footerContent", foot);
 			Node.set("centered", true);
-			Node.set("width", "33%");
+			Node.set("width", "30em");
 			this.deleteOverlay = Node;
 		},
 
@@ -524,7 +524,7 @@ YUI.add('annotation', function(Y) {
 			Node.set("bodyContent",   body);
 			Node.set("footerContent", foot);
 			Node.set("centered", true);
-			Node.set("width", "33%");
+			Node.set("width", "30em");
 			this.commentOverlay = Node;
 		},
 
