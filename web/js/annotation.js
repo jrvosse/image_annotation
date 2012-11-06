@@ -85,8 +85,6 @@ YUI.add('annotation', function(Y) {
 		},
 
 		renderTags : function(tags, index) {
-			this.DEF_PARENT_NODE.all('.judgeButton').detach('click');
-			this.DEF_PARENT_NODE.all('.commentButton').detach('click');
 			var tagList = this.tagList;
 			var tagNodes = this.tagList.all("li");
 			Y.log('rendering ' + tags.length + ' tags at index ' + index);
@@ -95,12 +93,21 @@ YUI.add('annotation', function(Y) {
 			}
 			// format the tags
 			for(var i=0; i < tags.length; i++) {
-				tagList.insert('<li>'+this.formatTag(tags[i])+'</li>', index+i);
+				var node = Y.Node.create('<li>'+this.formatTag(tags[i])+'</li>');
+				tagList.insert(node, index+i);
+				node.one('.judgeButton').detach('click');
+				node.one('.commentButton').detach('click');
+
+				node.one('.commentButton').on(           'click', this.onCommentAnnotation, this);
+
+				node.all('.unsureButton.unchecked').on(  'click', this.onJudgeAnnotation, this, 'add', 'unsure');
+				node.all('.agreeButton.unchecked').on(   'click', this.onJudgeAnnotation, this, 'add',  'agree');
+				node.all('.disagreeButton.unchecked').on('click', this.onJudgeAnnotation, this, 'add',  'disagree');
+
+				node.all('.unsureButton.checked').on(  'click', this.onJudgeAnnotation, this, 'rm', 'unsure');
+				node.all('.agreeButton.checked').on(   'click', this.onJudgeAnnotation, this, 'rm', 'agree');
+				node.all('.disagreeButton.checked').on('click', this.onJudgeAnnotation, this, 'rm', 'disagree');
 			};
-			this.DEF_PARENT_NODE.all('.agreeButton.unchecked').on(   'click', this.onJudgeAnnotation, this, 'agree');
-			this.DEF_PARENT_NODE.all('.unsureButton.unchecked').on(  'click', this.onJudgeAnnotation, this, 'unsure');
-			this.DEF_PARENT_NODE.all('.disagreeButton.unchecked').on('click', this.onJudgeAnnotation, this, 'disagree');
-			this.DEF_PARENT_NODE.all('.commentButton').on(           'click', this.onCommentAnnotation, this);
 		},
 
 		enabled : function(option, tag) {
@@ -282,13 +289,16 @@ YUI.add('annotation', function(Y) {
 				}
 			});
 		},
-		deleteMetaAnnotation : function(metaindex, annotation, target, comment) {
+		deleteMetaAnnotation : function(tagindex, metaindex, annotation, target, comment) {
 			var oSelf = this;
 			Y.log('remove meta annotation '+annotation+ ' on target ' + target +' with comment: '+comment);
 			Y.io(this.get("store.remove"), {
 				data:{ annotation:annotation, comment:comment },
 				on:{success: function(e) {
 					delete oSelf.get("metatags")[target][metaindex];
+					var record = oSelf.tags.getRecordByIndex(tagindex);
+					oSelf.renderTags([record], tagindex);
+					Y.log("deleted " + metaindex + " for " + target);
 				   }
 				}
 			});
@@ -398,7 +408,7 @@ YUI.add('annotation', function(Y) {
 			      return value?value:'';
 		},
 
-	        onJudgeAnnotation : function (ev, value) {
+	        onJudgeAnnotation : function (ev, action, value) {
 		        var eLi = ev.currentTarget.get("parentNode").get("parentNode");
 			var index = this.tagList.all("li").indexOf(eLi);
 			var tags = this.tags;
@@ -409,10 +419,10 @@ YUI.add('annotation', function(Y) {
 			for (var prop in meta) {
 				if (meta[prop].type == "judgement") {
 				  var old_annotation = meta[prop].annotation;
-				  this.deleteMetaAnnotation(prop, old_annotation, target, "overruled by new "+value+" judgement");
+				  this.deleteMetaAnnotation(index, prop, old_annotation, target, "overruled by new "+value+" judgement");
 				}
 			}
-			this.submitAnnotation(type, target, {type:"literal", value: value});
+			if (action == 'add') this.submitAnnotation(type, target, {type:"literal", value: value});
 		},
 
 		onSubmitComment : function(ev, ann, index) {
