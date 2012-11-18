@@ -11,7 +11,7 @@
 # this.  Otherwise you can specify the information inline as done below.
 # See http://xmlns.com/foaf/spec/ for defines fields.
 
-<> a cpack:Package ;
+<> a cpack:Application ;
 	cpack:packageName "image_annotation" ;
 	dcterms:title "Image annotation with configurable search fields" ;
 	cpack:author <http://www.few.vu.nl/~michielh/me> ;
