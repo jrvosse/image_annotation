@@ -17,9 +17,9 @@
 	   'Dashboard only for users with admin rights').
 
 cliopatria:menu_popup_order(accurator, 120).
-cliopatria:menu_label(accurator,			'Niche Accurator').
-cliopatria:menu_item(100=accurator/http_dashboard_home, 'Dashboard').
-cliopatria:menu_item(110=accurator/http_annotation,     'Denice annotation').
+cliopatria:menu_label(accurator,			'Accurator').
+cliopatria:menu_item(100=accurator/http_dashboard_home, 'dashboard').
+cliopatria:menu_item(110=accurator/http_annotation,     'annotation').
 
 :- multifile
 	show_user_annotations//3.
@@ -38,7 +38,8 @@ http_dashboard_home(_Request) :-
 
 user_page(User, _Options) :-
 	findall(Prop, user_property(User, Prop), Props),
-	find_actions(User, Additions, Deletions),
+	user_property(User, url(Url)),
+	find_actions(Url, Additions, Deletions),
 	reply_html_page([title(User)],
 			[style([],['.an_dashboard_table { text-align: right}']),
 			 table(\show_user_props(Props)),
@@ -79,11 +80,12 @@ find_users(Users) :-
 
 participant(User) :-
 	current_user(Uid),
-	user_property(Uid, user_count(_Number)),
-	find_annotations(Uid, Annotations),
+	% user_property(Uid, user_count(_Number)),
+	user_property(Uid, url(URL)),
+	find_annotations(URL, Annotations),
 	length(Annotations, Done),
 	User= [
-	       id(Uid), done(Done)
+	       id(Uid), url(URL), done(Done)
 	      ].
 
 
@@ -163,13 +165,16 @@ show_annotations(User, A, D) -->
 do_show_user_annotations(_User, [], _) --> !.
 do_show_user_annotations(User, [A|Tail], D) -->
 	{
+	 % FIXME, A is the commit, not the annotation
 	 rdf(A, oa:hasTarget, T),
 	 rdf(A, oa:hasBody, literal(B)),
-	 http_link_to_id(list_resource, [r(A)], ALink)
+	 http_link_to_id(list_resource, [r(A)], ALink),!
 	},
 	html(tr([td(\rdf_link(T)), td(a([href(ALink)],B))])),
 	do_show_user_annotations(User, Tail, D).
 
-
+do_show_user_annotations(User, [A|Tail], D) -->
+	html(tr([td(tt(A)), td(deleted)])),
+	do_show_user_annotations(User, Tail, D).
 
 
