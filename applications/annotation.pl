@@ -364,18 +364,24 @@ conditional_html_requires(_) --> !.
 
 %%	js_annotation_fields(+FieldURIs, +AnnotationTarget)
 %
-%	Write JavaScript to init annotation fields
+%	Write JavaScript to init chain of annotation fields
 %
-js_annotation_fields([], _) --> !.
-js_annotation_fields([URI|T], Options) -->
-	js_annotation_field(URI, Options),
-	js_annotation_fields(T, Options).
+js_annotation_fields([URI], Options) -->
+	js_annotation_field(URI, Options).
+js_annotation_fields([URI, Next | T], Options) -->
+	js_annotation_field(URI, [next(Next)|Options]),
+	js_annotation_fields([Next | T], Options).
 
 js_annotation_field(FieldURI, Options) -->
 	 {
+	  option(next(NextURI), Options, @null),
 	  (   rdf_global_id(_:Id, FieldURI)
 	  ->  true
 	  ;   Id = FieldURI
+	  ),
+	  (   rdf_global_id(_:Next, NextURI)
+	  ->  true
+	  ;   Next = NextURI
 	  ),
 	  option(target(Target), Options),
 	  option(user(User), Options),
@@ -402,6 +408,7 @@ js_annotation_field(FieldURI, Options) -->
 	      Config = {
 			target:Target,
 			field:FieldURI,
+			next(Next),
 			source:PrefixedSource,
 			store: { add:Add,
 				 get:Get,
@@ -427,6 +434,7 @@ js_annotation_field(FieldURI, Options) -->
 	      Config = {
 			target:Target,
 			field:FieldURI,
+			next(Next),
 			source:Source,
 			user(User),
 			uiLabels: UI_labels,
@@ -441,7 +449,7 @@ js_annotation_field(FieldURI, Options) -->
 			       }
 		       }
 	  ;   % Configure a field without autocompletion
-	      Config = {
+	      Config = {next(Next),
 			target:Target,
 			field:FieldURI,
 			user(User),

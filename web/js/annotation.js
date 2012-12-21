@@ -17,6 +17,7 @@ YUI.add('annotation', function(Y) {
 		startTyping:		{ value: null }, // timestamp when users start typing
 		myMetaTags:		{ value: {} },   // myMetaTags dictionary
 		uiLabels:		{ value: [] },   // dictionary with ui labels in the prefered language of the user
+		next:			{ value: null }, // id of next field to tab to
 		user:                   { value: "anonymous" },
 
 		// configuration options:
@@ -34,13 +35,15 @@ YUI.add('annotation', function(Y) {
 	Y.extend(Annotation, Y.Plugin.AutoComplete, {
 
 		initializer: function(args) {
+			var next = this.get("next");
 			var parentNode = this.DEF_PARENT_NODE;
 
 			// handler to call when item selected from autocompletion suggestions:
 			this.on("select", this.onItemSelect, this);
 
 			// handler to call when hitting return after string input (no autocomplete):
-			this.get("inputNode").on("key", this.onTextSubmit, "enter", this);
+			this.get("inputNode").on("key", this.onTextSubmit, "enter", this, null);
+			this.get("inputNode").on("key", this.onTextSubmit, "tab",   this, next);
 
 			// create tags recordset (tag model in mvc), bind events to auto-update the tagList node (tag view in mvc):
 			this.tags = new Y.Recordset({records:{}});
@@ -382,16 +385,15 @@ YUI.add('annotation', function(Y) {
 			var delta = now - this.get("startTyping");
 			var target = this.get("target");
 			if (item.uri && item.label) {
-			  this.submitAnnotation(type, target, {type:"uri", value:item.uri }, item.label, delta);
+			  this.submitAnnotation(type, target, {type:"uri", value:item.uri }, item.label, delta, null);
 			} else {
-			  this.submitAnnotation(type, target, {type:"literal", value: item}, item,       delta);
+			  this.submitAnnotation(type, target, {type:"literal", value: item}, item,       delta, null);
 			};
 			this.get("inputNode").set("value", "");
 		},
 
-		onTextSubmit : function(e) {
+		onTextSubmit : function(e, next) {
 			Y.log('onTextSubmit');
-			Y.log(e);
 			if (e.preventDefault) e.preventDefault();
 			this.setKeyInputHandler(true);
 			if(!this.get("activeItem")) {
@@ -400,7 +402,7 @@ YUI.add('annotation', function(Y) {
 				var delta = now - this.get("startTyping");
 				var value = this.getTag();
 				var target = this.get("target");
-				this.submitAnnotation(type, target, {type:"literal", value:value}, value, delta);
+				this.submitAnnotation(type, target, {type:"literal", value:value}, value, delta, next);
 			}
 		},
 
@@ -424,7 +426,12 @@ YUI.add('annotation', function(Y) {
 				  this.deleteMetaAnnotation(index, prop, old_annotation, target, "overruled by new "+value+" judgement");
 				}
 			}
-			if (action == 'add') this.submitAnnotation(type, target, {type:"literal", value: value});
+			if (action == 'add') this.submitAnnotation(type,
+								   target,
+								   {type:"literal", value: value},
+								  value,
+								  -1,
+								  null);
 		},
 
 		onSubmitComment : function(ev, ann, index) {
@@ -442,10 +449,10 @@ YUI.add('annotation', function(Y) {
 			n.one('.tag-comment-input').detach("key", this.onCommentAnnotation, "enter");
 			n.one('#confirm-tag-comment').detach("click", this.onCommentAnnotation);
 			n.one('#cancel-tag-comment').detach("click", this.onCancelComment);
-			this.submitAnnotation(type, ann, {type:"literal", value:comment});
+			this.submitAnnotation(type, ann, {type:"literal", value:comment}, comment, -1, null);
 		},
 
-		submitAnnotation : function(type, target, body, label, timing) {
+		submitAnnotation : function(type, target, body, label, timing, next) {
 		        if (!target) return;
 		        if (!body.value) return;
 			if (!label) label = body.value;
@@ -484,8 +491,11 @@ YUI.add('annotation', function(Y) {
 						var record = tags.getRecordByIndex(index);
 						tags.update(record, index);
 					}
-
-					inputNode.focus();
+					if (next) {
+					  Y.one('#' + next).focus();
+					} else {
+					  inputNode.focus();
+					}
 				    }
 				}
 			});
