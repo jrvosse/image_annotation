@@ -104,8 +104,8 @@ YUI.add('annotation', function(Y) {
 				node.one('.commentButton').on(           'click', this.onCommentAnnotation, this);
 
 				node.all('.unsureButton.unchecked').on(  'click', this.onJudgeAnnotation, this, 'add', 'unsure');
-				node.all('.agreeButton.unchecked').on(   'click', this.onJudgeAnnotation, this, 'add',  'agree');
-				node.all('.disagreeButton.unchecked').on('click', this.onJudgeAnnotation, this, 'add',  'disagree');
+				node.all('.agreeButton.unchecked').on(   'click', this.onJudgeAnnotation, this, 'add', 'agree');
+				node.all('.disagreeButton.unchecked').on('click', this.onJudgeAnnotation, this, 'add', 'disagree');
 
 				node.all('.unsureButton.checked').on(  'click', this.onJudgeAnnotation, this, 'rm', 'unsure');
 				node.all('.agreeButton.checked').on(   'click', this.onJudgeAnnotation, this, 'rm', 'agree');
