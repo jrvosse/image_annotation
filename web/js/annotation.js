@@ -118,7 +118,7 @@ YUI.add('annotation', function(Y) {
 		enabled : function(option, tag) {
 			var when   = this.get(option);
 			var user   = this.get("user");
-			var author = tag?tag.user:"no_user!";
+			var author = tag?tag.annotator:"no_user!";
 			if (when == "always")
 			  return true;
 			else if (when == "never")
@@ -131,25 +131,25 @@ YUI.add('annotation', function(Y) {
 		},
 
 		formatTag : function(tag) {
-			      var label = tag.getValue("label");
+			      var label = tag.getValue("title");
 			      return "<div class='label'>" + label + "</div>";
 		},
 
 		formatTagOverlay : function(tag) {
-			var target= tag.target;
-			var body  = tag.body;
-			var label = tag.label;
+			var target= tag.hasTarget;
+			var body  = tag.hasBody;
+			var label = tag.title;
 			var link  = tag.display_link;
 			var annot = tag.annotation;
 			var meta    = this.get('myMetaTags')[annot];
-			var comment = (meta && meta.comment)?meta.comment.body.value:'';
+			var comment = (meta && meta.comment)?meta.comment.hasBody.value:'';
 			var screenName  = tag.screenName;
 
 			var judgement_buttons = '';
 			if (this.enabled('agreeEnabled', tag)) {
 				var agreeLabel = this.get('uiLabels').agreeLabel;
 				var agree_value = undefined;
-				if (meta && meta.agree) agree_value = meta.agree.body.value;
+				if (meta && meta.agree) agree_value = meta.agree.hasBody.value;
 				var checked = (agree_value != undefined)?'checked':'unchecked';
 				judgement_buttons += "<span class='judgeButton agreeButton " + checked + "'>";
 				judgement_buttons += "<img src='./icons/thumbUp.png' title='" + agreeLabel + "'/>";
@@ -158,7 +158,7 @@ YUI.add('annotation', function(Y) {
 			if (this.enabled('unsureEnabled', tag)) {
 				var unsureLabel = this.get('uiLabels').unsureLabel;
 				var unsure_value = undefined;
-				if (meta && meta.unsure) unsure_value = meta.unsure.body.value;
+				if (meta && meta.unsure) unsure_value = meta.unsure.hasBody.value;
 				var checked = (unsure_value != undefined)?'checked':'unchecked';
 				judgement_buttons += "<span class='judgeButton unsureButton " + checked + "'>";
 				judgement_buttons += "<img src='./icons/unsure.png' title='" + unsureLabel + "'/>";
@@ -167,7 +167,7 @@ YUI.add('annotation', function(Y) {
 			if (this.enabled('disagreeEnabled', tag)) {
 				var disagreeLabel = this.get('uiLabels').disagreeLabel;
 				var disagree_value = undefined;
-				if (meta && meta.disagree) disagree_value = meta.disagree.body.value;
+				if (meta && meta.disagree) disagree_value = meta.disagree.hasBody.value;
 				var checked = (disagree_value != undefined)?'checked':'unchecked';
 				judgement_buttons += "<span class='judgeButton disagreeButton " + checked + "'>";
 				judgement_buttons += "<img src='./icons/thumbDown.png' title='" + disagreeLabel + "'/>";
@@ -333,7 +333,7 @@ YUI.add('annotation', function(Y) {
 			    var oSelf = this;
 			    Y.io(this.get("store.get"),
 				 { data: {
-					 target: target,
+					 hasTarget: target,
 					 field:  field
 					 },
 				   on: {
@@ -345,10 +345,10 @@ YUI.add('annotation', function(Y) {
 							var user = oSelf.get('user');
 							var myMetaTags = oSelf.get('myMetaTags');
 							for (var i=0; i<len; i++) {
-								var annotation_target = ans[i].target;
-								var annotation_value = ans[i].body.value;
+								var annotation_target = ans[i].hasTarget;
+								var annotation_value = ans[i].hasBody.value;
 								var annotation_type = ans[i].type;
-								var annotation_user = ans[i].user;
+								var annotation_user = ans[i].annotator;
 								if (target != annotation_target && user == annotation_user) {
 									if (!myMetaTags[annotation_target])
 									  myMetaTags[annotation_target] = {};
@@ -361,7 +361,7 @@ YUI.add('annotation', function(Y) {
 							oSelf.set('myMetaTags', myMetaTags);
 
 							for (var i=0; i<len; i++) {
-								annotation_target = ans[i].target;
+								annotation_target = ans[i].hasTarget;
 								if (target == annotation_target) {
 								        var tag = ans[i];
 									var ovBody = oSelf.formatTagOverlay(tag);
@@ -492,8 +492,8 @@ YUI.add('annotation', function(Y) {
 			Y.io(this.get("store.add"), {
 				data:{
 					field:this.get("field"),
-					target:target,
-					body:Y.JSON.stringify(body),
+					hasTarget:target,
+					hasBody:Y.JSON.stringify(body),
 					label:label,
 					typing_time: timing,
 					type: type
