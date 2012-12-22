@@ -57,8 +57,8 @@ YUI.add('annotation', function(Y) {
 
 			// infoNode is the overlay with tooltips when hovering over suggested terms
 			this.infoNode = new Y.Overlay({}).render(parentNode);
-			this.on("activeItemChange", this.onHover, this);
-			this.on("hoveredItemChange", this.onHover, this);
+			this.on("activeItemChange",  this.onSuggestionHover, this);
+			this.on("hoveredItemChange", this.onSuggestionHover, this);
 
 			// create overlays for comments on delete and add actions:
 			this.createCommentNode(parentNode);
@@ -90,7 +90,6 @@ YUI.add('annotation', function(Y) {
 		renderTags : function(tags, index) {
 			var tagList = this.tagList;
 			var tagNodes = this.tagList.all("li");
-			Y.log('rendering ' + tags.length + ' tags at index ' + index);
 			if (index < tagNodes.size()) {
 				this.removeTags({index:index, range:tags.length});
 			}
@@ -98,6 +97,7 @@ YUI.add('annotation', function(Y) {
 			for(var i=0; i < tags.length; i++) {
 				var node = Y.Node.create('<li>'+this.formatTag(tags[i])+'</li>');
 				tagList.insert(node, index+i);
+				node.one('.label').on('hover', this.onTagHover, this.onTagHover, tags[i]);
 				/*
 				node.one('.judgeButton').detach('click');
 				node.one('.commentButton').detach('click');
@@ -118,7 +118,7 @@ YUI.add('annotation', function(Y) {
 		enabled : function(option, tag) {
 			var when   = this.get(option);
 			var user   = this.get("user");
-			var author = tag?tag.getValue("user"):"no_user!";
+			var author = tag?tag.user:"no_user!";
 			if (when == "always")
 			  return true;
 			else if (when == "never")
@@ -136,14 +136,14 @@ YUI.add('annotation', function(Y) {
 		},
 
 		formatTagOverlay : function(tag) {
-			var target= tag.getValue("target");
-			var body  = tag.getValue("body");
-			var label = tag.getValue("label");
-			var link  = tag.getValue("display_link");
-			var annot = tag.getValue("annotation");
+			var target= tag.target;
+			var body  = tag.body;
+			var label = tag.label;
+			var link  = tag.display_link;
+			var annot = tag.annotation;
 			var meta    = this.get('myMetaTags')[annot];
 			var comment = (meta && meta.comment)?meta.comment.body.value:'';
-			var screenName  = tag.getValue("screenName");
+			var screenName  = tag.screenName;
 
 			var judgement_buttons = '';
 			if (this.enabled('agreeEnabled', tag)) {
@@ -198,6 +198,19 @@ YUI.add('annotation', function(Y) {
 			  html += '<div class="remove"><a href="javascript:{}">x</a></div>';
 			}
 			return html;
+		},
+
+		onTagHover: function(ev) {
+			Y.log(this.getValue('overlay'));
+			var overlay = this.getValue('overlay');
+			if (ev.phase == 'over') {
+			  overlay.render(ev.target);
+			  overlay.set("align", {node:ev.target,
+			                        points:[Y.WidgetPositionAlign.TR, Y.WidgetPositionAlign.TL]});
+			  overlay.show();
+			} else {
+			  overlay.hide();
+			}
 		},
 
 		onTagRemoveClick : function(e) {
@@ -350,6 +363,9 @@ YUI.add('annotation', function(Y) {
 							for (var i=0; i<len; i++) {
 								annotation_target = ans[i].target;
 								if (target == annotation_target) {
+								        var tag = ans[i];
+									var ovBody = oSelf.formatTagOverlay(tag);
+									tag['overlay'] = new Y.Overlay({bodyContent: ovBody});
 									oSelf.tags.add(ans[i]); // normal tag
 								}
 							}
@@ -359,7 +375,7 @@ YUI.add('annotation', function(Y) {
 				 }
 				);
 			  },
-		onHover : function(e) {
+		onSuggestionHover : function(e) {
 			var infoNode = this.infoNode,
 				active = e.newVal,
 				body = '';
