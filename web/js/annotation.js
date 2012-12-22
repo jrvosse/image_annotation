@@ -98,6 +98,7 @@ YUI.add('annotation', function(Y) {
 			for(var i=0; i < tags.length; i++) {
 				var node = Y.Node.create('<li>'+this.formatTag(tags[i])+'</li>');
 				tagList.insert(node, index+i);
+				/*
 				node.one('.judgeButton').detach('click');
 				node.one('.commentButton').detach('click');
 
@@ -110,6 +111,7 @@ YUI.add('annotation', function(Y) {
 				node.all('.unsureButton.checked').on(  'click', this.onJudgeAnnotation, this, 'rm', 'unsure');
 				node.all('.agreeButton.checked').on(   'click', this.onJudgeAnnotation, this, 'rm', 'agree');
 				node.all('.disagreeButton.checked').on('click', this.onJudgeAnnotation, this, 'rm', 'disagree');
+				*/
 			};
 		},
 
@@ -127,7 +129,13 @@ YUI.add('annotation', function(Y) {
 			  return (user != author);
 
 		},
+
 		formatTag : function(tag) {
+			      var label = tag.getValue("label");
+			      return "<div class='label'>" + label + "</div>";
+		},
+
+		formatTagOverlay : function(tag) {
 			var target= tag.getValue("target");
 			var body  = tag.getValue("body");
 			var label = tag.getValue("label");

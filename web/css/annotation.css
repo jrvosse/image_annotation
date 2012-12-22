@@ -167,9 +167,9 @@ body {
 }
 
 .taglist .label {
-	width: 43%;
+	width: 49%;
 	margin-left: 1%;
-	float: left;
+	float: right;
 }
 .taglist .remove {
 	width: 5%;
