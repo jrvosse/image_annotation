@@ -63,7 +63,6 @@ body {
 
 .annotate-comment h3
 {
- float: left;
  width: 48%;
  margin: 0 0 1% 0;
  font-size: 0.85em;
@@ -73,7 +72,6 @@ body {
  overflow: auto;
  clear: both;
  font-size: 0.85em;
- float: right;
  width: 48%;
  margin: .5% ;
  border: 2px solid #EEE;
@@ -93,7 +91,6 @@ body {
   min-width: 10em;
   width: 10%;
   padding: 1%;
-  float: right;
   text-align: center;
   text-decoration: none;
 }
@@ -131,7 +128,6 @@ body {
 
 .annotate-comment-input {
      width: 48%;
-     float: right;
      font-size: 1.3em;
      margin: .5% .5%;
      border: 2px solid #AAA;
@@ -139,7 +135,6 @@ body {
 }
 
 #confirm-delete {
-	    float: right;
 	       }
 .delete_dialog {
 		   margin-top: 0;
@@ -160,19 +155,30 @@ body {
 	overflow: auto;
 }
 .taglist .commentButtons {
-	width: 24%;
+	width: 100%;
 	margin-right: 1%;
-	float: left;
-	text-align: left;
+	overflow: auto;
 }
 
+.commentButtons span {
+	text-align: right;
+	float: right;
+}
 .taglist .label {
-	width: 49%;
+	width: 45%;
 	margin-left: 1%;
 	float: right;
 }
+.overlay {
+	text-align: right;
+}
+.overlay.label {
+	width: 100%;
+	margin-left: 1%;
+	float: none;
+}
 .taglist .remove {
-	width: 5%;
+	width: 4%;
 	overflow: hidden;
 	float: right;
 }
@@ -184,17 +190,19 @@ body {
 .taglist .label a {
 	text-decoration: none;
 }
-.taglist .screenName:before { content: '@'; }
-.taglist .screenName:after { content: ':'; }
+.taglist .screenName:before { content: 'Created by: @'; }
+.taglist .screenName:after { content: ';'; }
 .taglist .screenName {
-	float: left;
 	text-align: right;
-	width: 24%;
-	margin-right: 1%;
+	margin: 1%;
 }
 
 .taglist .judgeButton:hover {
-
+}
+.taglist .judgeButton:after {
+	display: block;
+	font-size: 0.7em;
+	content: attr(title);
 }
 .taglist .judgeButton {
 	padding-left: .3em;
@@ -203,16 +211,13 @@ body {
 	cursor: crosshair;
 }
 .taglist .judgeButton img {
-	height: 2ex;
+	height: 5ex;
 	vertical-align: middle;
 }
 .taglist .checked img {
-	height: 3ex;
+	height: 5ex;
 }
-.taglist .commentButton img {
-	height: 2.5ex;
-	vertical-align: middle;
-	}
+
 /* resource */
 .resource h3 {
 	margin: 0 0 6px;
