@@ -184,7 +184,15 @@ body {
 	overflow: hidden;
 	float: right;
 }
-
+.overlay .comment_remove {
+	width: 4%;
+	overflow: hidden;
+	float: right;
+}
+.overlay .comment_remove a {
+	color: red;
+	text-decoration: none;
+}
 .taglist .remove a {
 	color: red;
 	text-decoration: none;

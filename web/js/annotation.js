@@ -149,7 +149,6 @@ YUI.add('annotation', function(Y) {
 			var link  = tag.display_link;
 			var annot = tag.annotation;
 			var mymeta     = this.get('myMetaTags')[annot];
-			var comments   = mymeta.comment;
 			var screenName = tag.screenName;
 
 			var judgement_buttons = '';
@@ -202,8 +201,9 @@ YUI.add('annotation', function(Y) {
 
 			html += '<div class="overlay screenName">'+screenName+'</div>';
 			html += buttons;
-			var comment = mymeta.comment;
-			if (comment) {
+
+			if (mymeta && mymeta.comment) {
+			  var comment = mymeta.comment;
 			  html += '<div class="overlay comment">';
 			  html += '<span class="screenName">' + comment.screenName + "</span>";
 			  html += '<span class="body">'       + comment.hasBody.value + "</span>";
@@ -222,7 +222,8 @@ YUI.add('annotation', function(Y) {
 			  overlay.render(ev.target);
 			  overlay.set('width','25em');
 			  overlay.set("align", {node:ev.target,
-			                        points:[Y.WidgetPositionAlign.TR, Y.WidgetPositionAlign.TL]});
+			                        points:[Y.WidgetPositionAlign.RC, Y.WidgetPositionAlign.TL]});
+
 			  overlay.show();
 			  var node = overlay.get('srcNode');
 			  node.all('.judgeButton').detach('click');
@@ -452,7 +453,7 @@ YUI.add('annotation', function(Y) {
 				                      points:[Y.WidgetPositionAlign.TR, Y.WidgetPositionAlign.TL]});
 				infoNode.show();
 			} else {
-				infoNode.hide();
+			       infoNode.hide();
 			}
 		},
 		onItemSelect : function(e) {
