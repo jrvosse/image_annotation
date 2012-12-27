@@ -78,12 +78,23 @@ YUI.add('annotation', function(Y) {
 		},
 
 		// handlers for adding additions, updates or removals in the tag Recordset:
-		addTags : function(o) { this.renderTags(o.added, o.index); } ,
-		updateTags : function(o) { this.renderTags(o.updated, o.index); },
+		addTags : function(o) {
+			    // Y.log('adding tags at index ' + o.index + ':');
+			    // Y.log(o.added[0].getValue());
+			    this.renderTags(o.added, o.index);
+			  } ,
+		updateTags : function(o) {
+			    // Y.log('updating tags at index ' + o.index + ':');
+			    // Y.log(o.updated[0].getValue());
+			    this.renderTags(o.updated, o.index);
+			     },
 		removeTags : function(o) {
 			var tagNodes = this.tagList.all("li");
 			for (var i=o.index; i < o.index+o.range; i++) {
-				tagNodes.item(i).remove();
+				var node = tagNodes.item(i);
+				node.one('.label').detach('hover');
+				node.remove();
+
 			}
 		},
 
@@ -97,6 +108,8 @@ YUI.add('annotation', function(Y) {
 			for(var i=0; i < tags.length; i++) {
 				var node = Y.Node.create('<li>'+this.formatTag(tags[i])+'</li>');
 				tagList.insert(node, index+i);
+				// Y.log('binding onTagHover on label ');
+				// Y.log(node.one('.label'));
 				node.one('.label').on('hover', this.onTagHover, this.onTagHover, this, tags[i]);
 			};
 		},
@@ -105,6 +118,7 @@ YUI.add('annotation', function(Y) {
 			var when   = this.get(option);
 			var user   = this.get("user");
 			var author = tag?tag.annotator:"no_user!";
+
 			if (when == "always")
 			  return true;
 			else if (when == "never")
@@ -196,7 +210,6 @@ YUI.add('annotation', function(Y) {
 		onTagHover: function(ev, tag) {
 			var overlay = tag.getValue('overlay');
 			if (ev.phase == 'over') {
-			  // Y.one('.label').detach('hover');
 			  overlay.render(ev.target);
 			  overlay.set('width','25em');
 			  overlay.set("align", {node:ev.target,
@@ -251,7 +264,7 @@ YUI.add('annotation', function(Y) {
 			var title = record.getValue("title");
 			var ov = this.commentOverlay;
 			var n = ov.get('srcNode');
-			Y.log(tag.getValue());
+
 			ov.set("headerContent", "<h3 class='add_dialog'>"+ labels.commentLabel + " " + title +"</h3>");
 			n.one('.tag-comment-input').detach();
 			n.one('#confirm-tag-comment').detach();
@@ -384,7 +397,6 @@ YUI.add('annotation', function(Y) {
 				active = e.newVal,
 				body = '';
 			if(active && active.getData().result.raw.info) {
-				Y.log(active.getData());
 				var scope = active.getData().result.raw.info.scopeNotes[0];
 				var defin = active.getData().result.raw.info.definitions[0];
 				var alts =  active.getData().result.raw.info.altLabels;
@@ -460,9 +472,6 @@ YUI.add('annotation', function(Y) {
 		},
 
 		onSubmitComment : function(ev, ann, index) {
-			Y.log(ev);
-			Y.log(ann);
-			Y.log(index);
 			var ov = this.commentOverlay;
 			if (!ov) return;
 			ov.hide();
@@ -501,9 +510,11 @@ YUI.add('annotation', function(Y) {
 				},
 				on:{success: function(e,o) {
 					var r = Y.JSON.parse(o.responseText);
-					if (type == "tag")
-						tags.add(r);
-					else {
+					if (type == "tag") {
+					  var ovBody = oSelf.formatTagOverlay(r);
+					  r['overlay'] = new Y.Overlay({bodyContent: ovBody});
+					  tags.add(r);
+					} else {
 						var values = tags.getValuesByKey('annotation');
 						var index = values.indexOf(target);
 						if (!myMetaTags[target]) myMetaTags[target] = {}
@@ -514,6 +525,10 @@ YUI.add('annotation', function(Y) {
 						}
 						oSelf.set('myMetaTags', myMetaTags);
 						var record = tags.getRecordByIndex(index);
+						var tag = record.getValue();
+						var ovBody = oSelf.formatTagOverlay(tag);
+						delete tag.overlay;
+						tag['overlay'] = new Y.Overlay({bodyContent: ovBody});
 						tags.update(record, index);
 					}
 					if (next) {
