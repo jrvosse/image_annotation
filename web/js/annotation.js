@@ -152,11 +152,15 @@ YUI.add('annotation', function(Y) {
 			var screenName = tag.screenName;
 
 			var judgement_buttons = '';
+			var my_rating = '';
 			if (this.enabled('agreeEnabled', tag)) {
 				var agreeLabel = this.get('uiLabels').agreeLabel;
 				var agree_value = undefined;
 				if (mymeta && mymeta.agree) agree_value = mymeta.agree.hasBody.value;
-				var checked = (agree_value != undefined)?'checked':'unchecked';
+				var checked = 'unchecked';
+				if (agree_value != undefined) {
+				  checked = 'checked'; my_rating = agreeLabel;
+				}
 				judgement_buttons += "<span title='" + agreeLabel + "' ";
 				judgement_buttons += "class='judgeButton agreeButton " + checked + "'>";
 				judgement_buttons += "<img src='./icons/thumbUp.png' title='" + agreeLabel + "'/>";
@@ -166,7 +170,10 @@ YUI.add('annotation', function(Y) {
 				var unsureLabel = this.get('uiLabels').unsureLabel;
 				var unsure_value = undefined;
 				if (mymeta && mymeta.unsure) unsure_value = mymeta.unsure.hasBody.value;
-				var checked = (unsure_value != undefined)?'checked':'unchecked';
+				var checked = 'unchecked';
+				if (unsure_value != undefined){
+				  checked = 'checked'; my_rating = unsureLabel
+				}
 				judgement_buttons += "<span title='" + unsureLabel + "' ";
 				judgement_buttons += "class='judgeButton unsureButton " + checked + "'>";
 				judgement_buttons += "<img src='./icons/unsure.png' title='" + unsureLabel + "'/>";
@@ -175,8 +182,11 @@ YUI.add('annotation', function(Y) {
 			if (this.enabled('disagreeEnabled', tag)) {
 				var disagreeLabel = this.get('uiLabels').disagreeLabel;
 				var disagree_value = undefined;
-				if (meta && meta.disagree) disagree_value = meta.disagree.hasBody.value;
-				var checked = (disagree_value != undefined)?'checked':'unchecked';
+				if (mymeta && mymeta.disagree) disagree_value = mymeta.disagree.hasBody.value;
+				var checked = 'unchecked';
+				if (disagree_value != undefined){
+				  checked = 'checked'; my_rating = disagreeLabel
+				}
 				judgement_buttons += "<span title='" + disagreeLabel + "' ";
 				judgement_buttons += "class='judgeButton disagreeButton " + checked + "'>";
 				judgement_buttons += "<img src='./icons/thumbDown.png' title='" + disagreeLabel + "'/>";
@@ -185,7 +195,7 @@ YUI.add('annotation', function(Y) {
 			if (this.enabled('commentEnabled', tag)) {
 				var commentLabel = this.get('uiLabels').commentLabel;
 				judgement_buttons += "<span title='" + commentLabel + "' ";
-			        judgement_buttons += "class='judgeButton commentButton'>";
+			        judgement_buttons += "class='judgeButton unchecked commentButton'>";
 				judgement_buttons += "<img src='./icons/bubble.png' title='" + commentLabel + "'/>";
 				judgement_buttons += "</span>";
 			}
@@ -200,18 +210,25 @@ YUI.add('annotation', function(Y) {
 			html += '</div>'
 
 			html += '<div class="overlay screenName">'+screenName+'</div>';
-			html += buttons;
 
 			if (mymeta && mymeta.comment) {
 			  var comment = mymeta.comment;
 			  html += '<div class="overlay comment">';
-			  html += '<span class="screenName">' + comment.screenName + "</span>";
+			  // html += '<span class="screenName">' + comment.screenName + "</span>";
 			  html += '<span class="body">'       + comment.hasBody.value + "</span>";
 			  if (this.enabled('deleteEnabled', tag)) {
-			  html += '<div class="comment_remove"><a alt="' + comment.annotation + '">x</a></div>';
-			}
+			    html += '<div class="comment_remove"><a alt="' + comment.annotation + '">x</a></div>';
+			  }
 			  html += '</div>';
 			}
+
+			if (my_rating) {
+			  html += '<div class="overlay rating">';
+			  html += my_rating;
+			  html += '</div>';
+			}
+
+			html += buttons;
 
 			return html;
 		},

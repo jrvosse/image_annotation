@@ -151,14 +151,14 @@ body {
 }
 .taglist li {
 	list-style: none;
-	margin: 1% 0;
+	margin: 0;
 	overflow: auto;
 }
 .taglist .commentButtons {
 	width: 100%;
 	margin-right: 1%;
 	border-top: 1pt solid #CCC;
-	border-bottom: 1pt solid #CCC;
+	clear: both;
 	overflow: auto;
 }
 
@@ -168,7 +168,7 @@ body {
 }
 .taglist .label {
 	width: 45%;
-	margin-left: 1%;
+	padding 1% 0%;
 	float: right;
 }
 .overlay {
@@ -177,7 +177,9 @@ body {
 .overlay.label {
 	width: 100%;
 	margin-left: 1%;
-	float: none;
+	font-size: 2.0em;
+	display: block;
+	text-align: center;
 }
 .taglist .remove {
 	width: 4%;
@@ -199,13 +201,34 @@ body {
 }
 .taglist .label a {
 	text-decoration: none;
+	color: #222;
+
 }
-.taglist .screenName:before { content: 'Tag created by @'; }
-.taglist .screenName {
-	text-align: right;
-	margin: 1%;
+.overlay.screenName:before {
+        content: 'Tag created by';
+	display: block;
+	float: left;
+	}
+.overlay.screenName:after {
 }
-.overlay.comment .screenName:before { content: 'Comment by @'; }
+.overlay.screenName {
+	float: right;
+	display: block;
+	width: 95%;
+}
+
+.overlay.comment {
+	clear: both;
+}
+.overlay.comment .screenName {
+	float: left;
+	display: block;
+}
+.overlay.comment .screenName:before {
+        content: 'Comment by @';
+	display: block;
+	float: left;
+}
 .overlay.comment .screenName:after  { content: ':'; }
 .overlay.comment .body:before { content: '"'; }
 .overlay.comment .body:after { content: '"'; }
@@ -214,7 +237,7 @@ body {
 }
 .taglist .judgeButton:hover {
 }
-.taglist .judgeButton:after {
+.taglist .judgeButton.unchecked:after {
 	display: block;
 	font-size: 0.7em;
 	content: attr(title);
@@ -229,8 +252,8 @@ body {
 	height: 5ex;
 	vertical-align: middle;
 }
-.taglist .checked img {
-	height: 5ex;
+.taglist .judgeButton.checked img {
+	display: none;
 }
 
 /* resource */
