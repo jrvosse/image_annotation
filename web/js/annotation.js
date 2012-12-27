@@ -68,6 +68,8 @@ YUI.add('annotation', function(Y) {
 			} else {
 				Y.delegate("click", this.onDelete, this.tagList, 'li .remove', this);
 			}
+			Y.delegate("click", this.onCommentRemoveClick, this.tagList, '.comment_remove a', this);
+
 
 			// setup handlers to record typing time:
 			var firstkey = true;
@@ -146,15 +148,15 @@ YUI.add('annotation', function(Y) {
 			var label = tag.title;
 			var link  = tag.display_link;
 			var annot = tag.annotation;
-			var meta    = this.get('myMetaTags')[annot];
-			var comment = (meta && meta.comment)?meta.comment.hasBody.value:'';
-			var screenName  = tag.screenName;
+			var mymeta     = this.get('myMetaTags')[annot];
+			var comments   = mymeta.comment;
+			var screenName = tag.screenName;
 
 			var judgement_buttons = '';
 			if (this.enabled('agreeEnabled', tag)) {
 				var agreeLabel = this.get('uiLabels').agreeLabel;
 				var agree_value = undefined;
-				if (meta && meta.agree) agree_value = meta.agree.hasBody.value;
+				if (mymeta && mymeta.agree) agree_value = mymeta.agree.hasBody.value;
 				var checked = (agree_value != undefined)?'checked':'unchecked';
 				judgement_buttons += "<span title='" + agreeLabel + "' ";
 				judgement_buttons += "class='judgeButton agreeButton " + checked + "'>";
@@ -164,7 +166,7 @@ YUI.add('annotation', function(Y) {
 			if (this.enabled('unsureEnabled', tag)) {
 				var unsureLabel = this.get('uiLabels').unsureLabel;
 				var unsure_value = undefined;
-				if (meta && meta.unsure) unsure_value = meta.unsure.hasBody.value;
+				if (mymeta && mymeta.unsure) unsure_value = mymeta.unsure.hasBody.value;
 				var checked = (unsure_value != undefined)?'checked':'unchecked';
 				judgement_buttons += "<span title='" + unsureLabel + "' ";
 				judgement_buttons += "class='judgeButton unsureButton " + checked + "'>";
@@ -200,8 +202,15 @@ YUI.add('annotation', function(Y) {
 
 			html += '<div class="overlay screenName">'+screenName+'</div>';
 			html += buttons;
-			if (comment && comment != "") {
-			  html += ' ("' + comment +'")';
+			var comment = mymeta.comment;
+			if (comment) {
+			  html += '<div class="overlay comment">';
+			  html += '<span class="screenName">' + comment.screenName + "</span>";
+			  html += '<span class="body">'       + comment.hasBody.value + "</span>";
+			  if (this.enabled('deleteEnabled', tag)) {
+			  html += '<div class="comment_remove"><a alt="' + comment.annotation + '">x</a></div>';
+			}
+			  html += '</div>';
 			}
 
 			return html;
@@ -233,7 +242,6 @@ YUI.add('annotation', function(Y) {
 		},
 
 		onTagRemoveClick : function(e) {
-			var eList = this.tagList;
 			var index = this.tagList.all("li").indexOf(e.currentTarget.get("parentNode")),
 			    tags = this.tags,
 			    record = tags.getRecordByIndex(index),
@@ -344,6 +352,38 @@ YUI.add('annotation', function(Y) {
 				}
 			});
 		},
+
+		onCommentRemoveClick : function(e) {
+		     var annotation = e.currentTarget.getAttribute('alt');
+		     var tag = this.findMetaTagByAnnotation(annotation);
+		     var target = tag.hasTarget;
+		     var record = this.findRecordByAnnotation(target);
+		     var tagindex = this.tags.indexOf(record);
+		     var metaindex = tag.type=='comment'?tag.type:tag.hasBody.value;
+		     this.deleteMetaAnnotation(tagindex, metaindex, annotation, target, "deleted by user");
+		},
+
+		findMetaTagByAnnotation : function(an) {
+		     var mymeta = this.get('myMetaTags');
+		     for (target in mymeta) {
+		       tlist = mymeta[target];
+		       for (type in tlist) {
+			 a = tlist[type];
+			 if (a.annotation == an) return a;
+		       }
+		     }
+		     return null; // not found
+		},
+
+		findRecordByAnnotation : function(an) {
+		     Y.log('findTagByTarget: ' + an);
+		     for (var i=0; i< this.tags.size(); i++) {
+		       var record = this.tags.getRecordByIndex(i);
+		       if (record.getValue('annotation') == an) return record;
+		     }
+		     return null;
+		},
+
 		getTags : function() {
 			    var target = this.get('target');
 			    var field = this.get('field');
@@ -366,7 +406,7 @@ YUI.add('annotation', function(Y) {
 								var annotation_value = ans[i].hasBody.value;
 								var annotation_type = ans[i].type;
 								var annotation_user = ans[i].annotator;
-								if (target != annotation_target && user == annotation_user) {
+								if (target != annotation_target	&& user == annotation_user) {
 									if (!myMetaTags[annotation_target])
 									  myMetaTags[annotation_target] = {};
 									if (annotation_type == "comment")

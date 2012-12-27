@@ -157,6 +157,8 @@ body {
 .taglist .commentButtons {
 	width: 100%;
 	margin-right: 1%;
+	border-top: 1pt solid #CCC;
+	border-bottom: 1pt solid #CCC;
 	overflow: auto;
 }
 
@@ -190,13 +192,18 @@ body {
 .taglist .label a {
 	text-decoration: none;
 }
-.taglist .screenName:before { content: 'Created by: @'; }
-.taglist .screenName:after { content: ';'; }
+.taglist .screenName:before { content: 'Tag created by @'; }
 .taglist .screenName {
 	text-align: right;
 	margin: 1%;
 }
-
+.overlay.comment .screenName:before { content: 'Comment by @'; }
+.overlay.comment .screenName:after  { content: ':'; }
+.overlay.comment .body:before { content: '"'; }
+.overlay.comment .body:after { content: '"'; }
+.overlay.comment .body {
+	     font-style: italic;
+}
 .taglist .judgeButton:hover {
 }
 .taglist .judgeButton:after {
