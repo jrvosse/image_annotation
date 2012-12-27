@@ -191,7 +191,7 @@ body {
 	overflow: hidden;
 	float: right;
 }
-.overlay .comment_remove a {
+.overlay.comment .comment_remove a {
 	color: red;
 	text-decoration: none;
 }
@@ -204,8 +204,13 @@ body {
 	color: #222;
 
 }
+.overlay.tagCreation {
+	overflow: auto;
+        border-bottom: 1pt solid #CCC;
+}
+
 .overlay.screenName:before {
-        content: 'Tag created by';
+        content: 'Tag created by:';
 	display: block;
 	float: left;
 	}
@@ -214,11 +219,13 @@ body {
 .overlay.screenName {
 	float: right;
 	display: block;
-	width: 95%;
+	width: 100%;
 }
 
 .overlay.comment {
 	clear: both;
+	width: 100%;
+	overflow: auto;
 }
 .overlay.comment .screenName {
 	float: left;
@@ -230,10 +237,24 @@ body {
 	float: left;
 }
 .overlay.comment .screenName:after  { content: ':'; }
-.overlay.comment .body:before { content: '"'; }
-.overlay.comment .body:after { content: '"'; }
+.overlay.comment .body:before {
+	font-style: normal;
+	display: block;
+        float: left;
+	content: 'My comment:';
+}
+.overlay.comment .body:after { content: ''; }
 .overlay.comment .body {
-	     font-style: italic;
+        float: right;
+	display: block;
+	font-style: italic;
+	max-width: 94%;
+}
+.overlay.rating:before {
+	font-style: normal;
+	display: block;
+        float: left;
+	content: 'My rating:';
 }
 .taglist .judgeButton:hover {
 }

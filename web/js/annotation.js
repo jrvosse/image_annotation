@@ -201,24 +201,26 @@ YUI.add('annotation', function(Y) {
 			}
 
 			var buttons = '<div class="commentButtons">' + judgement_buttons + '</div>';
-			var html = '';
+			var html = '<div class="overlay tagCreation">';
 			html +=	'<div class="overlay label">';
 			if (link == '')
 				html += label;
 			else
 				html += '<a href="'+link+'">'+label+'</a>';
-			html += '</div>'
-
+			html += '</div>'; // end label div
 			html += '<div class="overlay screenName">'+screenName+'</div>';
+			html += '</div>'; // end tagCreation div
+
 
 			if (mymeta && mymeta.comment) {
 			  var comment = mymeta.comment;
 			  html += '<div class="overlay comment">';
 			  // html += '<span class="screenName">' + comment.screenName + "</span>";
-			  html += '<span class="body">'       + comment.hasBody.value + "</span>";
 			  if (this.enabled('deleteEnabled', tag)) {
-			    html += '<div class="comment_remove"><a alt="' + comment.annotation + '">x</a></div>';
+			    html += '<span class="comment_remove"><a alt="' + comment.annotation + '">x</a></span>';
 			  }
+			  html += '<span class="body">' + comment.hasBody.value + "</span>";
+
 			  html += '</div>';
 			}
 
