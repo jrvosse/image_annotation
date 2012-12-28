@@ -245,10 +245,7 @@ body {
 }
 .overlay.comment .body:after { content: ''; }
 .overlay.comment .body {
-        float: right;
-	display: block;
 	font-style: italic;
-	max-width: 94%;
 }
 .overlay.rating:before {
 	font-style: normal;

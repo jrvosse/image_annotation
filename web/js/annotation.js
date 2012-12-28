@@ -216,7 +216,7 @@ YUI.add('annotation', function(Y) {
 			  var comment = mymeta.comment;
 			  html += '<div class="overlay comment">';
 			  // html += '<span class="screenName">' + comment.screenName + "</span>";
-			  if (this.enabled('deleteEnabled', tag)) {
+			  if (this.enabled('deleteEnabled', comment)) {
 			    html += '<span class="comment_remove"><a alt="' + comment.annotation + '">x</a></span>';
 			  }
 			  html += '<span class="body">' + comment.hasBody.value + "</span>";
