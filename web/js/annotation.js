@@ -63,12 +63,12 @@ YUI.add('annotation', function(Y) {
 			// create overlays for comments on delete and add actions:
 			this.createCommentNode(parentNode);
 			if (this.enabled('deleteCommentEnabled', null)) {
-				Y.delegate("click", this.onTagRemoveClick, this.tagList, 'li .remove', this);
+				Y.delegate("click", this.onTagRemoveClick, this.tagList, 'li .tagremove', this);
 				this.createDeleteNode(parentNode);
 			} else {
-				Y.delegate("click", this.onDelete, this.tagList, 'li .remove', this);
+				Y.delegate("click", this.onDelete, this.tagList, 'li .tagremove', this);
 			}
-			Y.delegate("click", this.onCommentRemoveClick, this.tagList, '.comment_remove a', this);
+			Y.delegate("click", this.onMetaRemoveClick, this.tagList, '.metaremove a', this);
 
 
 			// setup handlers to record typing time:
@@ -136,7 +136,7 @@ YUI.add('annotation', function(Y) {
 			var html = "";
 
 			if (this.enabled('deleteEnabled', tag.getValue())) {
-			  html += '<div class="remove"><a href="javascript:{}">x</a></div>';
+			  html += '<div class="tagremove"><a href="javascript:{}">x</a></div>';
 			}
 			html += "<div class='label'>" + label + "</div>";
 			return html;
@@ -152,14 +152,15 @@ YUI.add('annotation', function(Y) {
 			var screenName = tag.screenName;
 
 			var judgement_buttons = '';
-			var my_rating = '';
+			var my_rating_label = '';
+			var my_rating = null;
 			if (this.enabled('agreeEnabled', tag)) {
 				var agreeLabel = this.get('uiLabels').agreeLabel;
 				var agree_value = undefined;
 				if (mymeta && mymeta.agree) agree_value = mymeta.agree.hasBody.value;
 				var checked = 'unchecked';
 				if (agree_value != undefined) {
-				  checked = 'checked'; my_rating = agreeLabel;
+				  checked = 'checked'; my_rating_label = agreeLabel; my_rating = mymeta.agree;
 				}
 				judgement_buttons += "<span title='" + agreeLabel + "' ";
 				judgement_buttons += "class='judgeButton agreeButton " + checked + "'>";
@@ -172,7 +173,7 @@ YUI.add('annotation', function(Y) {
 				if (mymeta && mymeta.unsure) unsure_value = mymeta.unsure.hasBody.value;
 				var checked = 'unchecked';
 				if (unsure_value != undefined){
-				  checked = 'checked'; my_rating = unsureLabel
+				  checked = 'checked'; my_rating_label = unsureLabel; my_rating = mymeta.unsure;
 				}
 				judgement_buttons += "<span title='" + unsureLabel + "' ";
 				judgement_buttons += "class='judgeButton unsureButton " + checked + "'>";
@@ -185,7 +186,7 @@ YUI.add('annotation', function(Y) {
 				if (mymeta && mymeta.disagree) disagree_value = mymeta.disagree.hasBody.value;
 				var checked = 'unchecked';
 				if (disagree_value != undefined){
-				  checked = 'checked'; my_rating = disagreeLabel
+				  checked = 'checked'; my_rating_label = disagreeLabel; my_rating = mymeta.disagree;
 				}
 				judgement_buttons += "<span title='" + disagreeLabel + "' ";
 				judgement_buttons += "class='judgeButton disagreeButton " + checked + "'>";
@@ -202,7 +203,7 @@ YUI.add('annotation', function(Y) {
 
 			var buttons = '<div class="commentButtons">' + judgement_buttons + '</div>';
 			var html = '<div class="overlay tagCreation">';
-			html +=	'<div class="overlay label">';
+			html +=	'<div class="overlay title label">';
 			if (link == '')
 				html += label;
 			else
@@ -217,7 +218,7 @@ YUI.add('annotation', function(Y) {
 			  html += '<div class="overlay comment">';
 			  // html += '<span class="screenName">' + comment.screenName + "</span>";
 			  if (this.enabled('deleteEnabled', comment)) {
-			    html += '<span class="comment_remove"><a alt="' + comment.annotation + '">x</a></span>';
+			    html += '<span class="metaremove"><a class="metaremove" alt="' + comment.annotation + '">x</a></span>';
 			  }
 			  html += '<span class="body">' + comment.hasBody.value + "</span>";
 
@@ -226,7 +227,10 @@ YUI.add('annotation', function(Y) {
 
 			if (my_rating) {
 			  html += '<div class="overlay rating">';
-			  html += my_rating;
+			  if (this.enabled('deleteEnabled', my_rating)) {
+			    html += '<span class="metaremove"><a class="metaremove" alt="' + my_rating.annotation + '">x</a></span>';
+			  }
+			  html += '<span class="overlay rating label">' + my_rating_label + '</span>';
 			  html += '</div>';
 			}
 
@@ -373,7 +377,7 @@ YUI.add('annotation', function(Y) {
 			});
 		},
 
-		onCommentRemoveClick : function(e) {
+		onMetaRemoveClick : function(e) {
 		     var annotation = e.currentTarget.getAttribute('alt');
 		     var tag = this.findMetaTagByAnnotation(annotation);
 		     var target = tag.hasTarget;

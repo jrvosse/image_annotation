@@ -174,28 +174,28 @@ body {
 .overlay {
 	text-align: right;
 }
-.overlay.label {
+.overlay.title.label {
 	width: 100%;
 	margin-left: 1%;
 	font-size: 2.0em;
 	display: block;
 	text-align: center;
 }
-.taglist .remove {
+.taglist div.tagremove {
 	width: 4%;
 	overflow: hidden;
 	float: right;
 }
-.overlay .comment_remove {
+.overlay span.metaremove {
 	width: 4%;
 	overflow: hidden;
 	float: right;
 }
-.overlay.comment .comment_remove a {
+.overlay span.metaremove a.metaremove {
 	color: red;
 	text-decoration: none;
 }
-.taglist .remove a {
+.taglist div.tagremove a {
 	color: red;
 	text-decoration: none;
 }
