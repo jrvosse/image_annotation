@@ -271,7 +271,7 @@ YUI.add('annotation', function(Y) {
 			    record = tags.getRecordByIndex(index),
 			    annotation = record.getValue("annotation"),
 			    labels = this.get("uiLabels"),
-			    tag = record.getValue("label"),
+			    tag = record.getValue("title"),
 			    ov = this.deleteOverlay,
 			    n = ov.get('srcNode');
 			ov.set("headerContent", "<h3 class='delete_dialog'>"+ labels.deleteLabel + " " + tag +"</h3>");
