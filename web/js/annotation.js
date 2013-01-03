@@ -60,7 +60,7 @@ YUI.add('annotation', function(Y) {
 			// create overlays for comments on delete and add actions:
 			this.createCommentNode(parentNode);
 			if (this.enabled('deleteCommentEnabled', null)) {
-				Y.delegate("click", this.onTagRemoveClick, this.tagList, 'li .remove', this);
+				Y.delegate("click", this.onTagRemoveClick, this.tagList, 'li .tagremove.enabled', this);
 				this.createDeleteNode(parentNode);
 			} else {
 				Y.delegate("click", this.onDelete, this.tagList, 'li .remove', this);
@@ -122,8 +122,21 @@ YUI.add('annotation', function(Y) {
 			  return (user == author);
 			else if (when == "yours")
 			  return (user != author);
-
 		},
+
+		formatTag : function(tag) {
+			var label = tag.getValue("title");
+			var html = "";
+
+			if (this.enabled('deleteEnabled', tag.getValue())) {
+			  html += '<div class="tagremove enabled"><a href="javascript:{}">x</a></div>';
+			} else {
+			  html += '<div class="tagremove disabled"><a href="javascript:{}">y</a></div>';
+			}
+			html += "<div class='label'>" + label + "</div>";
+			return html;
+		},
+
 		formatTag : function(tag) {
 			var target= tag.getValue("target");
 			var body  = tag.getValue("body");

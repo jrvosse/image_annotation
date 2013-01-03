@@ -176,8 +176,14 @@ body {
 	overflow: hidden;
 	float: right;
 }
-
-.taglist .remove a {
+.overlay span.metaremove a.metaremove {
+	color: red;
+	text-decoration: none;
+}
+.taglist div.tagremove.disabled a {
+	visibility: hidden;
+}
+.taglist div.tagremove.enabled a {
 	color: red;
 	text-decoration: none;
 }
