@@ -13,8 +13,13 @@
 
 <> a cpack:Application ;
 	cpack:packageName "image_annotation" ;
-	dcterms:title "Image annotation with configurable search fields" ;
+	dcterms:title "Web-based user interface for image annotation applications, with configurable search fields" ;
 	cpack:author <http://www.few.vu.nl/~michielh/me> ;
+	cpack:author [ a foaf:Person ;
+                       foaf:name "Jacco van Ossenbruggen" ;
+                       foaf:mbox "Jacco.van.Ossenbruggen@cs.vu.nl" ;
+                       foaf:mbox_sha1sum "5a9c795d885026039c79778788330c707838b79a";
+                     ] ;
         cpack:primaryRepository
             [ a cpack:GitRepository ;
               cpack:gitURL <git://eculture.cs.vu.nl/home/hildebra/git/ClioPatria/image_annotation.git>
