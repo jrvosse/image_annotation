@@ -242,13 +242,17 @@ YUI.add('annotation', function(Y) {
 		},
 
 		onTagHover: function(ev, tag) {
-			var overlay = tag.getValue('overlay');
-			if (ev.phase == 'over') {
-			  overlay.render(ev.target);
-			  overlay.set('width','25em');
-			  overlay.set("align", {node:ev.target,
+			var overlay = tag.overlay;
+			if (overlay) { overlay.destroy(); }
+			var ovBody = this.formatTagOverlay(tag.getValue());
+			overlay = new Y.Overlay({bodyContent: ovBody});
+			overlay.render(ev.target);
+			overlay.set('width','25em');
+			overlay.set("align", {node:ev.target,
 			                        points:[Y.WidgetPositionAlign.RC, Y.WidgetPositionAlign.TL]});
+			tag.overlay = overlay;
 
+			if (ev.phase == 'over') {
 			  overlay.show();
 			  var node = overlay.get('srcNode');
 			  node.all('.judgeButton').detach('click');
@@ -447,8 +451,8 @@ YUI.add('annotation', function(Y) {
 								annotation_target = ans[i].hasTarget;
 								if (target == annotation_target) {
 								        var tag = ans[i];
-									var ovBody = oSelf.formatTagOverlay(tag);
-									tag['overlay'] = new Y.Overlay({bodyContent: ovBody});
+									// var ovBody = oSelf.formatTagOverlay(tag);
+									// tag['overlay'] = new Y.Overlay({bodyContent: ovBody});
 									oSelf.tags.add(ans[i]); // normal tag
 								}
 							}
@@ -577,8 +581,8 @@ YUI.add('annotation', function(Y) {
 				on:{success: function(e,o) {
 					var r = Y.JSON.parse(o.responseText);
 					if (type == "tag") {
-					  var ovBody = oSelf.formatTagOverlay(r);
-					  r['overlay'] = new Y.Overlay({bodyContent: ovBody});
+					  // var ovBody = oSelf.formatTagOverlay(r);
+					  // r['overlay'] = new Y.Overlay({bodyContent: ovBody});
 					  tags.add(r);
 					} else {
 						var values = tags.getValuesByKey('annotation');
@@ -592,9 +596,9 @@ YUI.add('annotation', function(Y) {
 						oSelf.set('myMetaTags', myMetaTags);
 						var record = tags.getRecordByIndex(index);
 						var tag = record.getValue();
-						var ovBody = oSelf.formatTagOverlay(tag);
-						delete tag.overlay;
-						tag['overlay'] = new Y.Overlay({bodyContent: ovBody});
+						// var ovBody = oSelf.formatTagOverlay(tag);
+						// delete tag.overlay;
+						// tag['overlay'] = new Y.Overlay({bodyContent: ovBody});
 						tags.update(record, index);
 					}
 					if (next) {
