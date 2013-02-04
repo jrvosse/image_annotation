@@ -242,35 +242,41 @@ YUI.add('annotation', function(Y) {
 			return html;
 		},
 
-		onTagHover: function(ev, tag) {
-			var overlay = tag.overlay;
-			if (overlay) { 
-				overlay.destroy(); 
-			}
-			if (ev.phase == 'over') {
-			  var ovBody = this.formatTagOverlay(tag.getValue());
-			  overlay = new Y.Overlay({bodyContent: ovBody});
-			  overlay.render(ev.target);
-			  overlay.set('active', false);
-			  overlay.set('width','25em');
-			  overlay.set("align", {node:ev.target,
-			                          points:[Y.WidgetPositionAlign.RC, Y.WidgetPositionAlign.TL]});
-			  tag.overlay = overlay;
-			  var node = overlay.get('srcNode');
-			  node.all('.judgeButton').detach('click');
-			  node.one('.commentButton').on(           'click', this.onCommentAnnotation, this, tag);
-  
-			  node.all('.unsureButton.unchecked').on(  'click', this.onJudgeAnnotation, this, 'add', 'unsure',   tag);
-			  node.all('.agreeButton.unchecked').on(   'click', this.onJudgeAnnotation, this, 'add', 'agree',    tag);
-			  node.all('.disagreeButton.unchecked').on('click', this.onJudgeAnnotation, this, 'add', 'disagree', tag);
+	    renewTagOverlay: function(tag, parentNode) {
+		Y.log('parentNode');Y.log(parentNode);
+		var ovBody = this.formatTagOverlay(tag.getValue());
+		var overlay = new Y.Overlay({bodyContent: ovBody});
+		if (tag.overlay) tag.overlay.destroy();
+		tag.overlay = overlay;
+		overlay.render(parentNode);
+		overlay.set('active', false);
+		overlay.set('width','25em');
+		overlay.set("align", {node:parentNode,
+			              points:[Y.WidgetPositionAlign.RC, Y.WidgetPositionAlign.TL]});
+		tag.overlay = overlay;
+		var node = overlay.get('srcNode');
+		node.all('.judgeButton').detach('click');
+		node.one('.commentButton').on(           'click', this.onCommentAnnotation, this, tag);
+		
+		node.all('.unsureButton.unchecked').on(  'click', this.onJudgeAnnotation, this, 'add', 'unsure',   tag);
+		node.all('.agreeButton.unchecked').on(   'click', this.onJudgeAnnotation, this, 'add', 'agree',    tag);
+		node.all('.disagreeButton.unchecked').on('click', this.onJudgeAnnotation, this, 'add', 'disagree', tag);
+		
+		node.all('.unsureButton.checked').on(    'click', this.onJudgeAnnotation, this, 'rm',  'unsure',   tag);
+		node.all('.agreeButton.checked').on(     'click', this.onJudgeAnnotation, this, 'rm',  'agree',    tag);
+		node.all('.disagreeButton.checked').on(  'click', this.onJudgeAnnotation, this, 'rm', ' disagree', tag);
+		return overlay;
+	    },
 
-			  node.all('.unsureButton.checked').on(    'click', this.onJudgeAnnotation, this, 'rm',  'unsure',   tag);
-			  node.all('.agreeButton.checked').on(     'click', this.onJudgeAnnotation, this, 'rm',  'agree',    tag);
-			  node.all('.disagreeButton.checked').on(  'click', this.onJudgeAnnotation, this, 'rm', ' disagree', tag);
-
-			  overlay.show();
-			} 
-		},
+	    onTagHover: function(ev, tag) {
+		if (ev.phase == 'over') {
+		    Y.log('onTagHover'); Y.log(ev.target);
+		    this.renewTagOverlay(tag, ev.target);		
+		    tag.overlay.show();
+		} else {
+		    if (tag.overlay) tag.overlay.hide();
+		}
+	    },
 
 		onTagRemoveClick : function(e) {
 			var index = this.tagList.all("li").indexOf(e.currentTarget.get("parentNode")),
@@ -559,54 +565,59 @@ YUI.add('annotation', function(Y) {
 			this.submitAnnotation(type, ann, {type:"literal", value:comment}, comment, -1, null);
 		},
 
-		submitAnnotation : function(type, target, body, label, timing, next) {
-		        if (!target) return;
-		        if (!body.value) return;
-			if (!label) label = body.value;
-			if (!timing) timing = -1;
-			if (!type) type = 'default';
-			Y.log('add tag: '+ body.value +' with label: '+label+ ', time: ' + timing);
+	    submitAnnotation : function(type, target, body, label, timing, next) {
+		if (!target) return;
+		if (!body.value) return;
+		if (!label) label = body.value;
+		if (!timing) timing = -1;
+		if (!type) type = 'default';
+		Y.log('add tag: '+ body.value +' with label: '+label+ ', time: ' + timing);
+		
+		var inputNode = this.get("inputNode");
+		var tags = this.tags;
+		var myMetaTags = this.get("myMetaTags");
+		var oSelf = this;
 
-			var inputNode = this.get("inputNode");
-			var tags = this.tags;
-			var myMetaTags = this.get("myMetaTags");
-			var oSelf = this;
-
-			Y.io(this.get("store.add"), {
-				data:{
-					field:this.get("field"),
-					hasTarget:target,
-					hasBody:Y.JSON.stringify(body),
-					label:label,
-					typing_time: timing,
-					type: type
-				},
-				on:{success: function(e,o) {
-					var r = Y.JSON.parse(o.responseText);
-					if (type == "tag") {
-					  tags.add(r);
-					} else {
-						var values = tags.getValuesByKey('annotation');
-						var index = values.indexOf(target);
-						if (!myMetaTags[target]) myMetaTags[target] = {}
-						if (type == "judgement") {
-						  myMetaTags[target][body.value] = r;
-						} else if (type == "comment") {
-						  myMetaTags[target][type] = r;
-						}
-						oSelf.set('myMetaTags', myMetaTags);
-						var record = tags.getRecordByIndex(index);
-						tags.update(record, index);
-					}
-					if (next) {
-					  Y.one('#' + next).focus();
-					} else {
-					  inputNode.focus();
-					}
-				    }
+		Y.io(this.get("store.add"), {
+		    data:{
+			field:this.get("field"),
+			hasTarget:target,
+			hasBody:Y.JSON.stringify(body),
+			label:label,
+			typing_time: timing,
+			type: type
+		    },
+		    on:{
+			success: function(e,o) {
+			    var r = Y.JSON.parse(o.responseText);
+			    if (type == "tag") {
+				tags.add(r);
+			    } else {
+				var values = tags.getValuesByKey('annotation');
+				var index = values.indexOf(target);
+				if (!myMetaTags[target]) myMetaTags[target] = {}
+				if (type == "judgement") {
+				    myMetaTags[target][body.value] = r;
+				} else if (type == "comment") {
+				    myMetaTags[target][type] = r;
 				}
-			});
-		},
+				oSelf.set('myMetaTags', myMetaTags);
+				var record = tags.getRecordByIndex(index);
+				var tagNodes = oSelf.tagList.all('li');
+				var parent = tagNodes.item(index).one('.label');
+				parent.detach('hover');
+				Y.log('submitAnnotation');
+				oSelf.renewTagOverlay(record, parent);
+			    }
+			    if (next) {
+				Y.one('#' + next).focus();
+			    } else {
+				inputNode.focus();
+			    }
+			}
+		    }
+		});
+	    },
 
 		createDeleteNode : function(parentNode) {
 			var Node = new Y.Overlay({}).render(parentNode);
