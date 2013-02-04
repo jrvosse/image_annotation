@@ -150,6 +150,7 @@ body {
 	padding: 0;
 }
 .taglist li {
+	cursor: hand; cursor: pointer; 
 	list-style: none;
 	margin: 0;
 	overflow: auto;
