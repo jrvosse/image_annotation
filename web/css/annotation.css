@@ -154,8 +154,13 @@ body {
 	list-style: none;
 	margin: 0;
 	overflow: auto;
+	height: 3ex;
 }
-.taglist .commentButtons {
+.taglist .inline.commentButtons {
+	display: inline;
+}
+
+.taglist .overlay.commentButtons {
 	width: 100%;
 	margin-right: 1%;
 	border-top: 1pt solid #CCC;
@@ -167,9 +172,13 @@ body {
 	text-align: right;
 	float: right;
 }
-.taglist .label {
+.taglist .inline.label {
+	padding: 0% 1%;
+	float: right;
+}
+.taglist .overlay.label {
 	width: 45%;
-	padding 1% 0%;
+	padding: 0% 1%;
 	float: right;
 }
 .overlay {
@@ -259,7 +268,7 @@ body {
 }
 .taglist .judgeButton:hover {
 }
-.taglist .judgeButton.unchecked:after {
+.taglist .overlay.judgeButton.unchecked:after {
 	display: block;
 	font-size: 0.7em;
 	content: attr(title);
@@ -270,11 +279,15 @@ body {
 	padding-top: .3em;
 	cursor: crosshair;
 }
-.taglist .judgeButton img {
-	height: 5ex;
+.taglist .overlay.judgeButton img {
+	width: 5ex;
 	vertical-align: middle;
 }
-.taglist .judgeButton.checked img {
+.taglist .inline.judgeButton img {
+	height: 2.1ex;
+	vertical-align: middle;
+}
+.taglist .overlay.judgeButton.checked img {
 	display: none;
 }
 

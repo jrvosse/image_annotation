@@ -374,6 +374,11 @@ js_annotation_fields([URI, Next | T], Options) -->
 
 js_annotation_field(FieldURI, Options) -->
 	 {
+	  option(ui(UI), Options),
+	  (   rdf(UI, ann_ui:tagStyle, literal(TagStyle))
+	  ->  true
+	  ;   TagStyle = overlay
+	  ),
 	  option(next(NextURI), Options, @null),
 	  (   rdf_global_id(_:Id, FieldURI)
 	  ->  true
@@ -407,15 +412,16 @@ js_annotation_field(FieldURI, Options) -->
 	  ->  atomic_concat(Prefix, Source, PrefixedSource),
 	      % Configure a field with autocompletion web service URI.
 	      Config = {
+			tagStyle: TagStyle,
 			target:Target,
 			field:FieldURI,
-			next(Next),
+			next: Next,
 			source:PrefixedSource,
 			store: { add:Add,
 				 get:Get,
 				 remove:Remove
 			       },
-			user(User),
+			user: User,
 			uiLabels: UI_labels,
 			unsureEnabled: Unsure,
 			commentEnabled: Comment,
@@ -433,11 +439,12 @@ js_annotation_field(FieldURI, Options) -->
 	      prolog_to_json(TextList, Source)
 	  ->  % Configure a field with autocomplete from given list
 	      Config = {
+			tagStyle: TagStyle,
 			target:Target,
 			field:FieldURI,
-			next(Next),
+			next: Next,
 			source:Source,
-			user(User),
+			user: User,
 			uiLabels: UI_labels,
 			unsureEnabled: Unsure,
 			commentEnabled: Comment,
@@ -450,16 +457,17 @@ js_annotation_field(FieldURI, Options) -->
 			       }
 		       }
 	  ;   % Configure a field without autocompletion
-	      Config = {next(Next),
+	      Config = {next: Next,
 			target:Target,
 			field:FieldURI,
-			user(User),
+			user: User,
 			uiLabels: UI_labels,
 			unsureEnabled: Unsure,
 			commentEnabled: Comment,
 			agreeEnabled: Agree,
 			disagreeEnabled: Disagree,
 			deleteEnabled: Delete,
+			tagStyle: TagStyle,
 			store: { add:Add,
 				 get:Get,
 				 remove:Remove
