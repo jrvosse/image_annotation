@@ -384,7 +384,8 @@ js_annotation_field(FieldURI, Options) -->
 	  ;   Next = NextURI
 	  ),
 	  option(target(Target), Options),
-	  option(user(User), Options),
+	  user_url(DefaultUser),
+	  option(user(User), Options, DefaultUser),
 	  (   rdf(FieldURI, ann_ui:unsureEnabled,   literal(Unsure))
 	  ->  true; Unsure=always ),
 	  (   rdf(FieldURI, ann_ui:agreeEnabled,    literal(Agree))
