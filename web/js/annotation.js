@@ -160,8 +160,10 @@ YUI.add('annotation', function(Y) {
 			else {
 				var judgement_buttons = this.formatJudgmentButtons(tag.getValue());
 				var buttons = '<div class="inline commentButtons">' + judgement_buttons + '</div>';
-				html += "<span class='inline label'>" + label + "</span>";
+				var screenname = tag.getValue("screenName");
 				html += buttons;
+				html += "<span class='inline label'>" + label + "</span>";
+				html += "<span class='inline annotator'>" + screenname + "</span>";
 			}
 			return html;
 		},
