@@ -174,8 +174,15 @@ body {
 }
 .taglist .inline.label {
 	padding: 0% 1%;
-	float: right;
+	float: left;
 }
+.taglist .inline.annotator {
+	padding: 0% 1%;
+	float: left;
+}
+.taglist .inline.annotator:before { content: '('; }
+.taglist .inline.annotator:after { content: ')'; }
+
 .taglist .overlay.label {
 	width: 45%;
 	padding: 0% 1%;
