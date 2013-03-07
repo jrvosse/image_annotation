@@ -57,6 +57,7 @@ YUI.add('annotation', function(Y) {
 
 			// create tagList node (tag view in mvc)
 			this.tagList = Y.Node.create(Annotation.LIST_TEMPLATE);
+			this.tagList.addClass(this.get('tagStyle'));
 			parentNode.append(this.tagList);
 
 			// infoNode is the overlay with tooltips when hovering over suggested terms
