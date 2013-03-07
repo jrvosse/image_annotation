@@ -169,8 +169,12 @@ YUI.add('annotation', function(Y) {
 				var user   = this.get("user");
 				var annotator = tagrecord.getValue("annotator");
 				if (user != annotator) {
-					var screenname = tagrecord.getValue("screenName");
-					html += "<span class='inline annotator'>" + screenname + "</span>";
+					var screenName = tagrecord.getValue("screenName");
+					var credit = this.get('uiLabels').tagCreditLabel;
+					html += "<span class='inline screenName'>" 
+					if (credit)
+						html += "<span class='inline tagCreditLine'>" + credit + "</span>";
+					html +=	screenName + "</span>";
 				}
 			}
 			return html;

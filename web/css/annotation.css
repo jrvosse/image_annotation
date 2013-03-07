@@ -182,12 +182,13 @@ body {
 	padding: 0% 1%;
 	float: left;
 }
-.taglist .inline.annotator {
+.taglist .inline.screenName {
 	padding: 0% 1%;
 	float: left;
 }
-.taglist .inline.annotator:before { content: '('; }
-.taglist .inline.annotator:after { content: ')'; }
+.taglist .inline.screenName:before { content: '('; }
+.taglist .inline.screenName:after { content: ')'; }
+.taglist .inline.tagCreditLine:after { content: ': '; }
 
 .taglist .overlay.label {
 	width: 45%;
