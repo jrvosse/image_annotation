@@ -120,6 +120,9 @@ YUI.add('annotation', function(Y) {
 				tagList.insert(node, index+i);
 				if (tagStyle == 'overlay')
 					node.one('.label').on('hover', this.onTagHover, this.onTagHover, this, tags[i]);
+				else {
+					this.rebindButtons(node, tags[i]);
+				}
 			};
 		},
 
@@ -146,11 +149,11 @@ YUI.add('annotation', function(Y) {
 
 		},
 
-		formatTag : function(tag, tagStyle) {
-			var label = tag.getValue("title");
+		formatTag : function(tagrecord, tagStyle) {
+			var label = tagrecord.getValue("title");
 			var html = "";
 
-			if (this.enabled('deleteEnabled', tag.getValue())) {
+			if (this.enabled('deleteEnabled', tagrecord.getValue())) {
 			  html += '<div class="tagremove enabled"><a href="javascript:{}">x</a></div>';
 			} else {
 			  html += '<div class="tagremove disabled"><a href="javascript:{}">y</a></div>';
@@ -158,14 +161,14 @@ YUI.add('annotation', function(Y) {
 			if (tagStyle == "overlay")
 				html += "<div class='overlay label'>" + label + "</div>";
 			else {
-				var judgement_buttons = this.formatJudgmentButtons(tag.getValue());
+				var judgement_buttons = this.formatJudgmentButtons(tagrecord.getValue());
 				var buttons = '<div class="inline commentButtons">' + judgement_buttons + '</div>';
 				html += buttons;
 				html += "<span class='inline label'>" + label + "</span>";
 				var user   = this.get("user");
-				var annotator = tag.getValue("annotator");
+				var annotator = tagrecord.getValue("annotator");
 				if (user != annotator) {
-					var screenname = tag.getValue("screenName");
+					var screenname = tagrecord.getValue("screenName");
 					html += "<span class='inline annotator'>" + screenname + "</span>";
 				}
 			}
@@ -275,36 +278,39 @@ YUI.add('annotation', function(Y) {
 			return judgement_buttons;
 		},
 
-		onTagHover: function(ev, tag) {
+		onTagHover: function(ev, tagrecord) {
 			Y.log('onTagHover');
-			var overlay = tag.overlay;
+			var overlay = tagrecord.overlay;
 			if (overlay) { 
 				overlay.destroy(); 
 			}
 			if (ev.phase == 'over') {
-			  var ovBody = this.formatTagOverlay(tag.getValue());
+			  var ovBody = this.formatTagOverlay(tagrecord.getValue());
 			  overlay = new Y.Overlay({bodyContent: ovBody});
 			  overlay.set('active', false);
 			  overlay.set('width','25em');
 			  overlay.render(ev.target);
-			  tag.overlay = overlay;
+			  tagrecord.overlay = overlay;
 			  var node = overlay.get('srcNode');
-			  node.all('.judgeButton').detach('click');
-			  node.one('.commentButton').on(           'click', this.onCommentAnnotation, this, tag);
-  
-			  node.all('.unsureButton.unchecked').on(  'click', this.onJudgeAnnotation, this, 'add', 'unsure',   tag);
-			  node.all('.agreeButton.unchecked').on(   'click', this.onJudgeAnnotation, this, 'add', 'agree',    tag);
-			  node.all('.disagreeButton.unchecked').on('click', this.onJudgeAnnotation, this, 'add', 'disagree', tag);
-
-			  node.all('.unsureButton.checked').on(    'click', this.onJudgeAnnotation, this, 'rm',  'unsure',   tag);
-			  node.all('.agreeButton.checked').on(     'click', this.onJudgeAnnotation, this, 'rm',  'agree',    tag);
-			  node.all('.disagreeButton.checked').on(  'click', this.onJudgeAnnotation, this, 'rm', ' disagree', tag);
-
+			  this.rebindButtons(node, tagrecord);
 			  node.all('.judgeButton').addClass("overlay");
 			  overlay.show();
 			  overlay.set("align", {node:ev.target,
 			                          points:[Y.WidgetPositionAlign.RC, Y.WidgetPositionAlign.TL]});
 			} 
+		},
+
+		rebindButtons: function(node, tagrecord) {
+			node.all('.judgeButton').detach('click');
+			node.one('.commentButton').on(           'click', this.onCommentAnnotation, this, tagrecord);
+
+			node.all('.unsureButton.unchecked').on(  'click', this.onJudgeAnnotation, this, 'add', 'unsure',   tagrecord);
+			node.all('.agreeButton.unchecked').on(   'click', this.onJudgeAnnotation, this, 'add', 'agree',    tagrecord);
+			node.all('.disagreeButton.unchecked').on('click', this.onJudgeAnnotation, this, 'add', 'disagree', tagrecord);
+
+			node.all('.unsureButton.checked').on(    'click', this.onJudgeAnnotation, this, 'rm',  'unsure',   tagrecord);
+			node.all('.agreeButton.checked').on(     'click', this.onJudgeAnnotation, this, 'rm',  'agree',    tagrecord);
+			node.all('.disagreeButton.checked').on(  'click', this.onJudgeAnnotation, this, 'rm', ' disagree', tagrecord);
 		},
 
 		onTagRemoveClick : function(e) {
@@ -329,14 +335,13 @@ YUI.add('annotation', function(Y) {
 			n.one('.delete-comment-input').focus();
 		},
 
-		onCommentAnnotation : function(e, tag) {
-			tag.overlay.set('active', true);
+		onCommentAnnotation : function(e, tagrecord) {
+			if (tagrecord.overlay) tagrecord.overlay.set('active', true);
 			var tags = this.tags;
-			var record = tag;
-			var index = this.tags.indexOf(record);
-			var annotation = record.getValue("annotation");
+			var index = this.tags.indexOf(tagrecord);
+			var annotation = tagrecord.getValue("annotation");
 			var labels = this.get("uiLabels");
-			var title = record.getValue("title");
+			var title = tagrecord.getValue("title");
 			var ov = this.commentOverlay;
 			var n = ov.get('srcNode');
 
@@ -558,7 +563,7 @@ YUI.add('annotation', function(Y) {
 		},
 
 	        onJudgeAnnotation : function (ev, action, value, record) {
-			record.overlay.set('active', false);
+			if (record.overlay) record.overlay.set('active', false);
 			var index = this.tags.indexOf(record);
 			var target = record.getValue("annotation");
 			var type = "judgement";
