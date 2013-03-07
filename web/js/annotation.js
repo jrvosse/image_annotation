@@ -222,17 +222,11 @@ YUI.add('annotation', function(Y) {
 			var annot = tag.annotation;
 			var mymeta = this.get('myMetaTags')[annot];
 			var judgement_buttons = '';
-			if (this.enabled('agreeEnabled', tag)) {
-				var agreeLabel = this.get('uiLabels').agreeLabel;
-				var agree_value = undefined;
-				if (mymeta && mymeta.agree) agree_value = mymeta.agree.hasBody.value;
-				var checked = 'unchecked';
-				if (agree_value != undefined) {
-				  checked = 'checked'; my_rating_label = agreeLabel; my_rating = mymeta.agree;
-				}
-				judgement_buttons += "<span title='" + agreeLabel + "' ";
-				judgement_buttons += "class='judgeButton agreeButton " + checked + "'>";
-				judgement_buttons += "<img src='./icons/thumbUp.png' title='" + agreeLabel + "'/>";
+			if (this.enabled('commentEnabled', tag)) {
+				var commentLabel = this.get('uiLabels').commentLabel;
+				judgement_buttons += "<span title='" + commentLabel + "' ";
+			        judgement_buttons += "class='judgeButton unchecked commentButton'>";
+				judgement_buttons += "<img src='./icons/bubble.png' title='" + commentLabel + "'/>";
 				judgement_buttons += "</span>";
 			}
 			if (this.enabled('unsureEnabled', tag)) {
@@ -261,11 +255,17 @@ YUI.add('annotation', function(Y) {
 				judgement_buttons += "<img src='./icons/thumbDown.png' title='" + disagreeLabel + "'/>";
 				judgement_buttons += "</span>";
 			}
-			if (this.enabled('commentEnabled', tag)) {
-				var commentLabel = this.get('uiLabels').commentLabel;
-				judgement_buttons += "<span title='" + commentLabel + "' ";
-			        judgement_buttons += "class='judgeButton unchecked commentButton'>";
-				judgement_buttons += "<img src='./icons/bubble.png' title='" + commentLabel + "'/>";
+			if (this.enabled('agreeEnabled', tag)) {
+				var agreeLabel = this.get('uiLabels').agreeLabel;
+				var agree_value = undefined;
+				if (mymeta && mymeta.agree) agree_value = mymeta.agree.hasBody.value;
+				var checked = 'unchecked';
+				if (agree_value != undefined) {
+				  checked = 'checked'; my_rating_label = agreeLabel; my_rating = mymeta.agree;
+				}
+				judgement_buttons += "<span title='" + agreeLabel + "' ";
+				judgement_buttons += "class='judgeButton agreeButton " + checked + "'>";
+				judgement_buttons += "<img src='./icons/thumbUp.png' title='" + agreeLabel + "'/>";
 				judgement_buttons += "</span>";
 			}
 			return judgement_buttons;
