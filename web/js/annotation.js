@@ -28,6 +28,7 @@ YUI.add('annotation', function(Y) {
 		agreeEnabled:		{ value: "yours" },  // when "I agree" checkboxes will be shown for each tag
 		disagreeEnabled:	{ value: "yours" },  // when "I disagree" checkboxes will be shown for each tag
 		deleteCommentEnabled:	{ value: "always" }, // when comment overlay is shown for deletions on this field
+		tagFilter:		{ value: "user" },   // hack for roles exp: do not show tag with wrong user field 
 	};
 
 	Annotation.LIST_CLASS = 'taglist';
@@ -112,6 +113,8 @@ YUI.add('annotation', function(Y) {
 			}
 			// format the tags
 			for(var i=0; i < tags.length; i++) {
+				var tag=tags[i].getValue();
+				if (!this.enabled('tagFilter', tag)) break;
 				var node = Y.Node.create('<li>'+this.formatTag(tags[i], tagStyle)+'</li>');
 				node.all('.judgeButton').addClass(tagStyle);
 				tagList.insert(node, index+i);
@@ -123,16 +126,24 @@ YUI.add('annotation', function(Y) {
 		enabled : function(option, tag) {
 			var when   = this.get(option);
 			var user   = this.get("user");
-			var author = tag?tag.annotator:"no_author!";
 
-			if (when == "always")
-			  return true;
-			else if (when == "never")
-			  return false;
-			else if (when == "mine")
-			  return (user == author);
+			if (when == "always") return true;
+			else if (when == "never") return false;
+
+			var tag_author = tag.annotator?tag.annotator:"no_tag_author!";
+			var tag_user   = tag.user?tag.user:user;
+
+			if (when == "mine")
+			  return (user == tag_author);
 			else if (when == "yours")
-			  return (user != author);
+			  return (user != tag_author);
+			else if (when == "user")
+			  return (user == tag_user);
+			else {
+				Y.log(option + ' not implemented in enabled()');
+				return false;
+			}
+
 		},
 
 		formatTag : function(tag, tagStyle) {
