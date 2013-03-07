@@ -134,8 +134,6 @@ body {
      padding: 0;
 }
 
-#confirm-delete {
-	       }
 .delete_dialog {
 		   margin-top: 0;
 		   margin-bottom: 0;
@@ -150,12 +148,20 @@ body {
 	padding: 0;
 }
 .taglist li {
-	cursor: hand; cursor: pointer; 
 	list-style: none;
 	margin: 0;
 	overflow: auto;
 	height: 3ex;
 }
+.taglist.inline li {
+	height: 5ex;
+}
+
+.taglist.overlay li {
+	cursor: hand; 
+	cursor: pointer; 
+}
+
 .taglist .inline.commentButtons {
 	display: inline;
 }
@@ -292,6 +298,10 @@ body {
 }
 .taglist .inline.judgeButton img {
 	height: 2.1ex;
+	vertical-align: middle;
+}
+.taglist .inline.judgeButton.checked img {
+	height: 3.1ex;
 	vertical-align: middle;
 }
 .taglist .overlay.judgeButton.checked img {
