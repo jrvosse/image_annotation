@@ -115,7 +115,6 @@ YUI.add('annotation', function(Y) {
 			// format the tags
 			for(var i=0; i < tags.length; i++) {
 				var tag=tags[i].getValue();
-				if (!this.enabled('tagFilter', tag)) break;
 				var node = Y.Node.create('<li>'+this.formatTag(tags[i], tagStyle)+'</li>');
 				node.all('.judgeButton').addClass(tagStyle);
 				tagList.insert(node, index+i);
@@ -495,9 +494,9 @@ YUI.add('annotation', function(Y) {
 							oSelf.set('myMetaTags', myMetaTags);
 
 							for (var i=0; i<len; i++) {
-								annotation_target = ans[i].hasTarget;
-								if (target == annotation_target) {
-								        var tag = ans[i];
+								var tag = ans[i];
+								var annotation_target = ans[i].hasTarget;
+								if (target == annotation_target &&  oSelf.enabled('tagFilter', tag)) {
 									oSelf.tags.add(ans[i]); // normal tag
 								}
 							}
