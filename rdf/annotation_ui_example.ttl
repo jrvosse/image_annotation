@@ -1,27 +1,32 @@
-@prefix :       <http://semanticweb.cs.vu.nl/annotate/ui/> .
+@prefix ui:     <http://semanticweb.cs.vu.nl/annotate/ui/> .
 @prefix exp:    <http://semanticweb.cs.vu.nl/annotate/example#> .
 @prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix dc:	<http://purl.org/dc/terms/> .
 @prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
 
-:unsureLabel        rdfs:subPropertyOf :uiLabel.
-:commentLabel       rdfs:subPropertyOf :uiLabel.
-:deleteLabel        rdfs:subPropertyOf :uiLabel.
-:cancelDeleteLabel  rdfs:subPropertyOf :uiLabel.
-:confirmDeleteLabel rdfs:subPropertyOf :uiLabel.
-
-exp:nicheAccuratorFullDemoUi a :AnnotationUI ;
+exp:nicheAccuratorFullDemoUi a ui:AnnotationUI ;
         dc:title "Niche Accurator"@en;
-        :commentLabel "Opmerkingen (optioneel):"@nl;
-        :commentLabel "Comments (optional):"@en;
-	:deleteLabel "Verwijder:"@nl;
-	:deleteLabel "Remove:"@en;
-        :cancelDeleteLabel "Annuleren"@nl;
-        :cancelDeleteLabel "Cancel"@en;
-        :confirmDeleteLabel "Verwijderen"@nl;
-        :confirmDeleteLabel "Delete"@en;
-	:fields (
+        ui:agreeLabel "I agree"@en;
+        ui:agreeLabel "mee eens"@nl;
+        ui:cancelCommentLabel "Cancel"@en;
+        ui:cancelCommentLabel "Annuleren"@nl;
+        ui:cancelDeleteLabel  "Annuleren"@nl;
+        ui:cancelDeleteLabel  "Cancel"@en;
+        ui:commentLabel       "Opmerkingen: "@nl;
+        ui:commentLabel       "Comment:"@en;
+        ui:confirmCommentLabel "Add comment"@en;
+        ui:confirmCommentLabel "Voeg toe"@nl;
+        ui:confirmDeleteLabel "Verwijderen"@nl;
+        ui:confirmDeleteLabel "Delete"@en;
+        ui:deleteLabel        "Verwijder:"@nl;
+        ui:deleteLabel        "Remove:"@en;
+        ui:disagreeLabel "I disagree"@en;
+        ui:disagreeLabel "niet mee eens"@nl;
+        ui:unsureLabel "I am not sure"@en;
+        ui:unsureLabel "ik ben niet zeker"@nl;
+
+	ui:fields (
 	     exp:TaxonConceptSpeciesCommonNameAnnotation
 	     exp:TaxonConceptGenusNameAnnotation
 	     exp:QuantityAnnotation
@@ -33,87 +38,97 @@ exp:nicheAccuratorFullDemoUi a :AnnotationUI ;
 	     exp:AestheticsAnnotation
 	 ) .
 
-exp:nicheAccuratorSmallDemoUi a :AnnotationUI ;
+exp:nicheAccuratorSmallDemoUi a ui:AnnotationUI ;
         dc:title "Niche Accurator"@en;
-        :commentLabel "Opmerkingen (optioneel):"@nl;
-        :commentLabel "Comments (optional):"@en;
-	:deleteLabel "Verwijder:"@nl;
-	:deleteLabel "Remove:"@en;
-        :cancelDeleteLabel "Annuleren"@nl;
-        :cancelDeleteLabel "Cancel"@en;
-        :confirmDeleteLabel "Verwijderen"@nl;
-        :confirmDeleteLabel "Delete"@en;
-	:fields (
+        ui:agreeLabel "I agree"@en;
+        ui:agreeLabel "mee eens"@nl;
+        ui:cancelCommentLabel "Cancel"@en;
+        ui:cancelCommentLabel "Annuleren"@nl;
+        ui:cancelDeleteLabel  "Annuleren"@nl;
+        ui:cancelDeleteLabel  "Cancel"@en;
+        ui:commentLabel       "Opmerkingen: "@nl;
+        ui:commentLabel       "Comment:"@en;
+        ui:confirmCommentLabel "Add comment"@en;
+        ui:confirmCommentLabel "Voeg toe"@nl;
+        ui:confirmDeleteLabel "Verwijderen"@nl;
+        ui:confirmDeleteLabel "Delete"@en;
+        ui:deleteLabel        "Verwijder:"@nl;
+        ui:deleteLabel        "Remove:"@en;
+        ui:disagreeLabel "I disagree"@en;
+        ui:disagreeLabel "niet mee eens"@nl;
+        ui:unsureLabel "I am not sure"@en;
+        ui:unsureLabel "ik ben niet zeker"@nl;
+	ui:fields (
 	     exp:TaxonConceptSpeciesCommonNameAnnotation
 	 ) .
 
-exp:symbolicField a :Field ;
+exp:symbolicField a ui:Field ;
         rdfs:label "Iconologie"@nl ;
 	rdfs:label "Iconology"@en ;
 	dc:comment "(symbolische) interpretatie, optioneel"@nl ;
 	dc:comment "(symbolic) interpretation, optional"@en .
 
-exp:LocationAnnotation a :Field ;
+exp:LocationAnnotation a ui:Field ;
         rdfs:label "Binnen/buiten"@nl ;
 	rdfs:label "Indoors/outdoors"@en ;
-	:source ( "indoors"@en "outdoors"@en ) ;
-	:source ( "binnen"@nl "buiten"@nl ) .
+	ui:source ( "indoors"@en "outdoors"@en ) ;
+	ui:source ( "binnen"@nl "buiten"@nl ) .
 
-exp:AestheticsAnnotation a :Field ;
+exp:AestheticsAnnotation a ui:Field ;
 	rdfs:label "Aesthetiek"@nl ;
 	rdfs:label "Aesthetics"@en ;
-	:source ( "beautiful"@en "ugly"@en ) ;
-	:source ( "mooi"@nl "lelijk"@nl ) .
+	ui:source ( "beautiful"@en "ugly"@en ) ;
+	ui:source ( "mooi"@nl "lelijk"@nl ) .
 
-exp:MoodAnnotation  a :Field ;
+exp:MoodAnnotation  a ui:Field ;
 	rdfs:label "Emotionele associaties"@nl ;
 	rdfs:label "Associated emotions"@en ;
-	:source ( "opgewekt"@nl "verdrietig"@nl "blij"@nl "jaloers"@nl "verliefd"@nl) ;
-	:source ( "upbeat"@en "down"@en "happy"@en "jalous"@en "in love"@en) .
+	ui:source ( "opgewekt"@nl "verdrietig"@nl "blij"@nl "jaloers"@nl "verliefd"@nl) ;
+	ui:source ( "upbeat"@en "down"@en "happy"@en "jalous"@en "in love"@en) .
 
 exp:QuantityAnnotation
 	rdfs:label "Aantal"@nl ;
 	rdfs:label "Quantity"@en ;
 	dc:comment "indicate the number of depictions of this species"@en ;
 	dc:comment "geef aan hoeveel er van deze soort zijn afgebeeld"@nl ;
-	:source ( "1"@nl "2"@nl "veel"@nl ) ;
-	:source ( "1"@en "2"@en "many"@en ) .
+	ui:source ( "1"@nl "2"@nl "veel"@nl ) ;
+	ui:source ( "1"@en "2"@en "many"@en ) .
 
 exp:StateAnnotation
 	rdfs:label "Toestand"@nl ;
 	rdfs:label "State"@en ;
 	dc:comment "indicate the state the depicted species"@en ;
 	dc:comment "geef de toestand aan van de afgebeelde soort"@nl ;
-	:source ( "neutraal"@nl "bloeiend"@nl "dood"@nl "rottend"@nl ) ;
-	:source ( "neutral"@en "in bloom"@en "dead"@en "decaying"@en ) .
+	ui:source ( "neutraal"@nl "bloeiend"@nl "dood"@nl "rottend"@nl ) ;
+	ui:source ( "neutral"@en "in bloom"@en "dead"@en "decaying"@en ) .
 
 exp:RealOrNotAnnotation
 	rdfs:label "Fantasie soort?"@nl ;
 	rdfs:label "Imaginary?"@en ;
 	dc:comment "use when species only occurs in fiction (e.g. a dragon or unicorn)"@en ;
 	dc:comment "gebruik bij fantasie dieren en planten (zoals draken en eenhoorns)"@nl ;
-	:source ( "fantasie"@nl "echt"@nl ) ;
-	:source ( "imaginairy"@en "real"@en ) .
+	ui:source ( "fantasie"@nl "echt"@nl ) ;
+	ui:source ( "imaginairy"@en "real"@en ) .
 
 exp:ColorAnnotation
 	rdfs:label "Color"@en ;
 	rdfs:label "Kleur"@nl ;
 	dc:comment "add color of the subject"@en ;
 	dc:comment "voeg kleur van het subject toe"@nl ;
-	:source "/api/autocomplete?q={query}&filter={\"reachable\":\"http://www.w3.org/2004/02/skos/core%23broader\",\"uri\":\"http://purl.org/vocabularies/cornetto/synset-kleur-1-noun\"}" .
+	ui:source "/api/autocomplete?q={query}&filter={\"reachable\":\"http://www.w3.org/2004/02/skos/core%23broader\",\"uri\":\"http://purl.org/vocabularies/cornetto/synset-kleur-1-noun\"}" .
 
 exp:TaxonConceptSpeciesCommonNameAnnotation
 	rdfs:label "Species"@en ;
 	rdfs:label "Soortnaam"@nl ;
 	dc:comment "add common name of the species"@en ;
 	dc:comment "voeg de in Nederland gebruikelijke naam van soort toe"@nl ;
-	:unsureLabel "not sure"@en;
-	:unsureLabel "ik ben niet zeker"@nl;
-	:source "/api/autocomplete?q={query}&filter=[{\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"},{\"prop\":\"http://lod.taxonconcept.org/ontology/txn.owl%23inDBpediaClade\",\"uri\":\"http://dbpedia.org/ontology/FloweringPlant\"}]&labelrank=['http://lod.taxonconcept.org/ontology/txn.owl%23commonName'-0, 'http://lod.taxonconcept.org/ontology/txn.owl%23scientificName'-0.2]" .
+	ui:unsureLabel "not sure"@en;
+	ui:unsureLabel "ik ben niet zeker"@nl;
+	ui:source "/api/autocomplete?q={query}&filter=[{\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"},{\"prop\":\"http://lod.taxonconcept.org/ontology/txn.owl%23inDBpediaClade\",\"uri\":\"http://dbpedia.org/ontology/FloweringPlant\"}]&labelrank=['http://lod.taxonconcept.org/ontology/txn.owl%23commonName'-0, 'http://lod.taxonconcept.org/ontology/txn.owl%23scientificName'-0.2]" .
 
 exp:TaxonConceptGenusNameAnnotation
 	rdfs:label "Scientific name"@en ;
 	rdfs:label "Wetenschappelijke naam"@nl ;
 	dc:comment "add scientificly accepted species or genus name"@en ;
 	dc:comment "voeg de wetenschappelijke soortnaam"@nl ;
-	:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"}" .
+	ui:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"}" .
