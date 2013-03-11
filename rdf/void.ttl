@@ -8,6 +8,10 @@
   vann:preferredNamespaceUri "http://semanticweb.cs.vu.nl/annotate/ui/"
 ] .
 
+[ vann:preferredNamespacePrefix "ann_ui_example" ;
+  vann:preferredNamespaceUri "http://semanticweb.cs.vu.nl/annotate/example#"
+] .
+
 <annotation-ui-schema>
 	a void:Dataset ;
 	dcterms:title "Annotation UI configuration schema";

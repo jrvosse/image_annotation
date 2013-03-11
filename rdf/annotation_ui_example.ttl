@@ -109,9 +109,6 @@ exp:TaxonConceptSpeciesCommonNameAnnotation
 	dc:comment "voeg de in Nederland gebruikelijke naam van soort toe"@nl ;
 	:unsureLabel "not sure"@en;
 	:unsureLabel "ik ben niet zeker"@nl;
-        :commentEnabled false ;
-	:unsureEnabled false;
-        :deleteCommentEnabled true;
 	:source "/api/autocomplete?q={query}&filter=[{\"scheme\":\"http://lod.taxonconcept.org/ontology/txn.owl%23TaxonConcept_Scheme\"},{\"prop\":\"http://lod.taxonconcept.org/ontology/txn.owl%23inDBpediaClade\",\"uri\":\"http://dbpedia.org/ontology/FloweringPlant\"}]&labelrank=['http://lod.taxonconcept.org/ontology/txn.owl%23commonName'-0, 'http://lod.taxonconcept.org/ontology/txn.owl%23scientificName'-0.2]" .
 
 exp:TaxonConceptGenusNameAnnotation
