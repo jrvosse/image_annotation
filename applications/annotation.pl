@@ -372,6 +372,9 @@ js_annotation_fields([URI, Next | T], Options) -->
 	js_annotation_field(URI, [next(Next)|Options]),
 	js_annotation_fields([Next | T], Options).
 
+
+
+
 js_annotation_field(FieldURI, Options) -->
 	 {
 	  option(next(NextURI), Options, @null),
@@ -395,6 +398,10 @@ js_annotation_field(FieldURI, Options) -->
 	  ->  true; Comment=always ),
 	  (   rdf(FieldURI, ann_ui:deleteEnabled,   literal(Delete))
 	  ->  true; Delete=mine ),
+	  (   rdf(FieldURI, ann_ui:type, QuiType)
+	  ->  rdf_global_id(_:UiType, QuiType)
+	  ;   UiType = 'Autocomplete'
+	  ),
 	  ui_labels(FieldURI, Options, UI_labels),
 	  http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
@@ -437,6 +444,7 @@ js_annotation_field(FieldURI, Options) -->
 			next(Next),
 			source:Source,
 			user(User),
+			type:UiType,
 			uiLabels: UI_labels,
 			unsureEnabled: Unsure,
 			commentEnabled: Comment,
