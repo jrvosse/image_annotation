@@ -115,7 +115,6 @@ YUI.add('annotation', function(Y) {
 			// format the tags
 			for(var i=0; i < tags.length; i++) {
 				var tag=tags[i].getValue();
-				if (!this.enabled('tagFilter', tag)) break;
 				var node = Y.Node.create('<li>'+this.formatTag(tags[i], tagStyle)+'</li>');
 				node.all('.judgeButton').addClass(tagStyle);
 				tagList.insert(node, index+i);
@@ -135,14 +134,15 @@ YUI.add('annotation', function(Y) {
 			else if (when == "never") return false;
 
 			var tag_author = tag.annotator?tag.annotator:"no_tag_author!";
-			var tag_user   = tag.user?tag.user:user;
 
 			if (when == "mine")
 			  return (user == tag_author);
 			else if (when == "yours")
 			  return (user != tag_author);
-			else if (when == "user")
+			else if (when == "user") { // hack for roles experiment:
+			  var tag_user   = tag.user?tag.user:tag_author;
 			  return (user == tag_user);
+			}
 			else {
 				Y.log(option + ' not implemented in enabled()');
 				return false;
@@ -495,9 +495,9 @@ YUI.add('annotation', function(Y) {
 							oSelf.set('myMetaTags', myMetaTags);
 
 							for (var i=0; i<len; i++) {
-								annotation_target = ans[i].hasTarget;
-								if (target == annotation_target) {
-								        var tag = ans[i];
+								var tag = ans[i];
+								var annotation_target = ans[i].hasTarget;
+								if (target == annotation_target &&  oSelf.enabled('tagFilter', tag)) {
 									oSelf.tags.add(ans[i]); // normal tag
 								}
 							}
