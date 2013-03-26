@@ -21,7 +21,7 @@ YUI.add('annotation', function(Y) {
 		user:                   { value: "anonymous" },
 
 		// configuration options:
-	        tagStyle:          	{ value: "overlay" },   // show tag details inline or on overlay
+	        tagStyle:          	{ value: "overlay" },   // show tag details inline, on overlay, or simple (none)
 	        deleteEnabled:          { value: "mine" },   // when delete icon is shown each tag
 		commentEnabled:		{ value: "always" }, // when comment icon is shown for each tag
 		unsureEnabled:		{ value: "always" }, // when "I'm not sure" checkboxes will be shown for each tag
@@ -161,7 +161,9 @@ YUI.add('annotation', function(Y) {
 			}
 			if (tagStyle == "overlay")
 				html += "<div class='overlay label'>" + label + "</div>";
-			else {
+			else if (tagStyle == "simple")
+				html += "<div class='simple label'>" + label + "</div>";
+			else if (tagStyle == "inline") {
 				var judgement_buttons = this.formatJudgmentButtons(tagrecord.getValue());
 				var buttons = '<div class="inline commentButtons">' + judgement_buttons + '</div>';
 				html += buttons;
