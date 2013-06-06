@@ -534,7 +534,8 @@ done_script(Options) -->
 			       if (node.get("value")) commentleft = node.get("value")});
 		  if (textleft == "" && commentleft == "") { ~w }
 		  else if (textleft != ""){
-			  window.alert("Gelieve op de enter-toets te drukken om het woord " +textleft+ " op te slaan voordat je naar de volgende afbeelding gaat." );
+		  	  % window.alert("Gelieve op de enter-toets te drukken om het woord " +textleft+ " op te slaan voordat je naar de volgende afbeelding gaat." );
+			  window.alert("please translate to english Gelieve op de enter-toets te drukken om het woord " +textleft+ " op te slaan voordat je naar de volgende afbeelding gaat." );
 		  }
                   else if (commentleft != "" ){
                      window.alert("Gelieve op de enter-toets te drukken om de opmerking " +commentleft+ " op te slaan voordat je naar de volgende afbeelding gaat." );
