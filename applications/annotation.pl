@@ -517,10 +517,10 @@ done_script(Options) -->
 			       if (node.get("value")) commentleft = node.get("value")});
 		  if (textleft == "" && commentleft == "") { ~w }
 		  else if (textleft != ""){
-			  window.alert("Gelieve op de enter-toets te drukken om het woord " +textleft+ " op te slaan voordat je naar de volgende afbeelding gaat." );
+			  window.alert("Please press ENTER to save " +textleft+ " before going to the next image." );
 		  }
                   else if (commentleft != "" ){
-                     window.alert("Gelieve op de enter-toets te drukken om de opmerking " +commentleft+ " op te slaan voordat je naar de volgende afbeelding gaat." );
+                     window.alert("Please click on "add comment" to add " +commentleft+ " before going to the next image." );
                   }
 		 }
 		', [DoneAction]),
