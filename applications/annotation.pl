@@ -537,7 +537,7 @@ done_script(Options) -->
 			  window.alert("Please press ENTER to save " +textleft+ " before going to the next image." );
 		  }
                   else if (commentleft != "" ){
-                     window.alert("Please click on \"add comment\" to add " +commentleft+ " before going to the next image." );
+		  	window.alert("Please click on <add comment> to add " +commentleft+ " before going to the next image." );
                   }
 		 }
 		', [DoneAction]),
