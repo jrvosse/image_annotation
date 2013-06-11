@@ -592,6 +592,7 @@ YUI.add('annotation', function(Y) {
 		onSubmitComment : function(ev, ann, index) {
 			var ov = this.commentOverlay;
 			if (!ov) return;
+			if (ev.preventDefault) ev.preventDefault();
 			ov.hide();
 			var type = "comment";
 			var n = ov.get('srcNode');
