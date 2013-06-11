@@ -1,8 +1,12 @@
-:- module(annotation,
+:- module(cp_image_annotation,
 	  [ annotation_page/1,
 	    get_anfields/4,
-	    get_metafields/3
+	    get_metafields/3,
+	    image_annotation:application_script//1
 	  ]).
+
+:- multifile
+	image_annotation:application_script//1.
 
 % semweb
 
@@ -194,7 +198,7 @@ annotation_page(Options) :-
 	      script(type('text/javascript'),
 		     \yui_script(Options)),
 	      script([type('text/javascript')],
-		    \done_script(Options))
+		     \application_script(Options))
 
 	    ]).
 
@@ -510,48 +514,10 @@ rdf_lang(Subject, Predicate, Text) :-
 
 default_buttons([],_).
 
-/*
-default_buttons(B, Options) :-
-	option(done_label(DoneLabel), Options, done),
-	B = [ a([id('image_annotation_done')], [DoneLabel])].
-*/
+application_script(Options) -->
+	image_annotation:application_script(Options).
 
-:- style_check(-atom).
-
-done_script(Options) -->
-	{
-	 option(done_action(DoneAction), Options),!,
-	 format(atom(DoneHandler),
-		'function done()
-		{
-		  var fields = Y.all("input.yui3-aclist-input");
-		  var comments = Y.all(".annotate-comment-input");
-		  var textleft = "";
-		  var commentleft = "";
-		  fields.each(function(node) {
-			       if (node.get("value")) textleft = node.get("value");});
-		  comments.each(function(node) {
-			       if (node.get("value")) commentleft = node.get("value")});
-		  if (textleft == "" && commentleft == "") { ~w }
-		  else if (textleft != ""){
-			  window.alert("Please press ENTER to save " +textleft+ " before going to the next image." );
-		  }
-                  else if (commentleft != "" ){
-		  	window.alert("Please click on <add comment> to add " +commentleft+ " before going to the next image." );
-                  }
-		 }
-		', [DoneAction]),
-	 format(atom(DoneSubscribe), '
-		YUI().use("node", "event", function(Y)
-		   {
-		    Y.one("#image_annotation_done").on("click", ~w);
-		   }
-		  );
-		', [DoneHandler])
-	},
-       html(\[DoneSubscribe]).
-
-done_script(_Options) --> !.
+application_script(_Options) --> !.
 
 user_url(User) :-
 	(   setting(annotation_api:login, true)
