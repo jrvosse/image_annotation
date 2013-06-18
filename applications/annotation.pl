@@ -197,8 +197,7 @@ annotation_page(Options) :-
 		  ]),
 	      script(type('text/javascript'),
 		     \yui_script(Options)),
-	      script([type('text/javascript')],
-		     \application_script(Options))
+	      \application_script(Options)
 
 	    ]).
 
