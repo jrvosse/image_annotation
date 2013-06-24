@@ -5,8 +5,6 @@
 	    image_annotation:application_script//1
 	  ]).
 
-:- multifile
-	image_annotation:application_script//1.
 
 % semweb
 
@@ -38,8 +36,6 @@
 	rdf_lang(r,r,-),
 	rdf_lang(r,r,+,-).
 
-:- multifile
-	page_header//1.
 
 /***************************************************
 * http handlers
@@ -71,7 +67,28 @@
 	   ], 'Default metadata fields to show').
 
 /***************************************************
-* http replies
+* hooks
+***************************************************/
+
+:- multifile
+	image_annotation:application_script//1,
+	image_annotation:page_header//1.
+
+application_script(Options) -->
+	image_annotation:application_script(Options).
+application_script(_Options) --> !.
+
+annotation_page_header(Options) --> image_annotation:page_header(Options).
+annotation_page_header(Options) -->
+	{
+	 option(target(Target), Options, notarget),
+	 option(title(Title), Options, 'Annotation'),
+	 rdf_display_label(Target, TargetLabel)
+	},
+	html(title([Title, ': ', TargetLabel])).
+
+/***************************************************
+* http handler implementations
 ***************************************************/
 
 %%	http_annotation(+Request)
@@ -200,15 +217,6 @@ annotation_page(Options) :-
 	      \application_script(Options)
 
 	    ]).
-
-annotation_page_header(Options) --> annotation:page_header(Options).
-annotation_page_header(Options) -->
-	{
-	 option(target(Target), Options, notarget),
-	 option(title(Title), Options, 'Annotation'),
-	 rdf_display_label(Target, TargetLabel)
-	},
-	html(title([Title, ': ', TargetLabel])).
 
 %%	html_resource(+URI, Options)
 %
@@ -512,11 +520,6 @@ rdf_lang(Subject, Predicate, Text) :-
 	).
 
 default_buttons([],_).
-
-application_script(Options) -->
-	image_annotation:application_script(Options).
-
-application_script(_Options) --> !.
 
 user_url(User) :-
 	(   setting(annotation_api:login, true)
