@@ -200,7 +200,7 @@ at(Commit, Id-(Commit, Target, AddedTriples)) :-
             member(Target-(DeletedTriples, AddedTriples), PChanged),
             DeletedTriples \= AddedTriples
         ),
-	rdf_equal(an:tag, AN_TAG),
+	rdf_equal(ann_ui:tag, AN_TAG),
 	(   member(rdf(_,_,AN_TAG), AddedTriples)
 	->  Id = Target
 	;   (  rdf(Target, oa:hasTarget, MetaTarget)
@@ -255,7 +255,7 @@ show_deletions([H|T], Options) -->
         {
          H = (Commit, _Target, Triples),
          rdf_equal(HB, oa:hasBody),
-         rdf_equal(US, an:unsure),
+         rdf_equal(US, ann_ui:unsure),
          member(rdf(A,HB,BodyLit), Triples),
          (   member(rdf(A, US, literal(true)), Triples)
          ->  Unsure = 'not sure'; Unsure = '-'
