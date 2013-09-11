@@ -52,7 +52,7 @@
 	   'Minimum number of characters that must be entered before a query event will be fired. A value of 0 allows empty queries; a negative value will effectively disable all query events and turn AutoComplete off. ').
 
 :- setting(default_ui, uri,
-	   'http://semanticweb.cs.vu.nl/annotate/nicheAccuratorFlowerDemoUi',
+	   'http://semanticweb.cs.vu.nl/annotate/example#nicheAccuratorFullDemoUi',
 	   'URI of the default UI configuration object').
 
 :- setting(default_target, uri,
@@ -528,5 +528,5 @@ user_url(User) :-
 	    user_property(U, url(User))
         ;   logged_on(U)
 	->  user_property(U, url(User))
-	;   rdf_global_id(an:anonymous, User)
+	;   rdf_global_id(user:anonymous, User)
         ).
