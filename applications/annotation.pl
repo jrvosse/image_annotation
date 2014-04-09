@@ -198,7 +198,6 @@ annotation_page(Options) :-
 	      \html_requires(css('annotation.css')),
 	      \html_requires(css('annotorious.css')),
 	      \html_requires(js('annotorious.debug.js')),
-	      \html_requires(js('hw.js')),
 	      \conditional_html_requires(Options),
 	      div(class('yui3-skin-sam yui-skin-sam'),
 		  [ div(id(hd), []),
