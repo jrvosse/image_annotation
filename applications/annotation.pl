@@ -198,6 +198,7 @@ annotation_page(Options) :-
 	      \html_requires(css('annotation.css')),
 	      \html_requires(css('annotorious.css')),
 	      \html_requires(js('annotorious.debug.js')),
+	      \html_requires(js('hw.js')),
 	      \conditional_html_requires(Options),
 	      div(class('yui3-skin-sam yui-skin-sam'),
 		  [ div(id(hd), []),
@@ -268,11 +269,11 @@ html_metadata_field(_,_,_) --> !.
 
 html_resource_image(URI) -->
 	{ image(URI, Image),
-	  http_link_to_id(http_mediumscale, [uri(Image)], Medium),
+	  % http_link_to_id(http_mediumscale, [uri(Image)], Medium),
 	  http_link_to_id(http_original,    [uri(Image)], Full)
 	}, !,
-	html(a([href(Full), target('_blank')],
-	       img([class(annotatable), src(Medium)])
+	html(div([href(Full), target('_blank')],
+	       img([class(annotatable), src(Full)])
 	      )).
 html_resource_image(URI) -->
 	{
