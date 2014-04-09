@@ -196,6 +196,8 @@ annotation_page(Options) :-
 	    [ \annotation_page_header(Options) ],
 	    [ \html_requires(yui3('cssgrids/grids-min.css')),
 	      \html_requires(css('annotation.css')),
+	      \html_requires(css('annotorious.css')),
+	      \html_requires(js('annotorious.debug.js')),
 	      \conditional_html_requires(Options),
 	      div(class('yui3-skin-sam yui-skin-sam'),
 		  [ div(id(hd), []),
@@ -270,7 +272,7 @@ html_resource_image(URI) -->
 	  http_link_to_id(http_original,    [uri(Image)], Full)
 	}, !,
 	html(a([href(Full), target('_blank')],
-	       img([src(Medium)])
+	       img([class(annotatable), src(Medium)])
 	      )).
 html_resource_image(URI) -->
 	{
