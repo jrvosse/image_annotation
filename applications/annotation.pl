@@ -74,6 +74,18 @@
 	image_annotation:application_script//1,
 	image_annotation:page_header//1.
 
+
+:- html_resource(annotation,
+	      [ virtual(true),
+		ordered(true),
+		requires([
+		    css('annotation.css'),
+		    css('annotorious.css'),
+		    js('annotorious.debug.js'),
+		    js('annotorious-activate.js')
+		])
+	      ]).
+
 application_script(Options) -->
 	image_annotation:application_script(Options).
 application_script(_Options) --> !.
@@ -195,9 +207,7 @@ annotation_page(Options) :-
 	reply_html_page(
 	    [ \annotation_page_header(Options) ],
 	    [ \html_requires(yui3('cssgrids/grids-min.css')),
-	      \html_requires(css('annotation.css')),
-	      \html_requires(css('annotorious.css')),
-	      \html_requires(js('annotorious.debug.js')),
+	      \html_requires(annotation),
 	      \conditional_html_requires(Options),
 	      div(class('yui3-skin-sam yui-skin-sam'),
 		  [ div(id(hd), []),
