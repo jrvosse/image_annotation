@@ -12,11 +12,14 @@ body {
 	padding: 1%;
 	background-color: #FFF;
 }
-#fields {
+.fixme #fields {
 	width: 33%;
 	padding: 1%;
 	margin-left: 1%;
 	background-color: #EEE;
+}
+.annotorious-editor #fields {
+	width: 98%;
 }
 
 #media {
