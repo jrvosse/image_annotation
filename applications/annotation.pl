@@ -56,7 +56,7 @@
 	   'URI of the default UI configuration object').
 
 :- setting(default_target, uri,
-	   'http://www.public-domain-image.com/plants/flowers/slides/chrysanthemum-flower.jpg',
+	   'http://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Chrysanthemum_indicum2.jpg/800px-Chrysanthemum_indicum2.jpg',
 	   'Default target object to annotate if none given').
 
 :- setting(default_metadata, list(uri),
