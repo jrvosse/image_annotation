@@ -1,15 +1,17 @@
-annotorious.plugin.HelloWorldPlugin = function(opt_config_options) { }
+annotorious.plugin.denichePlugin = function(opt_config_options) { }
+annotorious.plugin.denichePlugin.prototype.initPlugin = function(anno) { }
 
-annotorious.plugin.HelloWorldPlugin.prototype.initPlugin = function(anno) {
-  // Add initialization code here, if needed (or just skip this method if not)
-}
-
-annotorious.plugin.HelloWorldPlugin.prototype.onInitAnnotator = function(annotator) {
-  // A Field can be an HTML string or a function(annotation) that returns a string
+annotorious.plugin.denichePlugin.prototype.onInitAnnotator = function(annotator) {
   var fEl = document.getElementById('fields');
   annotator.editor.addField(fEl);
-  console.log(fEl);
 }
 
-// Add the plugin like so
-anno.addPlugin('HelloWorldPlugin', {});
+anno.addPlugin('denichePlugin', {});
+
+anno.addHandler('onAnnotationCreated', function(annotation) {
+	  console.log(annotation.text);
+	  console.log(annotation);
+	  console.log(annotation.shapes);
+	  console.log(annotation.shapes[0]);
+	  console.log(annotation.shapes[0].geometry);
+});
