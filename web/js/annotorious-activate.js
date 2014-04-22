@@ -1,17 +1,14 @@
-annotorious.plugin.denichePlugin = function(opt_config_options) { }
-annotorious.plugin.denichePlugin.prototype.initPlugin = function(anno) { }
+annotorious.plugin.DenichePlugin = function(opt_config_options) { 
+	/** @private **/
+	this._tags = [];
+}
+annotorious.plugin.DenichePlugin.prototype.initPlugin = function(anno) { }
 
-annotorious.plugin.denichePlugin.prototype.onInitAnnotator = function(annotator) {
-  var fEl = document.getElementById('fields');
-  annotator.editor.addField(fEl);
+annotorious.plugin.DenichePlugin.prototype.onInitAnnotator = function(annotator) {
+	// this._extendPopup(annotator);
+	this._extendEditor(annotator); 
+  // var fEl = document.getElementById('fields');
+  //  annotator.editor.addField(fEl);
 }
 
-anno.addPlugin('denichePlugin', {});
-
-anno.addHandler('onAnnotationCreated', function(annotation) {
-	  console.log(annotation.text);
-	  console.log(annotation);
-	  console.log(annotation.shapes);
-	  console.log(annotation.shapes[0]);
-	  console.log(annotation.shapes[0].geometry);
-});
+anno.addPlugin('DenichePlugin', {});
