@@ -152,12 +152,18 @@ YUI.add('annotation', function(Y) {
 
 		formatTag : function(tagrecord, tagStyle) {
 			var label = tagrecord.getValue("title");
+			var selector = tagrecord.getValue("selector");
 			var html = "";
 
 			if (this.enabled('deleteEnabled', tagrecord.getValue())) {
 			  html += '<div class="tagremove enabled"><a href="javascript:{}">x</a></div>';
 			} else {
 			  html += '<div class="tagremove disabled"><a href="javascript:{}">y</a></div>';
+			}
+			if (selector) {
+				html+= '<span>' + selector +'</span>';
+			} else {
+				html+= '<span> no selector </span>';
 			}
 			if (tagStyle == "overlay")
 				html += "<div class='overlay label'>" + label + "</div>";
@@ -612,6 +618,9 @@ YUI.add('annotation', function(Y) {
 			if (!timing) timing = -1;
 			if (!type) type = 'default';
 			Y.log('add tag: '+ body.value +' with label: '+label+ ', time: ' + timing);
+		
+			var shape = null;	
+			if (anno && anno.currentShape) { shape = anno.currentShape.geometry; }
 
 			var inputNode = this.get("inputNode");
 			var tags = this.tags;
@@ -625,6 +634,7 @@ YUI.add('annotation', function(Y) {
 					hasBody:Y.JSON.stringify(body),
 					label:label,
 					typing_time: timing,
+					shape: Y.JSON.stringify(shape),
 					type: type
 				},
 				on:{success: function(e,o) {
