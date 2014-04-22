@@ -82,7 +82,8 @@
 		    css('annotation.css'),
 		    css('annotorious.css'),
 		    js('annotorious.debug.js'),
-		    js('annotorious-activate.js')
+		    js('annotorious-activate.js'),
+		    js('deniche-editor.js')
 		])
 	      ]).
 
