@@ -628,6 +628,7 @@ YUI.add('annotation', function(Y) {
 			var oSelf = this;
 
 			Y.io(this.get("store.add"), {
+				method: "POST",
 				data:{
 					field:this.get("field"),
 					hasTarget:target,
