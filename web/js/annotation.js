@@ -491,7 +491,9 @@ YUI.add('annotation', function(Y) {
 								var annotation_value = ans[i].hasBody.value;
 								var annotation_type = ans[i].type;
 								var annotation_user = ans[i].annotator;
-								if (target != annotation_target	&& user == annotation_user) {
+								if (annotation_target.hasSource && annotation_target.hasSource == target) {
+									// ignore
+								} else if (target != annotation_target	&& user == annotation_user) {
 									if (!myMetaTags[annotation_target])
 									  myMetaTags[annotation_target] = {};
 									if (annotation_type == "comment")
@@ -504,9 +506,12 @@ YUI.add('annotation', function(Y) {
 
 							for (var i=0; i<len; i++) {
 								var tag = ans[i];
-								var annotation_target = ans[i].hasTarget;
+								var annotation_target = ans[i].hasTarget.hasSource?
+									ans[i].hasTarget.hasSource:ans[i].hasTarget;
 								if (target == annotation_target &&  oSelf.enabled('tagFilter', tag)) {
 									oSelf.tags.add(ans[i]); // normal tag
+									console.log('add tag');
+									console.log(ans[i]);
 								}
 							}
 						  }
