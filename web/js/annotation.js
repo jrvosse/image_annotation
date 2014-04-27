@@ -508,7 +508,6 @@ YUI.add('annotation', function(Y) {
 										    	geometry: { x:x,y:y,width:w,height:h }
 										    }]
 									    };
-									    // console.log(torious);
 									    oSelf.anno._deniche.addAnnotation(torious);
 								} else if (targetURI != annotation_target && user == annotation_user) {
 									if (!myMetaTags[annotation_target])
@@ -640,8 +639,6 @@ YUI.add('annotation', function(Y) {
 			Y.log('add tag: '+ body.value +' with label: '+label+ ', time: ' + timing);
 		
 			var targetString = 'undefined target';	
-			console.log(this.anno);
-			console.log(this.anno.currentShape);
 			if (this.anno && this.anno.currentShape) { 
 				var shape = this.anno.currentShape.geometry; 
 				var targetObject = { hasSelector: {value:shape}, hasSource: target};
