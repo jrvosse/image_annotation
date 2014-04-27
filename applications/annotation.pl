@@ -66,6 +66,7 @@
 	     'http://purl.org/dc/terms/description'
 	   ], 'Default metadata fields to show').
 
+:- setting(annotorious, boolean, true, 'enable annotorious support').
 /***************************************************
 * hooks
 ***************************************************/
@@ -75,11 +76,10 @@
 	image_annotation:page_header//1.
 
 
-:- html_resource(annotation,
+:- html_resource(annotorious,
 	      [ virtual(true),
 		ordered(true),
 		requires([
-		    css('annotation.css'),
 		    css('annotorious.css'),
 		    js('annotorious.debug.js'),
 		    js('annotorious-activate.js'),
@@ -208,8 +208,9 @@ annotation_page(Options) :-
 	reply_html_page(
 	    [ \annotation_page_header(Options) ],
 	    [ \html_requires(yui3('cssgrids/grids-min.css')),
-	      \html_requires(annotation),
-	      \conditional_html_requires(Options),
+	      \html_requires(css('annotation.css')),
+	      \conditional_html_requires(style, Options),
+	      \conditional_html_requires(annotorious, Options),
 	      div(class('yui3-skin-sam yui-skin-sam'),
 		  [ div(id(hd), []),
 		    div(id(bd),
@@ -375,15 +376,21 @@ get_label(UI, Field, LabelProp, LabelOption) :-
 	rdf_global_id(_NS:LabelName, LabelProp),
 	LabelOption =.. [LabelName, LabelText].
 
-conditional_html_requires(Options) -->
-	{
-	 option(stylesheet(Stylesheet), Options),
-	 ground(Stylesheet),
-	 !
+
+conditional_html_requires(style, Options) -->
+	{ option(stylesheet(Stylesheet), Options),
+	  ground(Stylesheet),
+	  !
 	},
 	html_requires(Stylesheet).
 
-conditional_html_requires(_) --> !.
+conditional_html_requires(annotorious, _Options) -->
+	{ setting(annotorious, true),
+	  !
+	},
+	html_requires(annotorious).
+
+conditional_html_requires(_,_) --> !.
 
 
 %%	js_annotation_fields(+FieldURIs, +AnnotationTarget)
