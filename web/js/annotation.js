@@ -39,6 +39,8 @@ YUI.add('annotation', function(Y) {
 		initializer: function(args) {
 			var next = this.get("next");
 			var parentNode = this.DEF_PARENT_NODE;
+		
+			this.anno = anno; // hack
 
 			// handler to call when item selected from autocompletion suggestions:
 			this.on("select", this.onItemSelect, this);
@@ -115,7 +117,8 @@ YUI.add('annotation', function(Y) {
 			// format the tags
 			for(var i=0; i < tags.length; i++) {
 				var tag=tags[i].getValue();
-				var node = Y.Node.create('<li>'+this.formatTag(tags[i], tagStyle)+'</li>');
+				var node = Y.Node.create('<li class="tagitem">'+this.formatTag(tags[i], tagStyle)+'</li>');
+				node.setAttribute('hash', tags[i].getValue('annotation'));
 				node.all('.judgeButton').addClass(tagStyle);
 				tagList.insert(node, index+i);
 				if (tagStyle == 'overlay')
@@ -151,9 +154,12 @@ YUI.add('annotation', function(Y) {
 		},
 
 		formatTag : function(tagrecord, tagStyle) {
-			var label = tagrecord.getValue("title");
-			var selector = tagrecord.getValue("selector");
 			var html = "";
+			var selector = null;
+			var targetObject = tagrecord.getValue("hasTarget");
+			var label  = tagrecord.getValue("title");
+			if (targetObject.hasSelector && targetObject.hasSelector.value)
+				selector = targetObject.hasSelector.value;
 
 			if (this.enabled('deleteEnabled', tagrecord.getValue())) {
 			  html += '<div class="tagremove enabled"><a href="javascript:{}">x</a></div>';
@@ -162,6 +168,7 @@ YUI.add('annotation', function(Y) {
 			}
 			if (selector) {
 				html+= '<span>' + selector +'</span>';
+				html+= '<span>/' + targetObject.hasSelector.x +'</span>';
 			} else {
 				html+= '<span> no selector </span>';
 			}
@@ -189,7 +196,7 @@ YUI.add('annotation', function(Y) {
 		},
 
 		formatTagOverlay : function(tag) {
-			var target= tag.hasTarget;
+			var targetObj= tag.hasTarget;
 			var body  = tag.hasBody;
 			var label = tag.title;
 			var link  = tag.display_link;
@@ -470,12 +477,12 @@ YUI.add('annotation', function(Y) {
 		},
 
 		getTags : function() {
-			    var target = this.get('target');
+			    var targetURI = this.get('target');
 			    var field = this.get('field');
 			    var oSelf = this;
 			    Y.io(this.get("store.get"),
 				 { data: {
-					 hasTarget: target,
+					 hasTarget: targetURI,
 					 field:  field
 					 },
 				   on: {
@@ -491,9 +498,24 @@ YUI.add('annotation', function(Y) {
 								var annotation_value = ans[i].hasBody.value;
 								var annotation_type = ans[i].type;
 								var annotation_user = ans[i].annotator;
-								if (annotation_target.hasSource && annotation_target.hasSource == target) {
-									// ignore
-								} else if (target != annotation_target	&& user == annotation_user) {
+								if (annotation_target.hasSource && 
+								    annotation_target.hasSource == targetURI) {
+									    x =  annotation_target.hasSelector.x;
+									    y =  annotation_target.hasSelector.y;
+									    w =  annotation_target.hasSelector.w;
+									    h =  annotation_target.hasSelector.h;
+									    var torious = { 
+										    src: Y.one('img.annotatable').get('src'),
+										    text: annotation_value,
+										    id:ans[i].annotation,
+										    shapes: [{
+											type:'rect', 
+										    	geometry: { x:x,y:y,width:w,height:h }
+										    }]
+									    };
+									    console.log(torious);
+									    oSelf.anno.addAnnotation(torious);
+								} else if (targetURI != annotation_target && user == annotation_user) {
 									if (!myMetaTags[annotation_target])
 									  myMetaTags[annotation_target] = {};
 									if (annotation_type == "comment")
@@ -508,10 +530,8 @@ YUI.add('annotation', function(Y) {
 								var tag = ans[i];
 								var annotation_target = ans[i].hasTarget.hasSource?
 									ans[i].hasTarget.hasSource:ans[i].hasTarget;
-								if (target == annotation_target &&  oSelf.enabled('tagFilter', tag)) {
+								if (targetURI == annotation_target &&  oSelf.enabled('tagFilter', tag)) {
 									oSelf.tags.add(ans[i]); // normal tag
-									console.log('add tag');
-									console.log(ans[i]);
 								}
 							}
 						  }
@@ -624,8 +644,16 @@ YUI.add('annotation', function(Y) {
 			if (!type) type = 'default';
 			Y.log('add tag: '+ body.value +' with label: '+label+ ', time: ' + timing);
 		
-			var shape = null;	
-			if (anno && anno.currentShape) { shape = anno.currentShape.geometry; }
+			var targetString = 'undefined target';	
+			console.log(this.anno);
+			console.log(this.anno.currentShape);
+			if (this.anno && this.anno.currentShape) { 
+				var shape = this.anno.currentShape.geometry; 
+				var targetObject = { hasSelector: {value:shape}, hasSource: target};
+				targetString = Y.JSON.stringify(targetObject)
+			} else {
+				targetString = target
+			}
 
 			var inputNode = this.get("inputNode");
 			var tags = this.tags;
@@ -636,11 +664,10 @@ YUI.add('annotation', function(Y) {
 				method: "POST",
 				data:{
 					field:this.get("field"),
-					hasTarget:target,
+					hasTarget:targetString,
 					hasBody:Y.JSON.stringify(body),
 					label:label,
 					typing_time: timing,
-					shape: Y.JSON.stringify(shape),
 					type: type
 				},
 				on:{success: function(e,o) {
