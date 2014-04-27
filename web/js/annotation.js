@@ -508,8 +508,8 @@ YUI.add('annotation', function(Y) {
 										    	geometry: { x:x,y:y,width:w,height:h }
 										    }]
 									    };
-									    console.log(torious);
-									    oSelf.anno.addAnnotation(torious);
+									    // console.log(torious);
+									    oSelf.anno._deniche.addAnnotation(torious);
 								} else if (targetURI != annotation_target && user == annotation_user) {
 									if (!myMetaTags[annotation_target])
 									  myMetaTags[annotation_target] = {};
@@ -705,8 +705,8 @@ YUI.add('annotation', function(Y) {
 			Node.set("headerContent", head);
 			Node.set("bodyContent",   body);
 			Node.set("footerContent", foot);
-			Node.set("centered", true);
-			Node.set("width", "30em");
+			Node.set("centered", false);
+			Node.set("width", "50em");
 			this.deleteOverlay = Node;
 		},
 
