@@ -166,12 +166,6 @@ YUI.add('annotation', function(Y) {
 			} else {
 			  html += '<div class="tagremove disabled"><a href="javascript:{}">y</a></div>';
 			}
-			if (selector) {
-				html+= '<span>' + selector +'</span>';
-				html+= '<span>/' + targetObject.hasSelector.x +'</span>';
-			} else {
-				html+= '<span> no selector </span>';
-			}
 			if (tagStyle == "overlay")
 				html += "<div class='overlay label'>" + label + "</div>";
 			else if (tagStyle == "simple")
