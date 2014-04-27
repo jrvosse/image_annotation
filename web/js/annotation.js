@@ -507,7 +507,8 @@ YUI.add('annotation', function(Y) {
 									    var torious = { 
 										    src: Y.one('img.annotatable').get('src'),
 										    text: annotation_value,
-										    id:ans[i].annotation,
+										    annotation_id:ans[i].annotation,
+										    target_id: annotation_target['@id'],
 										    shapes: [{
 											type:'rect', 
 										    	geometry: { x:x,y:y,width:w,height:h }
