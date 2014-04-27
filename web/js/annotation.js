@@ -309,8 +309,10 @@ YUI.add('annotation', function(Y) {
 			  this.rebindButtons(node, tagrecord);
 			  node.all('.judgeButton').addClass("overlay");
 			  overlay.show();
-			  overlay.set("align", {node:ev.target,
-			                          points:[Y.WidgetPositionAlign.RC, Y.WidgetPositionAlign.TL]});
+			  if (ev.pageX/window.innerWidth < 0.4)
+			  	overlay.set("align", {node:ev.target, points:[Y.WidgetPositionAlign.LC, Y.WidgetPositionAlign.TL]});
+			  else
+			  	overlay.set("align", {node:ev.target, points:[Y.WidgetPositionAlign.RC, Y.WidgetPositionAlign.TL]});
 			} 
 		},
 
@@ -702,7 +704,7 @@ YUI.add('annotation', function(Y) {
 			Node.set("headerContent", head);
 			Node.set("bodyContent",   body);
 			Node.set("footerContent", foot);
-			Node.set("centered", false);
+			Node.set("centered", true);
 			Node.set("width", "50em");
 			this.deleteOverlay = Node;
 		},
@@ -722,7 +724,7 @@ YUI.add('annotation', function(Y) {
 			Node.set("bodyContent",   body);
 			Node.set("footerContent", foot);
 			Node.set("centered", true);
-			Node.set("width", "30em");
+			Node.set("width", "50em");
 			this.commentOverlay = Node;
 		},
 
