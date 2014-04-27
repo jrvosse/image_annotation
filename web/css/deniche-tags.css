@@ -1,0 +1,169 @@
+.taglist {
+	font-size: 0.9em;
+	width: 100%;
+	float: right;
+	clear: right;
+	margin: 0;
+	padding: 0;
+}
+.taglist li {
+	list-style: none;
+	margin: 0;
+	overflow: auto;
+	height: 3ex;
+}
+.taglist.inline li {
+	height: 5ex;
+}
+
+.taglist.overlay li {
+	cursor: hand; 
+	cursor: pointer; 
+}
+
+.taglist .inline.commentButtons {
+	display: inline;
+}
+
+.taglist .overlay.commentButtons {
+	width: 100%;
+	margin-right: 1%;
+	border-top: 1pt solid #CCC;
+	clear: both;
+	overflow: auto;
+}
+
+.commentButtons span {
+	text-align: right;
+	float: right;
+}
+.taglist .inline.label {
+	padding: 0% 1%;
+	float: left;
+}
+.taglist .inline.screenName {
+	padding: 0% 1%;
+	float: left;
+}
+.taglist .inline.screenName:before { content: '('; }
+.taglist .inline.screenName:after { content: ')'; }
+.taglist .inline.tagCreditLine:after { content: ': '; }
+
+.taglist .overlay.label, .taglist .simple.label {
+	width: 45%;
+	padding: 0% 1%;
+	float: right;
+}
+.overlay {
+	text-align: right;
+}
+.overlay.title.label {
+	width: 100%;
+	margin-left: 1%;
+	font-size: 2.0em;
+	display: block;
+	text-align: center;
+}
+.taglist div.tagremove {
+	width: 4%;
+	overflow: hidden;
+	float: right;
+}
+.overlay span.metaremove {
+	width: 4%;
+	overflow: hidden;
+	float: right;
+}
+.overlay span.metaremove a.metaremove {
+	color: red;
+	text-decoration: none;
+}
+.taglist div.tagremove.disabled a {
+	visibility: hidden;
+}
+.taglist div.tagremove.enabled a {
+	color: red;
+	text-decoration: none;
+}
+.taglist .label a {
+	text-decoration: none;
+	color: #222;
+
+}
+.overlay.tagCreation {
+	overflow: auto;
+        border-bottom: 1pt solid #CCC;
+}
+
+.overlay.screenName:before {
+        content: 'Tag created by:';
+	display: block;
+	float: left;
+	}
+.overlay.screenName:after {
+}
+.overlay.screenName {
+	float: right;
+	display: block;
+	width: 100%;
+}
+
+.overlay.comment {
+	clear: both;
+	width: 100%;
+	overflow: auto;
+}
+.overlay.comment .screenName {
+	float: left;
+	display: block;
+}
+.overlay.comment .screenName:before {
+        content: 'Comment by @';
+	display: block;
+	float: left;
+}
+.overlay.comment .screenName:after  { content: ':'; }
+.overlay.comment .body:before {
+	font-style: normal;
+	display: block;
+        float: left;
+	content: 'My comment:';
+}
+.overlay.comment .body:after { content: ''; }
+.overlay.comment .body {
+	font-style: italic;
+}
+.overlay.rating:before {
+	font-style: normal;
+	display: block;
+        float: left;
+	content: 'My rating:';
+}
+.taglist .judgeButton:hover {
+}
+.taglist .overlay.judgeButton.unchecked:after {
+	display: block;
+	font-size: 0.7em;
+	content: attr(title);
+}
+.taglist .judgeButton {
+	padding-left: .3em;
+	padding-right: .3em;
+	padding-top: .3em;
+	cursor: crosshair;
+}
+.taglist .overlay.judgeButton img {
+	width: 5ex;
+	vertical-align: middle;
+}
+.taglist .inline.judgeButton img {
+	height: 2.1ex;
+	vertical-align: middle;
+}
+.taglist .inline.judgeButton.checked img {
+	height: 3.1ex;
+	vertical-align: middle;
+}
+.taglist .overlay.judgeButton.checked img {
+	display: none;
+}
