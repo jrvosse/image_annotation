@@ -1,3 +1,11 @@
 @import "deniche-tags.css";
 
+.yui3-overlay {
+  padding: 10px;
+  background-color: white;
+  border: solid gray 1pt;
+  position: absolute;
+  width: 200px;
+}
+
 textarea.annotorious-editor-text { display: none; } // disable basic annotorious tagging area
