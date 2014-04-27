@@ -6,7 +6,7 @@ annotorious.plugin.DenichePlugin.prototype._extendEditor = function(annotator) {
 	annotator.editor.addField(fieldsEl);
 	annotator.editor.addField(function(an2) { 
 			console.log(an2) ; 
-			return an2.id;
+			return an2.target_id;
 		});
 
 	anno.addHandler('onSelectionCompleted', function(ev) {
