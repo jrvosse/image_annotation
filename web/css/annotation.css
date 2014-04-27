@@ -8,4 +8,6 @@
   width: 200px;
 }
 
-textarea.annotorious-editor-text { display: none; } // disable basic annotorious tagging area
+textarea.annotorious-editor-text { display: none; } /* disable basic annotorious tagging area */
+div a.annotorious-popup-button-delete { display: none; }
+div a.annotorious-editor-button-cancel { display: none; } 
