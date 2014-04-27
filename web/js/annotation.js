@@ -118,7 +118,7 @@ YUI.add('annotation', function(Y) {
 			for(var i=0; i < tags.length; i++) {
 				var tag=tags[i].getValue();
 				var node = Y.Node.create('<li class="tagitem">'+this.formatTag(tags[i], tagStyle)+'</li>');
-				node.setAttribute('hash', tags[i].getValue('annotation'));
+				node.setAttribute('targetId', tags[i].getValue('hasTarget')['@id']);
 				node.all('.judgeButton').addClass(tagStyle);
 				tagList.insert(node, index+i);
 				if (tagStyle == 'overlay')
@@ -507,8 +507,8 @@ YUI.add('annotation', function(Y) {
 									    var torious = { 
 										    src: Y.one('img.annotatable').get('src'),
 										    text: annotation_value,
-										    annotation_id:ans[i].annotation,
-										    target_id: annotation_target['@id'],
+										    annotationId:ans[i].annotation,
+										    targetId: annotation_target['@id'],
 										    shapes: [{
 											type:'rect', 
 										    	geometry: { x:x,y:y,width:w,height:h }
