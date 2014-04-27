@@ -40,7 +40,10 @@ YUI.add('annotation', function(Y) {
 			var next = this.get("next");
 			var parentNode = this.DEF_PARENT_NODE;
 		
-			this.anno = anno; // hack
+			if (typeof(anno) != "undefined")
+				this.anno = anno; // hack
+			else
+				this.anno = null;
 
 			// handler to call when item selected from autocompletion suggestions:
 			this.on("select", this.onItemSelect, this);
@@ -494,7 +497,7 @@ YUI.add('annotation', function(Y) {
 								var annotation_value = ans[i].hasBody.value;
 								var annotation_type = ans[i].type;
 								var annotation_user = ans[i].annotator;
-								if (annotation_target.hasSource && 
+								if (oSelf.anno && annotation_target.hasSource && 
 								    annotation_target.hasSource == targetURI) {
 									    x =  annotation_target.hasSelector.x;
 									    y =  annotation_target.hasSelector.y;
@@ -511,7 +514,8 @@ YUI.add('annotation', function(Y) {
 										    }]
 									    };
 									    oSelf.anno._deniche.addAnnotation(torious);
-								} else if (targetURI != annotation_target && user == annotation_user) {
+								} 
+								if (! annotation_target.hasSource && targetURI != annotation_target && user == annotation_user) {
 									if (!myMetaTags[annotation_target])
 									  myMetaTags[annotation_target] = {};
 									if (annotation_type == "comment")
