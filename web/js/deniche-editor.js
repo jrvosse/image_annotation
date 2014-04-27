@@ -1,22 +1,24 @@
 annotorious.plugin.DenichePlugin.prototype._extendEditor = function(annotator) {
-	// console.log('_extendEditor');
 	var self = this;
 	var fieldsEl = document.getElementById('fields');
 	this._annotator = annotator;
+	var dl = document.getElementsByClassName('annotorious-popup-button-delete').item(0);
+	dl.parentNode.removeChild(dl);
 	annotator.editor.addField(fieldsEl);
 	annotator.editor.addField(function(an2) { 
-			// console.log(an2) ; 
-			return an2.targetId;
+			// Debug only
+			// return an2.targetId;
 		});
 
 	anno.addHandler('onSelectionCompleted', function(ev) {
-		// console.log('onSelectionCompleted');
-		// console.log(ev);
+		// HACK:
+		// set shape when new selection is completed so we can use it in the YUI autocompletion plugins.
 		anno.currentShape = ev.shape;
 	});
+
 	anno.addHandler('onEditorShown', function(annotation) {
-		// console.log('onEditorShown');
-		// console.log(annotation.targetId);
+		// HACK:
+		// set shape when adding to existing annotation so we can use it in the YUI autocompletion plugins.
 		if (annotation && annotation.shapes) {
 			anno.currentShape = annotation.shapes[0];
 		}
