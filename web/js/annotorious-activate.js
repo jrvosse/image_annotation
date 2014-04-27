@@ -12,7 +12,6 @@ annotorious.plugin.DenichePlugin.prototype.onInitAnnotator = function(annotator)
 }
 
 annotorious.plugin.DenichePlugin.prototype.addAnnotation = function (annotation) {
-	console.log(annotation);
 	if (this._tags[annotation.targetId]) {	
 		var old = this._tags[annotation.targetId];
 		annotation.text = old.text + '; ' + annotation.text;
