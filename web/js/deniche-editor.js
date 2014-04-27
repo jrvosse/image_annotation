@@ -19,16 +19,16 @@ annotorious.plugin.DenichePlugin.prototype._extendEditor = function(annotator) {
 		// console.log(annotation.targetId);
 		if (annotation && annotation.shapes) {
 			anno.currentShape = annotation.shapes[0];
-			YUI().use('node', 'event', function(Y) {
-				Y.all('li.tagitem').each(function(tagNode) {
-					if (annotation.targetId == tagNode.getAttribute('targetId'))
-						tagNode.show();
-					else
-						tagNode.hide();
-
-				})
-			})
 		}
+		YUI().use('node', 'event', function(Y) {
+			Y.all('li.tagitem').each(function(tagNode) {
+				if (annotation && annotation.targetId == tagNode.getAttribute('targetId'))
+					tagNode.show();
+				else
+					tagNode.hide();
+
+			})
+		})
 	});
 }
 
