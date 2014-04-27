@@ -1,14 +1,6 @@
 annotorious.plugin.DenichePlugin.prototype._extendEditor = function(annotator) {
-	var self = this;
 	var fieldsEl = document.getElementById('fields');
-	this._annotator = annotator;
-	var dl = document.getElementsByClassName('annotorious-popup-button-delete').item(0);
-	dl.parentNode.removeChild(dl);
 	annotator.editor.addField(fieldsEl);
-	annotator.editor.addField(function(an2) { 
-			// Debug only
-			// return an2.targetId;
-		});
 
 	anno.addHandler('onSelectionCompleted', function(ev) {
 		// HACK:
@@ -23,6 +15,7 @@ annotorious.plugin.DenichePlugin.prototype._extendEditor = function(annotator) {
 			anno.currentShape = annotation.shapes[0];
 		}
 		YUI().use('node', 'event', function(Y) {
+			Y.one('a.annotorious-editor-button-save').setHTML('Done'); // Hack: turn save into done button
 			Y.all('li.tagitem').each(function(tagNode) {
 				if (annotation && annotation.targetId == tagNode.getAttribute('targetId'))
 					tagNode.show();
