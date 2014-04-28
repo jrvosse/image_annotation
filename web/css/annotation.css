@@ -8,6 +8,10 @@
   width: 200px;
 }
 
+#media img {
+  max-width: 100%;
+}
+
 textarea.annotorious-editor-text { display: none; } /* disable basic annotorious tagging area */
 div a.annotorious-popup-button-delete { display: none; }
 div a.annotorious-editor-button-cancel { display: none; } 
