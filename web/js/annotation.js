@@ -90,11 +90,32 @@ YUI.add('annotation', function(Y) {
 		},
 
 		// handlers for adding additions, updates or removals in the tag Recordset:
-		addTags : function(o) {
-			    // Y.log('adding tags at index ' + o.index + ':');
-			    // Y.log(o.added[0].getValue());
-			    this.renderTags(o.added, o.index);
-			  } ,
+	    addTags : function(o) {
+		// Y.log('adding tags at index ' + o.index + ':');
+		// Y.log(o.added[0].getValue());
+		this.renderTags(o.added, o.index);
+
+		var tag = o.added[0];
+		var target = tag.getValue('hasTarget');
+		var body   = tag.getValue('hasBody');
+		console.log(target);
+		var x =  target.hasSelector.x;
+		var y =  target.hasSelector.y;
+		var w =  target.hasSelector.w;
+		var h =  target.hasSelector.h;
+		var torious = { 
+		    src: Y.one('img.annotatable').get('src'),
+		    text: body.value,
+		    targetId: target['@id'],
+		    annotationId: tag.annotation,
+		    shapes: [{
+			type:'rect', 
+			geometry: { x:x,y:y,width:w,height:h }
+		    }]
+		};
+		this.anno._deniche.addAnnotation(torious);
+	    },
+
 		updateTags : function(o) {
 			    // Y.log('updating tags at index ' + o.index + ':');
 			    // Y.log(o.updated[0].getValue());
@@ -513,7 +534,7 @@ YUI.add('annotation', function(Y) {
 										    	geometry: { x:x,y:y,width:w,height:h }
 										    }]
 									    };
-									    oSelf.anno._deniche.addAnnotation(torious);
+									    // oSelf.anno._deniche.addAnnotation(torious);
 								} 
 								if (! annotation_target.hasSource && targetURI != annotation_target && user == annotation_user) {
 									if (!myMetaTags[annotation_target])
