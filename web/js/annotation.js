@@ -148,7 +148,7 @@ YUI.add('annotation', function(Y) {
 				tagList.insert(node, index+i);
 				if (tagStyle == 'overlay')
 					node.one('.label').on('hover', this.onTagHover, this.onTagHover, this, tags[i]);
-				else {
+				else if (tagStyle == 'inline') {
 					this.rebindButtons(node, tags[i]);
 				}
 			};
