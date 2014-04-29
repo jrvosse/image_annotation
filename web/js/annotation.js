@@ -41,9 +41,9 @@ YUI.add('annotation', function(Y) {
 			var parentNode = this.DEF_PARENT_NODE;
 		
 			if (typeof(anno) != "undefined")
-				this.anno = anno; // hack
+				this._anno = anno; // hack
 			else
-				this.anno = null;
+				this._anno = null;
 
 			// handler to call when item selected from autocompletion suggestions:
 			this.on("select", this.onItemSelect, this);
@@ -85,8 +85,8 @@ YUI.add('annotation', function(Y) {
 			var firstkey = true;
 			this.setKeyInputHandler(firstkey);
 
-			// everything is ready to request server for existing tags:
-			this.getTags();
+			var oSelf = this;
+			Y.on("load", function(e) { oSelf.getTags(); });
 		},
 
 		// handlers for adding additions, updates or removals in the tag Recordset:
@@ -98,7 +98,6 @@ YUI.add('annotation', function(Y) {
 		var tag = o.added[0];
 		var target = tag.getValue('hasTarget');
 		var body   = tag.getValue('hasBody');
-		console.log(target);
 		var x =  target.hasSelector.x;
 		var y =  target.hasSelector.y;
 		var w =  target.hasSelector.w;
@@ -113,7 +112,9 @@ YUI.add('annotation', function(Y) {
 			geometry: { x:x,y:y,width:w,height:h }
 		    }]
 		};
-		this.anno._deniche.addAnnotation(torious);
+		if (this._anno) {
+			this._anno._deniche.addAnnotation(torious);
+		}
 	    },
 
 		updateTags : function(o) {
@@ -496,7 +497,8 @@ YUI.add('annotation', function(Y) {
 		     return null;
 		},
 
-		getTags : function() {
+		getTags : function(e, oSelf) {
+			    Y.detach("load");
 			    var targetURI = this.get('target');
 			    var field = this.get('field');
 			    var oSelf = this;
@@ -518,24 +520,6 @@ YUI.add('annotation', function(Y) {
 								var annotation_value = ans[i].hasBody.value;
 								var annotation_type = ans[i].type;
 								var annotation_user = ans[i].annotator;
-								if (oSelf.anno && annotation_target.hasSource && 
-								    annotation_target.hasSource == targetURI) {
-									    x =  annotation_target.hasSelector.x;
-									    y =  annotation_target.hasSelector.y;
-									    w =  annotation_target.hasSelector.w;
-									    h =  annotation_target.hasSelector.h;
-									    var torious = { 
-										    src: Y.one('img.annotatable').get('src'),
-										    text: annotation_value,
-										    annotationId:ans[i].annotation,
-										    targetId: annotation_target['@id'],
-										    shapes: [{
-											type:'rect', 
-										    	geometry: { x:x,y:y,width:w,height:h }
-										    }]
-									    };
-									    // oSelf.anno._deniche.addAnnotation(torious);
-								} 
 								if (! annotation_target.hasSource && targetURI != annotation_target && user == annotation_user) {
 									if (!myMetaTags[annotation_target])
 									  myMetaTags[annotation_target] = {};
@@ -666,8 +650,8 @@ YUI.add('annotation', function(Y) {
 			Y.log('add tag: '+ body.value +' with label: '+label+ ', time: ' + timing);
 		
 			var targetString = 'undefined target';	
-			if (this.anno && this.anno.currentShape) { 
-				var shape = this.anno.currentShape.geometry; 
+			if (this._anno && this._anno.currentShape) { 
+				var shape = this._anno.currentShape.geometry; 
 				var targetObject = { hasSelector: {value:shape}, hasSource: target};
 				targetString = Y.JSON.stringify(targetObject)
 			} else {
