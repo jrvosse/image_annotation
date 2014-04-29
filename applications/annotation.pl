@@ -66,7 +66,7 @@
 	     'http://purl.org/dc/terms/description'
 	   ], 'Default metadata fields to show').
 
-:- setting(annotorious, boolean, true, 'enable annotorious support').
+:- setting(enableFragments, boolean, true, 'enable (annotorious) fragment support').
 /***************************************************
 * hooks
 ***************************************************/
@@ -384,9 +384,13 @@ conditional_html_requires(style, Options) -->
 	},
 	html_requires(Stylesheet).
 
-conditional_html_requires(annotorious, _Options) -->
-	{ setting(annotorious, true),
-	  !
+conditional_html_requires(annotorious, Options) -->
+	{ setting(enableFragments, Default),
+	  option(ui(UI), Options),
+	  (   rdf(UI, ann_ui:enableFragments, literal(type(xsd:boolean, Enable)))
+	  ->  Enable = true
+	  ;   Default = true
+	  )
 	},
 	html_requires(annotorious).
 
