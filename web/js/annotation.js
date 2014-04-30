@@ -545,9 +545,9 @@ YUI.add('annotation', function(Y) {
 				 }
 				);
 			  },
-		onSuggestionHover : function(e) {
+		onSuggestionHover : function(ev) {
 			var infoNode = this.infoNode,
-				active = e.newVal,
+				active = ev.newVal,
 				body = '';
 			if(active && active.getData().result.raw.info) {
 				var scope = active.getData().result.raw.info.scopeNotes[0];
@@ -560,9 +560,13 @@ YUI.add('annotation', function(Y) {
 				}
 			}
 			if(body) {
+				var ratio = ev.newVal.getX()/window.innerWidth;
+			        if (ratio < 0.4) { // make suggestions appear on the left or the right:
+			  		infoNode.set("align", {node:active, points:[Y.WidgetPositionAlign.TL, Y.WidgetPositionAlign.TR]});
+				} else {
+			  		infoNode.set("align", {node:active, points:[Y.WidgetPositionAlign.TR, Y.WidgetPositionAlign.TL]});
+				}
 				infoNode.set("bodyContent", body);
-				infoNode.set("align", {node:active,
-				                      points:[Y.WidgetPositionAlign.TR, Y.WidgetPositionAlign.TL]});
 				infoNode.show();
 			} else {
 			       infoNode.hide();
