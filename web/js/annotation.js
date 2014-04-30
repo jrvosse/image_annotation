@@ -89,22 +89,16 @@ YUI.add('annotation', function(Y) {
 			Y.on("load", function(e) { oSelf.getTags(); });
 		},
 
-		// handlers for adding additions, updates or removals in the tag Recordset:
-	    addTags : function(o) {
-		// Y.log('adding tags at index ' + o.index + ':');
-		// Y.log(o.added[0].getValue());
-		this.renderTags(o.added, o.index);
-
-		var tag = o.added[0];
+	    addTagFragment : function(tag) {
 		var target = tag.getValue('hasTarget');
-		var body   = tag.getValue('hasBody');
+		var label   = tag.getValue('title');
 		var x =  target.hasSelector.x;
 		var y =  target.hasSelector.y;
 		var w =  target.hasSelector.w;
 		var h =  target.hasSelector.h;
 		var torious = { 
 		    src: Y.one('img.annotatable').get('src'),
-		    text: body.value,
+		    text: label,
 		    targetId: target['@id'],
 		    annotationId: tag.annotation,
 		    shapes: [{
@@ -114,6 +108,14 @@ YUI.add('annotation', function(Y) {
 		};
 		if (this._anno) {
 			this._anno._deniche.addAnnotation(torious);
+		}
+	    },
+
+	    // handlers for adding additions, updates or removals in the tag Recordset:
+	    addTags : function(o) {
+		this.renderTags(o.added, o.index);
+		if (this._anno) {
+	        	this.addTagFragment(o.added[0]);
 		}
 	    },
 
