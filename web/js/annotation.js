@@ -130,7 +130,8 @@ YUI.add('annotation', function(Y) {
 				var node = tagNodes.item(i);
 				node.one('.label').detach('hover');
 				node.remove();
-
+				if (this._anno) 
+					this._anno._deniche.filterTags(null);
 			}
 		},
 
