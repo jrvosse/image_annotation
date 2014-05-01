@@ -518,8 +518,8 @@ YUI.add('annotation', function(Y) {
 							var user = oSelf.get('user');
 							var myMetaTags = oSelf.get('myMetaTags');
 							for (var i=0; i<len; i++) {
-								var annotation_target = ans[i].hasTarget;
-								var annotation_value = ans[i].hasBody.value;
+								var annotation_body = ans[i].hasBody['@id']?ans[i].hasBody['@id']:ans[i].hasBody.literal;
+				    				var annotation_target = ans[i].hasTarget;
 								var annotation_type = ans[i].type;
 								var annotation_user = ans[i].annotator;
 								if (! annotation_target.hasSource && targetURI != annotation_target && user == annotation_user) {
@@ -528,7 +528,7 @@ YUI.add('annotation', function(Y) {
 									if (annotation_type == "comment")
 									  myMetaTags[annotation_target][annotation_type] = ans[i];
 									else
-									  myMetaTags[annotation_target][annotation_value] = ans[i];
+									  myMetaTags[annotation_target][annotation_body] = ans[i];
 								}
 							}
 							oSelf.set('myMetaTags', myMetaTags);
@@ -539,7 +539,7 @@ YUI.add('annotation', function(Y) {
 									ans[i].hasTarget.hasSource:ans[i].hasTarget;
 								if (targetURI == annotation_target &&  oSelf.enabled('tagFilter', tag)) {
 									oSelf.tags.add(ans[i]); // normal tag
-								}
+								} 
 							}
 						  }
 						}
