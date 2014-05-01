@@ -91,6 +91,8 @@ YUI.add('annotation', function(Y) {
 
 	    addTagFragment : function(tag) {
 		var target = tag.getValue('hasTarget');
+		if (! this._anno || !target || !target.hasSelector) return;
+
 		var label   = tag.getValue('title');
 		var x =  target.hasSelector.x;
 		var y =  target.hasSelector.y;
@@ -106,9 +108,7 @@ YUI.add('annotation', function(Y) {
 			geometry: { x:x,y:y,width:w,height:h }
 		    }]
 		};
-		if (this._anno) {
-			this._anno._deniche.addAnnotation(torious);
-		}
+		this._anno._deniche.addAnnotation(torious);
 	    },
 
 	    // handlers for adding additions, updates or removals in the tag Recordset:
