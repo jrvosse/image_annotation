@@ -47,9 +47,10 @@ annotorious.plugin.DenichePlugin.prototype.addAnnotation = function (annotation)
 		var old = this._tags[annotation.targetId];
 		annotation.text = old.text + '; ' + annotation.text;
 		this._anno.addAnnotation(annotation, old);
-	} else {
 		this._tags[annotation.targetId] = annotation;
+	} else {
 		this._anno.addAnnotation(annotation);
+		this._tags[annotation.targetId] = annotation;
 	}
 }
 
