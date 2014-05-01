@@ -401,8 +401,8 @@ YUI.add('annotation', function(Y) {
 			n.one('.tag-comment-input').focus();
 		},
 
-		onCancelDelete : function() {
-				Y.log('onCancelDelete');
+		onCancelDelete : function(ev) {
+				if (ev.preventDefault) ev.preventDefault();
 				Y.one('.delete-comment-input').detach("key", this.onDelete, "enter");
 				Y.one('.delete-comment-input').set("value", "");
 				Y.one('#confirm-delete').detach("click", this.onDelete);
@@ -411,7 +411,7 @@ YUI.add('annotation', function(Y) {
 			     },
 
 		onCancelComment : function() {
-				Y.log('onCancelcomment');
+				if (ev.preventDefault) ev.preventDefault();
 				Y.one('.tag-comment-input').detach("key", this.onSubmitComment, "enter");
 				Y.one('.tag-comment-input').set("value", "");
 				Y.one('#confirm-tag-comment').detach("click", this.onSubmitComment);
@@ -419,7 +419,8 @@ YUI.add('annotation', function(Y) {
 				this.commentOverlay.hide();
 			     },
 
-		onDelete : function (e, annotation, index) {
+		onDelete : function (ev, annotation, index) {
+			if (ev.preventDefault) ev.preventDefault();
 			var ov = this.deleteOverlay;
 			var type = "tag";
 			if (ov && index >= 0) {
@@ -468,8 +469,8 @@ YUI.add('annotation', function(Y) {
 			});
 		},
 
-		onMetaRemoveClick : function(e) {
-		     var annotation = e.currentTarget.getAttribute('alt');
+		onMetaRemoveClick : function(ev) {
+		     var annotation = ev.currentTarget.getAttribute('alt');
 		     var tag = this.findMetaTagByAnnotation(annotation);
 		     var target = tag.hasTarget;
 		     var record = this.findRecordByAnnotation(target);
@@ -499,7 +500,7 @@ YUI.add('annotation', function(Y) {
 		     return null;
 		},
 
-		getTags : function(e, oSelf) {
+		getTags : function(ev, oSelf) {
 			    Y.detach("load");
 			    var targetURI = this.get('target');
 			    var field = this.get('field');
@@ -576,11 +577,11 @@ YUI.add('annotation', function(Y) {
 			       infoNode.hide();
 			}
 		},
-		onItemSelect : function(e) {
+		onItemSelect : function(ev) {
 			Y.log('onItemSelect');
 			var type = 'tag';
-			if (e.preventDefault) e.preventDefault();
-			var item = e.details[0].result.raw;
+			if (ev.preventDefault) ev.preventDefault();
+			var item = ev.details[0].result.raw;
 			this.setKeyInputHandler(true);
 			var now = new Date();
 			var delta = now - this.get("startTyping");
@@ -593,9 +594,9 @@ YUI.add('annotation', function(Y) {
 			this.get("inputNode").set("value", "");
 		},
 
-		onTextSubmit : function(e, next) {
+		onTextSubmit : function(ev, next) {
 			Y.log('onTextSubmit');
-			if (e.preventDefault) e.preventDefault();
+			if (ev.preventDefault) ev.preventDefault();
 			this.setKeyInputHandler(true);
 			if(!this.get("activeItem")) {
 			        var type = 'tag';
@@ -614,6 +615,7 @@ YUI.add('annotation', function(Y) {
 		},
 
 	        onJudgeAnnotation : function (ev, action, value, record) {
+			if (ev.preventDefault) ev.preventDefault();
 			if (record.overlay) record.overlay.set('active', false);
 			var index = this.tags.indexOf(record);
 			var target = record.getValue("annotation");
