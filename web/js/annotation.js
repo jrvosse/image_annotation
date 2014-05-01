@@ -665,6 +665,12 @@ YUI.add('annotation', function(Y) {
 			} else {
 				targetString = target
 			}
+			var bodyString = 'undefined body';
+			if (body.type == 'uri') {
+				bodyString = Y.JSON.stringify({'@id':body.value});
+			} else if (body.type == 'literal') {
+				bodyString = Y.JSON.stringify({'literal':body.value});
+			}
 
 			var inputNode = this.get("inputNode");
 			var tags = this.tags;
@@ -676,7 +682,7 @@ YUI.add('annotation', function(Y) {
 				data:{
 					field:this.get("field"),
 					hasTarget:targetString,
-					hasBody:Y.JSON.stringify(body),
+					hasBody:bodyString,
 					label:label,
 					typing_time: timing,
 					type: type
