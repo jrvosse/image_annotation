@@ -597,7 +597,6 @@ YUI.add('annotation', function(Y) {
 
 		onTextSubmit : function(ev, next) {
 			Y.log('onTextSubmit');
-			if (ev.preventDefault) ev.preventDefault();
 			this.setKeyInputHandler(true);
 			if(!this.get("activeItem")) {
 			        var type = 'tag';
