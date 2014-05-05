@@ -45,12 +45,31 @@ annotorious.plugin.DenichePlugin.prototype.addAnnotation = function (annotation)
 	this.toggleButtons('done');
 	if (this._tags[annotation.targetId]) {	
 		var old = this._tags[annotation.targetId];
-		annotation.text = old.text + '; ' + annotation.text;
+		annotation.compound_text = old.compound_text;
+		annotation.compound_length = annotation.compound_text.push(annotation.text);
+		annotation.text = annotation.compound_text.join(', ');
 		this._anno.addAnnotation(annotation, old);
 		this._tags[annotation.targetId] = annotation;
+		console.log('tag replaced ' + old.text + ' by ', annotation.text);
 	} else {
+		annotation.compound_length = 1;
+		annotation.compound_text = [ annotation.text ];
 		this._anno.addAnnotation(annotation);
 		this._tags[annotation.targetId] = annotation;
+		console.log('new tag added');
+	}
+}
+
+annotorious.plugin.DenichePlugin.prototype.removeAnnotation = function (label, targetId) {
+	var old = this._tags[targetId];
+	console.log('removeAnnotation');
+	if (old) {
+		this._anno.removeAnnotation(old);
+		var index = old.compound_text.indexOf(label);
+		if (index > -1) old.compound_text.splice(index, 1);
+		old.text = old.compound_text.join('; ');
+		console.log(old.text);
+		this._anno.addAnnotation(old);
 	}
 }
 

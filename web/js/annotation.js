@@ -65,6 +65,7 @@ YUI.add('annotation', function(Y) {
 			this.tagList.addClass(this.get('tagStyle'));
 			parentNode.append(this.tagList);
 
+
 			// infoNode is the overlay with tooltips when hovering over suggested terms
 			this.infoNode = new Y.Overlay({}).render(parentNode);
 			this.on("activeItemChange",  this.onSuggestionHover, this);
@@ -102,13 +103,20 @@ YUI.add('annotation', function(Y) {
 		    src: Y.one('img.annotatable').get('src'),
 		    text: label,
 		    targetId: target['@id'],
-		    annotationId: tag.annotation,
+		    annotationId: tag.getValue('annotation'),
 		    shapes: [{
 			type:'rect', 
 			geometry: { x:x,y:y,width:w,height:h }
 		    }]
 		};
 		this._anno._deniche.addAnnotation(torious);
+	    },
+
+	    removeTagFragment : function(tag) {
+		var target = tag.getValue('hasTarget');
+		if (! this._anno || !target || !target.hasSelector) return;
+		var label   = tag.getValue('title');
+		this._anno._deniche.removeAnnotation(label, target['@id']);
 	    },
 
 	    // handlers for adding additions, updates or removals in the tag Recordset:
@@ -120,18 +128,18 @@ YUI.add('annotation', function(Y) {
 	    },
 
 		updateTags : function(o) {
-			    // Y.log('updating tags at index ' + o.index + ':');
-			    // Y.log(o.updated[0].getValue());
 			    this.renderTags(o.updated, o.index);
-			     },
+	        },
+
 		removeTags : function(o) {
 			var tagNodes = this.tagList.all("li");
 			for (var i=o.index; i < o.index+o.range; i++) {
 				var node = tagNodes.item(i);
 				node.one('.label').detach('hover');
 				node.remove();
-				if (this._anno) 
-					this._anno._deniche.filterTags(null);
+			}
+			if (this._anno) {
+	        		this.removeTagFragment(o.removed[0]);
 			}
 		},
 
@@ -447,6 +455,7 @@ YUI.add('annotation', function(Y) {
 			var oSelf = this;
 			Y.log('remove annotation '+annotation+' with comment: '+comment);
 			Y.io(this.get("store.remove"), {
+				method: 'DELETE',
 				data:{ annotation:annotation, comment:comment },
 				on:{success: function(e) {
 					delete oSelf.get("myMetaTags")[annotation];
@@ -459,6 +468,7 @@ YUI.add('annotation', function(Y) {
 			var oSelf = this;
 			Y.log('remove meta annotation '+annotation+ ' on target ' + target +' with comment: '+comment);
 			Y.io(this.get("store.remove"), {
+				method: 'DELETE',
 				data:{ annotation:annotation, comment:comment },
 				on:{success: function(e) {
 					delete oSelf.get("myMetaTags")[target][metaindex];
@@ -506,8 +516,9 @@ YUI.add('annotation', function(Y) {
 			    var targetURI = this.get('target');
 			    var field = this.get('field');
 			    var oSelf = this;
-			    Y.io(this.get("store.get"),
-				 { data: {
+			    Y.io(this.get("store.get"), { 
+				   method: 'GET',
+				   data: {
 					 hasTarget: targetURI,
 					 field:  field
 					 },
@@ -580,8 +591,8 @@ YUI.add('annotation', function(Y) {
 		},
 		onItemSelect : function(ev) {
 			Y.log('onItemSelect');
-			var type = 'tag';
 			if (ev.preventDefault) ev.preventDefault();
+			var type = 'tag';
 			var item = ev.details[0].result.raw;
 			this.setKeyInputHandler(true);
 			var now = new Date();
@@ -597,6 +608,7 @@ YUI.add('annotation', function(Y) {
 
 		onTextSubmit : function(ev, next) {
 			Y.log('onTextSubmit');
+			if (ev.preventDefault) ev.preventDefault();
 			this.setKeyInputHandler(true);
 			if(!this.get("activeItem")) {
 			        var type = 'tag';
