@@ -190,10 +190,18 @@ at(Commit, Id-(Commit, Target, AddedTriples)) :-
         ;   Parent = null
         ),
         gv_diff(Parent, Commit, Changed, _O1, O2, _Same),
-        (   O2 \= []
+	(   member(Target-AddedTriples, O2)
+	;   member(Target-AddedTriples, Changed)
+	),
+	rdf_equal(ann_ui:tag, AN_TAG),
+	member(rdf(Id,_,AN_TAG), AddedTriples).
+
+x :-
+	(  O2 \= []
         ->  member(Target-AddedTriples, O2)
         ;   Changed \= []
         ->  member(Target-([], AddedTriples), Changed)
+
         ;   % empty commit bug,
             gv_commit_property(Parent, parent(GrandParent)),
             gv_diff(GrandParent, Parent, PChanged, _, _, _),
