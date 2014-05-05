@@ -664,6 +664,12 @@ YUI.add('annotation', function(Y) {
 		},
 
 		submitAnnotation : function(type, target, body, label, timing, next) {
+			if (next) {
+				Y.one('#' + next).focus();
+			} else {
+				this.get("inputNode").focus();
+			}
+
 		        if (!target) return;
 		        if (!body.value) return;
 			if (!label) label = body.value;
@@ -686,7 +692,6 @@ YUI.add('annotation', function(Y) {
 				bodyString = Y.JSON.stringify({'literal':body.value});
 			}
 
-			var inputNode = this.get("inputNode");
 			var tags = this.tags;
 			var myMetaTags = this.get("myMetaTags");
 			var oSelf = this;
@@ -717,11 +722,6 @@ YUI.add('annotation', function(Y) {
 						oSelf.set('myMetaTags', myMetaTags);
 						var record = tags.getRecordByIndex(index);
 						tags.update(record, index);
-					}
-					if (next) {
-					  Y.one('#' + next).focus();
-					} else {
-					  inputNode.focus();
 					}
 				    }
 				}
