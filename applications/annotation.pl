@@ -75,18 +75,18 @@
 	image_annotation:application_script//1,
 	image_annotation:page_header//1.
 
+% this url is handy for debugging annotorious, but we need to tell
+% prolog is mime type:
 :- html_resource('http://localhost:9810/compile?id=annotorious',
-		 [ virtual(false),
-		   mime_type(text/javascript)
-		 ]).
+		 [ mime_type(text/javascript) ]).
 
 :- html_resource(annotorious,
 	      [ virtual(true),
 		ordered(true),
 		requires([
-		    css('annotorious.css'),
-		    % js('annotorious.debug.js'),
-		   'http://localhost:9810/compile?id=annotorious',
+		    'http://annotorious.github.com/latest/annotorious.css',
+		    % 'http://localhost:9810/compile?id=annotorious',
+		    'http://annotorious.github.com/latest/annotorious.min.js',
 		    js('deniche-plugin.js')
 		])
 	      ]).
