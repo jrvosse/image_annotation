@@ -1,7 +1,10 @@
 
 annotorious.plugin.DenichePlugin = function(opt_config_options) { 
 	/** @private **/
-	this._tags = [];
+	this._cleantags = [];
+	this._dirtytags = [];
+	this.currentShape = null;
+	this.currentTargetId = null;
 }
 
 annotorious.plugin.DenichePlugin.states = { EMPTY:'empty', SOME:'some' };
@@ -42,40 +45,53 @@ annotorious.plugin.DenichePlugin.prototype.filterTags = function(annotation) {
 	});
 }
 
-annotorious.plugin.DenichePlugin.prototype.addAnnotation = function (annotation) {
-	// console.log('DenichePlugin.addAnnotation()');
-	this.toggleButtons(annotorious.plugin.DenichePlugin.states.SOME);
-	if (this._tags[annotation.targetId]) {	
-		var old = this._tags[annotation.targetId];
-		annotation.compound_text = old.compound_text;
-		annotation.compound_length = annotation.compound_text.push(annotation.text);
-		annotation.text = annotation.compound_text.join(', ');
-		this._anno.addAnnotation(annotation, old);
-		this._tags[annotation.targetId] = annotation;
-		// console.log('tag replaced ' + old.text + ' by ', annotation.text);
-	} else {
-		annotation.compound_length = 1;
-		annotation.compound_text = [ annotation.text ];
-		this._anno.addAnnotation(annotation);
-		this._tags[annotation.targetId] = annotation;
-		// console.log('new tag added');
-	}
-	// console.log(this._anno.getAnnotations());
-}
-
 annotorious.plugin.DenichePlugin.prototype.removeAnnotation = function (label, targetId) {
-	var old = this._tags[targetId];
-	// console.log('removeAnnotation');
-	if (old) {
-		this._anno.removeAnnotation(old);
+	console.log('DenichePlugin.removeAnnotation');
+	this.currentTargetId = targetId;
+	var old = this._dirtytags[targetId];
+	if (!old) old = this._cleantags[targetId];
+	if (old) {	
+		var annotation = JSON.parse(JSON.stringify(old)); // deep copy
 		var index = old.compound_text.indexOf(label);
-		if (index > -1) old.compound_text.splice(index, 1);
-		old.text = old.compound_text.join('; ');
-		// console.log(old.text);
-		this._anno.addAnnotation(old);
+		annotation.compound_text = old.compound_text.splice(index, 1);
+		annotation.text = old.compound_text.join(', ');
+		this._dirtytags[targetId] = annotation;
+		console.log('rm update', annotation.text, targetId);
+	}
+	
+}
+
+annotorious.plugin.DenichePlugin.prototype.addAnnotation = function (annotation, update) {
+	// console.log('DenichePlugin.addAnnotation', update);
+	this.currentTargetId = annotation.targetId;
+	this.toggleButtons(annotorious.plugin.DenichePlugin.states.SOME);
+	var old = this._dirtytags[annotation.targetId];
+	if (!old) old = this._cleantags[annotation.targetId];
+	if (old) {	
+		annotation.compound_text = old.compound_text;
+		annotation.compound_text.push(annotation.text);
+		annotation.text = annotation.compound_text.join(', ');
+	} else {
+		annotation.compound_text = [ annotation.text ];
+	}
+
+	if (update) {
+		this._cleantags[annotation.targetId] = annotation;
+		this._anno.addAnnotation(annotation, old);
+	} else {
+		this._dirtytags[annotation.targetId] = annotation;
 	}
 }
 
+annotorious.plugin.DenichePlugin.prototype.flushDirtyAnnotation = function(original) {
+		var dirty = this._dirtytags[this.currentTargetId];
+		console.log('replacing ', original, dirty);
+		if (dirty) { 
+			this._anno.addAnnotation(dirty,original);
+			this._cleantags[this.currentTargetId] = dirty;
+			this._dirtytags[this.currentTargetId] = null;
+		}
+}
 
 annotorious.plugin.DenichePlugin.prototype.onInitAnnotator = function(annotator) {
 	this.saveButton   = document.getElementsByClassName('annotorious-editor-button-save').item(0); 
@@ -87,23 +103,21 @@ annotorious.plugin.DenichePlugin.prototype.onInitAnnotator = function(annotator)
 
 	var oSelf = this;
 	this._anno.addHandler('onSelectionCompleted', function(ev) {
-		oSelf._anno._deniche.currentShape = ev.shape;
+		oSelf.currentShape = ev.shape;
 	});
 
-	this._anno.addHandler('onAnnotationCreated', function(ev) { 
-		console.log('onAnnotationCreated', ev) 
+	this._anno.addHandler('onAnnotationCreated', function(original) { 
+		// console.log('onAnnotationCreated') 
+		oSelf.flushDirtyAnnotation(original);
 	});
-	this._anno.addHandler('onPopupShown', function(ev) { 
-		console.log('onPopupShown', ev) 
-		if (!ev.text) { 
-			console.log("no text");
-
-		}
+	this._anno.addHandler('onAnnotationUpdated', function(original) { 
+		// console.log('onAnnotationUpdated') 
+		oSelf.flushDirtyAnnotation(original);
 	});
 
 	this._anno.addHandler('onEditorShown', function(annotation) {
 		if (annotation && annotation.shapes) {
-			oSelf._anno._deniche.currentShape = annotation.shapes[0];
+			oSelf.currentShape = annotation.shapes[0];
 			oSelf.toggleButtons(annotorious.plugin.DenichePlugin.states.SOME);
 			oSelf.filterTags(annotation);
 		} else {
@@ -116,6 +130,6 @@ annotorious.plugin.DenichePlugin.prototype.onInitAnnotator = function(annotator)
 anno.addPlugin('DenichePlugin', {});
 
 // Debug:
-anno.addHandler('beforeAnnotationRemoved', function(ev) { console.log('beforeAnnotationRemoved', ev) });
-anno.addHandler('onAnnotationRemoved', function(ev) { console.log('onAnnotationRemoved', ev) });
-anno.addHandler('onAnnotationUpdated', function(ev) { console.log('onAnnotationUpdated', ev) });
+// anno.addHandler('beforeAnnotationRemoved', function(ev) { console.log('beforeAnnotationRemoved', ev) });
+// anno.addHandler('onAnnotationRemoved', function(ev) { console.log('onAnnotationRemoved', ev) });
+// anno.addHandler('onAnnotationUpdated', function(ev) { console.log('onAnnotationUpdated', ev) });

@@ -90,7 +90,7 @@ YUI.add('annotation', function(Y) {
 			Y.on("load", function(e) { oSelf.getTags(); });
 		},
 
-	    addTagFragment : function(tag) {
+	    addTagFragment : function(tag, update) {
 		var target = tag.hasTarget;
 		if (! this._anno || !target || !target.hasSelector) return;
 
@@ -109,14 +109,13 @@ YUI.add('annotation', function(Y) {
 			geometry: { x:x,y:y,width:w,height:h }
 		    }]
 		};
-		this._anno._deniche.addAnnotation(torious);
+		this._anno._deniche.addAnnotation(torious, update);
 	    },
 
 	    removeTagFragment : function(tag) {
-		var target = tag.getValue('hasTarget');
+		var target = tag.hasTarget;
 		if (! this._anno || !target || !target.hasSelector) return;
-		var label   = tag.getValue('title');
-		this._anno._deniche.removeAnnotation(label, target['@id']);
+		this._anno._deniche.removeAnnotation(tag.title, target['@id']);
 	    },
 
 	    // handlers for adding additions, updates or removals in the tag Recordset:
@@ -136,7 +135,6 @@ YUI.add('annotation', function(Y) {
 				node.one('.label').detach('hover');
 				node.remove();
 			}
-			// if (this._anno) { this.removeTagFragment(o.removed[0]); }
 		},
 
 		renderTags : function(tags, index) {
@@ -455,6 +453,8 @@ YUI.add('annotation', function(Y) {
 				data:{ annotation:annotation, comment:comment },
 				on:{success: function(e) {
 					delete oSelf.get("myMetaTags")[annotation];
+					var tag = oSelf.tags.getRecordByIndex(index).getValue();
+					oSelf.removeTagFragment(tag);
 					oSelf.tags.remove(index);
 				   }
 				}
@@ -549,7 +549,7 @@ YUI.add('annotation', function(Y) {
 								if (targetURI == annotation_target &&  oSelf.enabled('tagFilter', tag)) {
 									oSelf.tags.add(ans[i]); // normal tag
 									if (oSelf._anno) {
-	        								oSelf.addTagFragment(ans[i]);
+	        								oSelf.addTagFragment(ans[i], true);
 									} else {
 										Y.log('no annotorious object');
 									}
@@ -712,7 +712,7 @@ YUI.add('annotation', function(Y) {
 					if (type == "tag") {
 					  tags.add(r);
 					  if (oSelf._anno) {
-						  oSelf._anno._deniche.toggleButtons(); 
+						  oSelf.addTagFragment(r, false); // add but do not update open editor
 					  }
 					} else {
 						var values = tags.getValuesByKey('annotation');
