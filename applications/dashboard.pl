@@ -196,7 +196,7 @@ at(Commit, Id-(Commit, Target, AddedTriples)) :-
 	rdf_equal(ann_ui:tag, AN_TAG),
 	member(rdf(Id,_,AN_TAG), AddedTriples).
 
-x :-
+/*
 	(  O2 \= []
         ->  member(Target-AddedTriples, O2)
         ;   Changed \= []
@@ -216,7 +216,7 @@ x :-
 	    ;	Id = deleted_target
 	    )
 	).
-
+*/
 
 dt(D, DelTarget-(D,DelTarget,DeletedTriples)) :-
         gv_commit_property(D, parent(Parent)),
