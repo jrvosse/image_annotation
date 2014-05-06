@@ -75,15 +75,19 @@
 	image_annotation:application_script//1,
 	image_annotation:page_header//1.
 
+:- html_resource('http://localhost:9810/compile?id=annotorious',
+		 [ virtual(false),
+		   mime_type(text/javascript)
+		 ]).
 
 :- html_resource(annotorious,
 	      [ virtual(true),
 		ordered(true),
 		requires([
 		    css('annotorious.css'),
-		    js('annotorious.debug.js'),
-		    js('annotorious-activate.js'),
-		    js('deniche-editor.js')
+		    % js('annotorious.debug.js'),
+		   'http://localhost:9810/compile?id=annotorious',
+		    js('deniche-plugin.js')
 		])
 	      ]).
 

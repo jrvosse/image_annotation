@@ -91,10 +91,10 @@ YUI.add('annotation', function(Y) {
 		},
 
 	    addTagFragment : function(tag) {
-		var target = tag.getValue('hasTarget');
+		var target = tag.hasTarget;
 		if (! this._anno || !target || !target.hasSelector) return;
 
-		var label   = tag.getValue('title');
+		var label   = tag.title;
 		var x =  target.hasSelector.x;
 		var y =  target.hasSelector.y;
 		var w =  target.hasSelector.w;
@@ -103,7 +103,7 @@ YUI.add('annotation', function(Y) {
 		    src: Y.one('img.annotatable').get('src'),
 		    text: label,
 		    targetId: target['@id'],
-		    annotationId: tag.getValue('annotation'),
+		    annotationId: tag.annotation,
 		    shapes: [{
 			type:'rect', 
 			geometry: { x:x,y:y,width:w,height:h }
@@ -122,9 +122,7 @@ YUI.add('annotation', function(Y) {
 	    // handlers for adding additions, updates or removals in the tag Recordset:
 	    addTags : function(o) {
 		this.renderTags(o.added, o.index);
-		if (this._anno) {
-	        	this.addTagFragment(o.added[0]);
-		}
+
 	    },
 
 		updateTags : function(o) {
@@ -138,9 +136,7 @@ YUI.add('annotation', function(Y) {
 				node.one('.label').detach('hover');
 				node.remove();
 			}
-			if (this._anno) {
-	        		this.removeTagFragment(o.removed[0]);
-			}
+			// if (this._anno) { this.removeTagFragment(o.removed[0]); }
 		},
 
 		renderTags : function(tags, index) {
@@ -552,6 +548,11 @@ YUI.add('annotation', function(Y) {
 									ans[i].hasTarget.hasSource:ans[i].hasTarget;
 								if (targetURI == annotation_target &&  oSelf.enabled('tagFilter', tag)) {
 									oSelf.tags.add(ans[i]); // normal tag
+									if (oSelf._anno) {
+	        								oSelf.addTagFragment(ans[i]);
+									} else {
+										Y.log('no annotorious object');
+									}
 								} 
 							}
 						  }
@@ -678,8 +679,8 @@ YUI.add('annotation', function(Y) {
 			Y.log('add tag: '+ body.value +' with label: '+label+ ', time: ' + timing);
 		
 			var targetString = 'undefined target';	
-			if (this._anno && this._anno.currentShape) { 
-				var shape = this._anno.currentShape.geometry; 
+			if (this._anno && this._anno._deniche.currentShape) { 
+				var shape = this._anno._deniche.currentShape.geometry; 
 				var targetObject = { hasSelector: {value:shape}, hasSource: target};
 				targetString = Y.JSON.stringify(targetObject)
 			} else {
@@ -710,6 +711,9 @@ YUI.add('annotation', function(Y) {
 					var r = Y.JSON.parse(o.responseText);
 					if (type == "tag") {
 					  tags.add(r);
+					  if (oSelf._anno) {
+						  oSelf._anno._deniche.toggleButtons(); 
+					  }
 					} else {
 						var values = tags.getValuesByKey('annotation');
 						var index = values.indexOf(target);
