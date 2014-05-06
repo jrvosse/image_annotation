@@ -46,7 +46,7 @@ annotorious.plugin.DenichePlugin.prototype.filterTags = function(annotation) {
 }
 
 annotorious.plugin.DenichePlugin.prototype.removeAnnotation = function (label, targetId) {
-	console.log('DenichePlugin.removeAnnotation');
+	// console.log('DenichePlugin.removeAnnotation');
 	this.currentTargetId = targetId;
 	var old = this._dirtytags[targetId];
 	if (!old) old = this._cleantags[targetId];
@@ -56,7 +56,7 @@ annotorious.plugin.DenichePlugin.prototype.removeAnnotation = function (label, t
 		annotation.compound_text = old.compound_text.splice(index, 1);
 		annotation.text = old.compound_text.join(', ');
 		this._dirtytags[targetId] = annotation;
-		console.log('rm update', annotation.text, targetId);
+		if (!annotation.text) this.toggleButtons(annotorious.plugin.DenichePlugin.states.EMPTY);
 	}
 	
 }
