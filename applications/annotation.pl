@@ -24,13 +24,15 @@
 
 :- use_module(library(yui3_beta)).
 :- use_module(library(settings)).
+
+:- use_module(cliopatria(hooks)).
+
 :- use_module(components(label)).
 :- use_module(user(user_db)).
 :- use_module(user(preferences)).
 
 :- use_module(api(annotation)).    % needed for http api handlers
 :- use_module(api(media_caching)). % needed for http api handlers
-:- use_module(dashboard).
 
 :- rdf_meta
 	rdf_lang(r,r,-),
@@ -43,6 +45,11 @@
 
 :- http_handler(cliopatria(annotate), http_annotation, []).
 
+% Add handler to ClioPatria's web interface :
+
+cliopatria:menu_popup_order(annotation, 120).
+cliopatria:menu_label(annotation, 'Annotations').
+cliopatria:menu_item(100=annotation/http_annotation, 'annotate image').
 
 /***************************************************
 * settings
