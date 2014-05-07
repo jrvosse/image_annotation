@@ -591,7 +591,7 @@ YUI.add('annotation', function(Y) {
 			}
 		},
 		onItemSelect : function(ev) {
-			Y.log('onItemSelect');
+			// Y.log('onItemSelect');
 			if (ev.preventDefault) ev.preventDefault();
 			var type = 'tag';
 			var item = ev.details[0].result.raw;
@@ -608,7 +608,7 @@ YUI.add('annotation', function(Y) {
 		},
 
 		onTextSubmit : function(ev, next) {
-			Y.log('onTextSubmit');
+			// Y.log('onTextSubmit');
 			if (ev.preventDefault) ev.preventDefault();
 			this.setKeyInputHandler(true);
 			if(!this.get("activeItem")) {

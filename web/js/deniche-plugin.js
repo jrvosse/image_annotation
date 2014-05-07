@@ -85,7 +85,7 @@ annotorious.plugin.DenichePlugin.prototype.addAnnotation = function (annotation,
 
 annotorious.plugin.DenichePlugin.prototype.flushDirtyAnnotation = function(original) {
 		var dirty = this._dirtytags[this.currentTargetId];
-		console.log('replacing ', original, dirty);
+		// console.log('replacing ', original, dirty);
 		if (dirty) { 
 			this._anno.addAnnotation(dirty,original);
 			this._cleantags[this.currentTargetId] = dirty;
