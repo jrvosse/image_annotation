@@ -1,0 +1,25 @@
+/*
+Style rules we need in both object and fragment modes.
+*/
+
+.yui3-overlay {
+	padding: 10px;
+	background-color: white;
+	border: solid gray 1pt;
+	position: absolute;
+	width: 400px;
+	z-index: 1;
+}
+
+.yui3-overlay .altLabel {
+	color: gray;
+	font-size: 0.8em;
+	padding-right: 0.5em;
+}
+.yui3-overlay .altLabel:after {
+	content: ";"
+}
+
+.yui3-overlay img.depiction {
+    max-width: 100%;
+}

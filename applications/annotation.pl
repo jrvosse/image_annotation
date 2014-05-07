@@ -80,11 +80,21 @@
 :- html_resource('http://localhost:9810/compile?id=annotorious',
 		 [ mime_type(text/javascript) ]).
 
-:- html_resource(annotorious,
+
+:- html_resource(object_annotation,
+		 [ virtual(true),
+		   ordered(true),
+		   requires(
+		       [ css('object-annotation.css')
+		       ])
+		 ]).
+
+:- html_resource(fragment_annotation,
 	      [ virtual(true),
 		ordered(true),
 		requires([
 		    'http://annotorious.github.com/latest/annotorious.css',
+		    css('fragment-annotation.css'),
 		    % 'http://localhost:9810/compile?id=annotorious',
 		    'http://annotorious.github.com/latest/annotorious.min.js',
 		    js('deniche-plugin.js')
@@ -212,9 +222,9 @@ annotation_page(Options) :-
 	reply_html_page(
 	    [ \annotation_page_header(Options) ],
 	    [ \html_requires(yui3('cssgrids/grids-min.css')),
-	      \html_requires(css('annotation.css')),
+	      \html_requires(css('common-annotation.css')),
 	      \conditional_html_requires(style, Options),
-	      \conditional_html_requires(annotorious, Options),
+	      \conditional_html_requires(fragment_annotation, Options),
 	      div(class('yui3-skin-sam yui-skin-sam'),
 		  [ div(id(hd), []),
 		    div(id(bd),
@@ -380,6 +390,13 @@ get_label(UI, Field, LabelProp, LabelOption) :-
 	rdf_global_id(_NS:LabelName, LabelProp),
 	LabelOption =.. [LabelName, LabelText].
 
+fragments_enabled(Options) :-
+	setting(enableFragments, Default),
+	option(ui(UI), Options),
+	(   rdf(UI, ann_ui:enableFragments, literal(type(xsd:boolean, Enable)))
+	->  Enable = true
+	;   Default = true
+	).
 
 conditional_html_requires(style, Options) -->
 	{ option(stylesheet(Stylesheet), Options),
@@ -388,18 +405,16 @@ conditional_html_requires(style, Options) -->
 	},
 	html_requires(Stylesheet).
 
-conditional_html_requires(annotorious, Options) -->
-	{ setting(enableFragments, Default),
-	  option(ui(UI), Options),
-	  (   rdf(UI, ann_ui:enableFragments, literal(type(xsd:boolean, Enable)))
-	  ->  Enable = true
-	  ;   Default = true
-	  )
+conditional_html_requires(fragment_annotation, Options) -->
+	{ fragments_enabled(Options), !
 	},
-	html_requires(annotorious).
+	html_requires(fragment_annotation).
+conditional_html_requires(fragment_annotation, Options) -->
+	{ \+ fragments_enabled(Options), !
+	},
+	html_requires(object_annotation).
 
 conditional_html_requires(_,_) --> !.
-
 
 %%	js_annotation_fields(+FieldURIs, +AnnotationTarget)
 %
