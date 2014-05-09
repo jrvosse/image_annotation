@@ -11,7 +11,8 @@ YUI.add('annotation', function(Y) {
 	Annotation.NAME = "aclist"; // use same name as Y.Plugin.AutoComplete to inherit css
 	Annotation.NS = "annotation";
 	Annotation.ATTRS = {
-		target:			{ value: null }, // URI of target image to be annotated
+		target:			{ value: null }, // URI of target to be annotated
+		targetImage:		{ value: null }, // URI of target's image to be annotated
 		field:			{ value: null }, // URI identifying annotation field
 		store:			{ value: null }, // URIs of web services to CRUD http annotation api
 		startTyping:		{ value: null }, // timestamp when users start typing
@@ -29,6 +30,12 @@ YUI.add('annotation', function(Y) {
 		disagreeEnabled:	{ value: "yours" },  // when "I disagree" checkboxes will be shown for each tag
 		deleteCommentEnabled:	{ value: "always" }, // when comment overlay is shown for deletions on this field
 		tagFilter:		{ value: "user" },   // hack for roles exp: do not show tag with wrong user field 
+	};
+
+	Annotation.MOTIVATION = {
+		tagging:    'http://www.w3.org/ns/oa#tagging',
+		commenting: 'http://www.w3.org/ns/oa#commenting',
+		moderating: 'http://www.w3.org/ns/oa#moderating',
 	};
 
 	Annotation.LIST_CLASS = 'taglist';
@@ -90,10 +97,26 @@ YUI.add('annotation', function(Y) {
 			Y.on("load", function(e) { oSelf.getTags(); });
 		},
 
-	    addTagFragment : function(tag, update) {
-		var target = tag.hasTarget;
-		if (! this._anno || !target || !target.hasSelector) return;
+	    findSpecificTarget : function(tag) {
+		var targets = tag.hasTarget;
+		var target = undefined;
+		if (! this._anno || !targets) return;
 
+		if (targets.hasSelector) {
+			return targets;
+		} else {
+			for (var t in targets) {
+				target = targets[t];
+				if (target.hasSelector) return target;
+			}
+		}
+		return null;
+	    },
+
+	    addTagFragment : function(tag, update) {
+		var target = this.findSpecificTarget(tag);
+		if (! this._anno || !target) return;
+	
 		var label   = tag.title;
 		var x =  target.hasSelector.x;
 		var y =  target.hasSelector.y;
@@ -113,8 +136,8 @@ YUI.add('annotation', function(Y) {
 	    },
 
 	    removeTagFragment : function(tag) {
-		var target = tag.hasTarget;
-		if (! this._anno || !target || !target.hasSelector) return;
+		var target = this.findSpecificTarget(tag);
+		if (!target) return;
 		this._anno._deniche.removeAnnotation(tag.title, target['@id']);
 	    },
 
@@ -148,7 +171,7 @@ YUI.add('annotation', function(Y) {
 			for(var i=0; i < tags.length; i++) {
 				var tag=tags[i].getValue();
 				var node = Y.Node.create('<li class="tagitem">'+this.formatTag(tags[i], tagStyle)+'</li>');
-				node.setAttribute('targetId', tags[i].getValue('hasTarget')['@id']);
+				node.setAttribute('targetId', tags[i].getValue('targetId'));
 				node.all('.judgeButton').addClass(tagStyle);
 				tagList.insert(node, index+i);
 				if (tagStyle == 'overlay')
@@ -166,7 +189,7 @@ YUI.add('annotation', function(Y) {
 			if (when == "always") return true;
 			else if (when == "never") return false;
 
-			var tag_author = tag.annotator?tag.annotator:"no_tag_author!";
+			var tag_author = tag.annotatedBy?tag.annotatedBy:"no_tag_author!";
 
 			if (when == "mine")
 			  return (user == tag_author);
@@ -185,11 +208,7 @@ YUI.add('annotation', function(Y) {
 
 		formatTag : function(tagrecord, tagStyle) {
 			var html = "";
-			var selector = null;
-			var targetObject = tagrecord.getValue("hasTarget");
 			var label  = tagrecord.getValue("title");
-			if (targetObject.hasSelector && targetObject.hasSelector.value)
-				selector = targetObject.hasSelector.value;
 
 			if (this.enabled('deleteEnabled', tagrecord.getValue())) {
 			  html += '<div class="tagremove enabled"><a href="javascript:{}">x</a></div>';
@@ -206,8 +225,8 @@ YUI.add('annotation', function(Y) {
 				html += buttons;
 				html += "<span class='inline label'>" + label + "</span>";
 				var user   = this.get("user");
-				var annotator = tagrecord.getValue("annotator");
-				if (user != annotator) {
+				var annotatedBy = tagrecord.getValue("annotatedBy");
+				if (user != annotatedBy) {
 					var screenName = tagrecord.getValue("screenName");
 					var credit = this.get('uiLabels').tagCreditLabel;
 					html += "<span class='inline screenName'>" 
@@ -220,16 +239,12 @@ YUI.add('annotation', function(Y) {
 		},
 
 		formatTagOverlay : function(tag) {
-			var targetObj= tag.hasTarget;
-			var body  = tag.hasBody;
 			var label = tag.title;
 			var link  = tag.display_link;
 			var annot = tag.annotation;
 			var mymeta     = this.get('myMetaTags')[annot];
 			var screenName = tag.screenName;
 
-			var my_rating_label = '';
-			var my_rating = null;
 			var judgement_buttons = this.formatJudgmentButtons(tag);
 			var buttons = '<div class="commentButtons">' + judgement_buttons + '</div>';
 			var html = '<div class="overlay tagCreation">';
@@ -243,24 +258,15 @@ YUI.add('annotation', function(Y) {
 			html += '</div>'; // end tagCreation div
 
 
-			if (mymeta && mymeta.comment) {
-			  var comment = mymeta.comment;
+			if (mymeta && mymeta[Annotation.MOTIVATION.commenting]) {
+			  var comment = mymeta[Annotation.MOTIVATION.commenting];
 			  html += '<div class="overlay comment">';
 			  // html += '<span class="screenName">' + comment.screenName + "</span>";
 			  if (this.enabled('deleteEnabled', comment)) {
 			    html += '<span class="metaremove"><a class="metaremove" alt="' + comment.annotation + '">x</a></span>';
 			  }
-			  html += '<span class="body">' + comment.hasBody.value + "</span>";
+			  html += '<span class="body">' + comment.title + "</span>";
 
-			  html += '</div>';
-			}
-
-			if (my_rating) {
-			  html += '<div class="overlay rating">';
-			  if (this.enabled('deleteEnabled', my_rating)) {
-			    html += '<span class="metaremove"><a class="metaremove" alt="' + my_rating.annotation + '">x</a></span>';
-			  }
-			  html += '<span class="overlay rating label">' + my_rating_label + '</span>';
 			  html += '</div>';
 			}
 
@@ -270,6 +276,8 @@ YUI.add('annotation', function(Y) {
 		},
 
 		formatJudgmentButtons : function(tag) {
+			var my_rating_label = '';
+			var my_rating = null;
 			var annot = tag.annotation;
 			var mymeta = this.get('myMetaTags')[annot];
 			var judgement_buttons = '';
@@ -283,7 +291,7 @@ YUI.add('annotation', function(Y) {
 			if (this.enabled('unsureEnabled', tag)) {
 				var unsureLabel = this.get('uiLabels').unsureLabel;
 				var unsure_value = undefined;
-				if (mymeta && mymeta.unsure) unsure_value = mymeta.unsure.hasBody.value;
+				if (mymeta && mymeta.unsure) unsure_value = mymeta.unsure.hasBody['@value'];
 				var checked = 'unchecked';
 				if (unsure_value != undefined){
 				  checked = 'checked'; my_rating_label = unsureLabel; my_rating = mymeta.unsure;
@@ -296,7 +304,7 @@ YUI.add('annotation', function(Y) {
 			if (this.enabled('disagreeEnabled', tag)) {
 				var disagreeLabel = this.get('uiLabels').disagreeLabel;
 				var disagree_value = undefined;
-				if (mymeta && mymeta.disagree) disagree_value = mymeta.disagree.hasBody.value;
+				if (mymeta && mymeta.disagree) disagree_value = mymeta.disagree.hasBody['@value'];
 				var checked = 'unchecked';
 				if (disagree_value != undefined){
 				  checked = 'checked'; my_rating_label = disagreeLabel; my_rating = mymeta.disagree;
@@ -309,7 +317,7 @@ YUI.add('annotation', function(Y) {
 			if (this.enabled('agreeEnabled', tag)) {
 				var agreeLabel = this.get('uiLabels').agreeLabel;
 				var agree_value = undefined;
-				if (mymeta && mymeta.agree) agree_value = mymeta.agree.hasBody.value;
+				if (mymeta && mymeta.agree) agree_value = mymeta.agree.hasBody['@value'];
 				var checked = 'unchecked';
 				if (agree_value != undefined) {
 				  checked = 'checked'; my_rating_label = agreeLabel; my_rating = mymeta.agree;
@@ -319,11 +327,20 @@ YUI.add('annotation', function(Y) {
 				judgement_buttons += "<img src='./icons/thumbUp.png' title='" + agreeLabel + "'/>";
 				judgement_buttons += "</span>";
 			}
+
+			if (my_rating) {
+			  judgement_buttons += '<div class="overlay rating">';
+			  if (this.enabled('deleteEnabled', my_rating)) {
+			    judgement_buttons += '<span class="metaremove"><a class="metaremove" alt="' + my_rating.annotation + '">x</a></span>';
+			  }
+			  judgement_buttons += '<span class="overlay rating-label">' + my_rating_label + '</span>';
+			  judgement_buttons += '</div>';
+			}
 			return judgement_buttons;
 		},
 
 		onTagHover: function(ev, tagrecord) {
-			Y.log('onTagHover');
+			// Y.log('onTagHover');
 			var overlay = tagrecord.overlay;
 			if (overlay) { 
 				overlay.destroy(); 
@@ -413,7 +430,7 @@ YUI.add('annotation', function(Y) {
 				this.deleteOverlay.hide();
 			     },
 
-		onCancelComment : function() {
+		onCancelComment : function(ev) {
 				if (ev.preventDefault) ev.preventDefault();
 				Y.one('.tag-comment-input').detach("key", this.onSubmitComment, "enter");
 				Y.one('.tag-comment-input').set("value", "");
@@ -425,7 +442,6 @@ YUI.add('annotation', function(Y) {
 		onDelete : function (ev, annotation, index) {
 			if (ev.preventDefault) ev.preventDefault();
 			var ov = this.deleteOverlay;
-			var type = "tag";
 			if (ov && index >= 0) {
 			    var n = ov.get('srcNode');
 		            var commentNode =  n.one('.delete-comment-input');
@@ -479,10 +495,10 @@ YUI.add('annotation', function(Y) {
 		onMetaRemoveClick : function(ev) {
 		     var annotation = ev.currentTarget.getAttribute('alt');
 		     var tag = this.findMetaTagByAnnotation(annotation);
-		     var target = tag.hasTarget;
+		     var target = tag.hasTarget['@id'];
 		     var record = this.findRecordByAnnotation(target);
 		     var tagindex = this.tags.indexOf(record);
-		     var metaindex = tag.type=='comment'?tag.type:tag.hasBody.value;
+		     var metaindex = tag.motivatedBy==Annotation.MOTIVATION.commenting?tag.motivatedBy:tag.hasBody['@value'];
 		     this.deleteMetaAnnotation(tagindex, metaindex, annotation, target, "deleted by user");
 		},
 
@@ -527,33 +543,39 @@ YUI.add('annotation', function(Y) {
 							var user = oSelf.get('user');
 							var myMetaTags = oSelf.get('myMetaTags');
 							for (var i=0; i<len; i++) {
-								var annotation_body = ans[i].hasBody['@id']?ans[i].hasBody['@id']:ans[i].hasBody.literal;
-				    				var annotation_target = ans[i].hasTarget;
-								var annotation_type = ans[i].type;
-								var annotation_user = ans[i].annotator;
-								if (! annotation_target.hasSource && targetURI != annotation_target && user == annotation_user) {
-									if (!myMetaTags[annotation_target])
-									  myMetaTags[annotation_target] = {};
-									if (annotation_type == "comment")
-									  myMetaTags[annotation_target][annotation_type] = ans[i];
-									else
-									  myMetaTags[annotation_target][annotation_body] = ans[i];
-								}
+								// look for relevant meta annotations
+				    				var annotation_target_uri = ans[i].hasTarget['@id'];
+								if (!annotation_target_uri) continue; // probably a fragment annotation
+
+								if (targetURI == annotation_target_uri) continue // normal annotation
+								var annotation_user = ans[i].annotatedBy;
+
+								if (user != annotation_user) continue // meta annotation from other user
+
+								var annotation_body = ans[i].hasBody['@id']?ans[i].hasBody['@id']:ans[i].hasBody['@value'];
+								var annotation_motiv = ans[i].motivatedBy;
+								if (!myMetaTags[annotation_target_uri])
+								  myMetaTags[annotation_target_uri] = {};
+								if (annotation_motiv == Annotation.MOTIVATION.commenting)
+								  myMetaTags[annotation_target_uri][annotation_motiv] = ans[i];
+								else
+								  myMetaTags[annotation_target_uri][annotation_body] = ans[i];
 							}
 							oSelf.set('myMetaTags', myMetaTags);
 
 							for (var i=0; i<len; i++) {
 								var tag = ans[i];
-								var annotation_target = ans[i].hasTarget.hasSource?
-									ans[i].hasTarget.hasSource:ans[i].hasTarget;
-								if (targetURI == annotation_target &&  oSelf.enabled('tagFilter', tag)) {
-									oSelf.tags.add(ans[i]); // normal tag
-									if (oSelf._anno) {
-	        								oSelf.addTagFragment(ans[i], true);
-									} else {
-										Y.log('no annotorious object');
-									}
-								} 
+								if (!oSelf.enabled('tagFilter', tag)) continue; // hack for exp usage
+
+								var selector_target = oSelf.findSpecificTarget(tag);
+	        						if (selector_target) {
+									ans[i].targetId = selector_target['@id'];
+									oSelf.tags.add(ans[i]); // normal image fragment tag
+									oSelf.addTagFragment(ans[i], true);
+								} else if (tag.hasTarget['@id'] == targetURI) {
+									ans[i].targetId = targetURI;
+									oSelf.tags.add(ans[i]); // normal object tag
+								}
 							}
 						  }
 						}
@@ -593,16 +615,16 @@ YUI.add('annotation', function(Y) {
 		onItemSelect : function(ev) {
 			// Y.log('onItemSelect');
 			if (ev.preventDefault) ev.preventDefault();
-			var type = 'tag';
+			var motiv = Annotation.MOTIVATION.tagging;
 			var item = ev.details[0].result.raw;
 			this.setKeyInputHandler(true);
 			var now = new Date();
 			var delta = now - this.get("startTyping");
-			var target = this.get("target");
+			var target = this.get('target');
 			if (item.uri && item.label) {
-			  this.submitAnnotation(type, target, {type:"uri", value:item.uri }, item.label, delta, null);
+			  this.submitAnnotation(motiv, target, {'@id':item.uri }, item.label, delta, null);
 			} else {
-			  this.submitAnnotation(type, target, {type:"literal", value: item}, item,       delta, null);
+			  this.submitAnnotation(motiv, target, {'@value': item},  item,       delta, null);
 			};
 			this.get("inputNode").set("value", "");
 		},
@@ -612,12 +634,12 @@ YUI.add('annotation', function(Y) {
 			if (ev.preventDefault) ev.preventDefault();
 			this.setKeyInputHandler(true);
 			if(!this.get("activeItem")) {
-			        var type = 'tag';
+				var motiv = Annotation.MOTIVATION.tagging;
 				var now = new Date();
 				var delta = now - this.get("startTyping");
 				var value = this.getTag();
-				var target = this.get("target");
-				this.submitAnnotation(type, target, {type:"literal", value:value}, value, delta, next);
+				var target = this.get('target');
+				this.submitAnnotation(motiv, target, {'@value':value}, value, delta, next);
 			}
 		},
 
@@ -632,17 +654,17 @@ YUI.add('annotation', function(Y) {
 			if (record.overlay) record.overlay.set('active', false);
 			var index = this.tags.indexOf(record);
 			var target = record.getValue("annotation");
-			var type = "judgement";
+			var motiv = Annotation.MOTIVATION.moderating;
 			var meta = this.get('myMetaTags')[target];
 			for (var prop in meta) {
-				if (meta[prop].type == "judgement") {
+				if (meta[prop].motivatedBy == Annotation.MOTIVATION.moderating) {
 				  var old_annotation = meta[prop].annotation;
 				  this.deleteMetaAnnotation(index, prop, old_annotation, target, "overruled by new "+value+" judgement");
 				}
 			}
-			if (action == 'add') this.submitAnnotation(type,
+			if (action == 'add') this.submitAnnotation(motiv,
 								   target,
-								   {type:"literal", value: value},
+								   {'@value': value},
 								  value,
 								  -1,
 								  null);
@@ -653,7 +675,7 @@ YUI.add('annotation', function(Y) {
 			if (!ov) return;
 			if (ev.preventDefault) ev.preventDefault();
 			ov.hide();
-			var type = "comment";
+			var motiv = Annotation.MOTIVATION.commenting;
 			var n = ov.get('srcNode');
 			var commentNode =  n.one('.tag-comment-input');
 			var comment = commentNode.get("value");
@@ -661,10 +683,10 @@ YUI.add('annotation', function(Y) {
 			n.one('.tag-comment-input').detach("key", this.onCommentAnnotation, "enter");
 			n.one('#confirm-tag-comment').detach("click", this.onCommentAnnotation);
 			n.one('#cancel-tag-comment').detach("click", this.onCancelComment);
-			this.submitAnnotation(type, ann, {type:"literal", value:comment}, comment, -1, null);
+			this.submitAnnotation(motiv, ann, {'@value':comment}, comment, -1, null);
 		},
 
-		submitAnnotation : function(type, target, body, label, timing, next) {
+		submitAnnotation : function(motiv, target, body, label, timing, next) {
 			if (next) {
 				Y.one('#' + next).focus();
 			} else {
@@ -672,26 +694,24 @@ YUI.add('annotation', function(Y) {
 			}
 
 		        if (!target) return;
-		        if (!body.value) return;
-			if (!label) label = body.value;
+		        if (!body) return;
+			if (!label && body['@value']) label = body['@value'];
 			if (!timing) timing = -1;
-			if (!type) type = 'default';
-			Y.log('add tag: '+ body.value +' with label: '+label+ ', time: ' + timing);
+			if (!motiv) motiv = motiv = Annotation.MOTIVATION.tagging;
 		
-			var targetString = 'undefined target';	
+			var bodyString = Y.JSON.stringify(body);
+
+			var targetObject = [{'@id':target}]
 			if (this._anno && this._anno._deniche.currentShape) { 
 				var shape = this._anno._deniche.currentShape.geometry; 
-				var targetObject = { hasSelector: {value:shape}, hasSource: target};
-				targetString = Y.JSON.stringify(targetObject)
-			} else {
-				targetString = target
+				var targetImage = this.get('targetImage');
+				if (targetImage && target != targetImage) {
+					targetObject = [ { hasSource: targetImage, hasSelector: { value:shape}}, { '@id':target } ];
+				} else {
+					targetObject = [ { hasSource: target, hasSelector: { value:shape}} ];
+				}
 			}
-			var bodyString = 'undefined body';
-			if (body.type == 'uri') {
-				bodyString = Y.JSON.stringify({'@id':body.value});
-			} else if (body.type == 'literal') {
-				bodyString = Y.JSON.stringify({'literal':body.value});
-			}
+			var targetString = Y.JSON.stringify(targetObject);
 
 			var tags = this.tags;
 			var myMetaTags = this.get("myMetaTags");
@@ -705,11 +725,11 @@ YUI.add('annotation', function(Y) {
 					hasBody:bodyString,
 					label:label,
 					typing_time: timing,
-					type: type
+					motivatedBy: motiv
 				},
 				on:{success: function(e,o) {
 					var r = Y.JSON.parse(o.responseText);
-					if (type == "tag") {
+					if (motiv == Annotation.MOTIVATION.tagging) {
 					  tags.add(r);
 					  if (oSelf._anno) {
 						  oSelf.addTagFragment(r, false); // add but do not update open editor
@@ -718,10 +738,10 @@ YUI.add('annotation', function(Y) {
 						var values = tags.getValuesByKey('annotation');
 						var index = values.indexOf(target);
 						if (!myMetaTags[target]) myMetaTags[target] = {}
-						if (type == "judgement") {
-						  myMetaTags[target][body.value] = r;
-						} else if (type == "comment") {
-						  myMetaTags[target][type] = r;
+						if (motiv == Annotation.MOTIVATION.moderating) {
+						  myMetaTags[target][label] = r;
+						} else if (motiv == Annotation.MOTIVATION.commenting) {
+						  myMetaTags[target][motiv] = r;
 						}
 						oSelf.set('myMetaTags', myMetaTags);
 						var record = tags.getRecordByIndex(index);
