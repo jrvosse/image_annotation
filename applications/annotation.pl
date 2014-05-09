@@ -195,7 +195,6 @@ get_anfields(URI, ExtraFields, DisabledFields, Fields) :-
 	;   Fields=ExtraFields
 	).
 
-
 get_metafields('', [], Fields) :-
 	rdfs_individual_of(URI, ann_ui:'AnnotationUI'),
 	get_metafields(URI, [], Fields),!.
@@ -228,7 +227,7 @@ annotation_page(Options) :-
 
 	reply_html_page(
 	    [ \annotation_page_header(Options) ],
-	    [ \html_requires(yui3('cssgrids/grids-min.css')),
+	    [ \html_requires(yui3('cssgrids/cssgrids-min.css')),
 	      \html_requires(css('common-annotation.css')),
 	      \conditional_html_requires(style, Options),
 	      \conditional_html_requires(fragment_annotation, Options),
@@ -434,16 +433,13 @@ js_annotation_fields([URI, Next | T], Options) -->
 	js_annotation_fields([Next | T], Options).
 
 
-
-
 js_annotation_field(FieldURI, Options) -->
-	 {
-	  option(ui(UI), Options),
+	{ option(ui(UI), Options),
 	  (   rdf(UI, ann_ui:tagStyle, literal(TagStyle))
 	  ->  true
 	  ;   TagStyle = overlay
 	  ),
-	  option(next(NextURI), Options, @null),
+	  option(next(NextURI), Options, null),
 	  (   rdf_global_id(_:Id, FieldURI)
 	  ->  true
 	  ;   Id = FieldURI
@@ -465,10 +461,12 @@ js_annotation_field(FieldURI, Options) -->
 	  ->  true; Comment=always ),
 	  (   rdf(FieldURI, ann_ui:deleteEnabled,   literal(Delete))
 	  ->  true; Delete=mine ),
+	  /*
 	  (   rdf(FieldURI, ann_ui:type, QuiType)
 	  ->  rdf_global_id(_:UiType, QuiType)
 	  ;   UiType = 'Autocomplete'
 	  ),
+	  */
 	  ui_labels(FieldURI, Options, UI_labels),
 	  http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
@@ -476,19 +474,17 @@ js_annotation_field(FieldURI, Options) -->
 	  user_preference(user:lang, literal(Lang)),
 	  setting(min_query_length, MinQueryLength),
 	  setting(http:prefix, Prefix),
-	  (   rdf_lang(FieldURI, ann_ui:source, Source)
-	  ->  atomic_concat(Prefix, Source, PrefixedSource),
-	      % Configure a field with autocompletion web service URI.
-	      Config = {
-			tagStyle: TagStyle,
+
+	  image(Target, TargetImage),
+	  Default = config{
 			target:Target,
+			targetImage: TargetImage,
+			tagStyle: TagStyle,
 			field:FieldURI,
-			next: Next,
-			source:PrefixedSource,
-			store: { add:Add,
-				 get:Get,
-				 remove:Remove
-			       },
+			store: store{add:Add,
+				     get:Get,
+				     remove:Remove
+				    },
 			user: User,
 			uiLabels: UI_labels,
 			unsureEnabled: Unsure,
@@ -496,52 +492,34 @@ js_annotation_field(FieldURI, Options) -->
 			agreeEnabled: Agree,
 			disagreeEnabled: Disagree,
 			deleteEnabled: Delete,
-			minQueryLength:MinQueryLength,
-			resultListLocator: results,
-			resultTextLocator: label,
-			resultHighlighter: phraseMatch}
+			next: Next
+		    },
+
+	  (   rdf_lang(FieldURI, ann_ui:source, Source)
+	  ->  atomic_concat(Prefix, Source, PrefixedSource),
+	      % Configure a field with autocompletion web service URI.
+	      Config = Default.put(config{
+				       config:1,
+				       source:PrefixedSource,
+				       minQueryLength:MinQueryLength,
+				       resultListLocator: results,
+				       resultTextLocator: label,
+				       resultHighlighter: phraseMatch
+				   })
 	  ;   rdf_has(FieldURI, ann_ui:source, RdfList),
 	      rdfs_member(literal(lang(Lang, _)), RdfList),
 	      rdfs_list_to_prolog_list(RdfList, LiteralList),
 	      maplist(literal_text, LiteralList, TextList),
 	      prolog_to_json(TextList, Source)
 	  ->  % Configure a field with autocomplete from given list
-	      Config = {
-			tagStyle: TagStyle,
-			target:Target,
-			field:FieldURI,
-			next: Next,
-			source:Source,
-			type:UiType,
-			user: User,
-			uiLabels: UI_labels,
-			unsureEnabled: Unsure,
-			commentEnabled: Comment,
-			agreeEnabled: Agree,
-			disagreeEnabled: Disagree,
-			deleteEnabled: Delete,
-			store: { add:Add,
-				 get:Get,
-				 remove:Remove
-			       }
-		       }
+	      Config =  Default.put(config{
+					config:2,
+					source:Source
+				    })
 	  ;   % Configure a field without autocompletion
-	      Config = {next: Next,
-			target:Target,
-			field:FieldURI,
-			user: User,
-			uiLabels: UI_labels,
-			unsureEnabled: Unsure,
-			commentEnabled: Comment,
-			agreeEnabled: Agree,
-			disagreeEnabled: Disagree,
-			deleteEnabled: Delete,
-			tagStyle: TagStyle,
-			store: { add:Add,
-				 get:Get,
-				 remove:Remove
-			       }
-		       }
+	      Config = Default.put(config{
+				       config:3
+				   })
 	  )},
 	yui3_plug(one(id(Id)), 'Y.Plugin.Annotation', Config).
 
