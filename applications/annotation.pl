@@ -1,5 +1,6 @@
 :- module(cp_image_annotation,
 	  [ annotation_page/1,
+	    object_image/2,
 	    get_anfields/4,
 	    get_metafields/3,
 	    image_annotation:application_script//1
@@ -299,7 +300,7 @@ html_metadata_field(_,_,_) --> !.
 
 
 html_resource_image(URI) -->
-	{ image(URI, Image),
+	{ object_image(URI, Image),
 	  % http_link_to_id(http_mediumscale, [uri(Image)], Medium),
 	  http_link_to_id(http_original,    [uri(Image)], Full)
 	}, !,
@@ -313,19 +314,19 @@ html_resource_image(URI) -->
 	html(a([href(Link)], ['No image available for ~p' - URI])).
 
 % hack
-image(R, Image) :-
+object_image(R, Image) :-
 	rdf_has(R, ann_ui:imageURL, Image),!.
 
-image(R, Image) :-
+object_image(R, Image) :-
 	rdf_has(R, foaf:depiction, Image),!.
 
-image(R, Image) :-
+object_image(R, Image) :-
 	rdf_has(Image, 'http://www.vraweb.org/vracore/vracore3#relation.depicts', R),!.
 
-image(R, Image) :-
+object_image(R, Image) :-
 	rdf_has(Aggregation, 'http://www.europeana.eu/schemas/edm/aggregatedCHO', R),
 	rdf_has(Aggregation, 'http://www.europeana.eu/schemas/edm/isShownBy', Image),!.
-image(R,R) :-
+object_image(R,R) :-
 	catch(url_cache(R, _, MimeType), _, fail),
 	sub_atom(MimeType, 0, 5, _, 'image'),!.
 
@@ -481,7 +482,7 @@ js_annotation_field(FieldURI, Options) -->
 	  setting(min_query_length, MinQueryLength),
 	  setting(http:prefix, Prefix),
 
-	  image(Target, TargetImage),
+	  object_image(Target, TargetImage),
 	  Default = config{
 			target:Target,
 			targetImage: TargetImage,
