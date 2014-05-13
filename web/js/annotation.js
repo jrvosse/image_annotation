@@ -224,6 +224,8 @@ YUI.add('annotation', function(Y) {
 				var buttons = '<div class="inline commentButtons">' + judgement_buttons + '</div>';
 				html += buttons;
 				html += "<span class='inline label'>" + label + "</span>";
+			}
+			if (tagStyle != "overlay") {
 				var user   = this.get("user");
 				var annotatedBy = tagrecord.getValue("annotatedBy");
 				if (user != annotatedBy) {
@@ -730,10 +732,8 @@ YUI.add('annotation', function(Y) {
 				on:{success: function(e,o) {
 					var r = Y.JSON.parse(o.responseText);
 					if (motiv == Annotation.MOTIVATION.tagging) {
-					  tags.add(r);
-					  if (oSelf._anno) {
-						  oSelf.addTagFragment(r, false); // add but do not update open editor
-					  }
+						tags.add(r);
+					 	oSelf.addTagFragment(r, false); // add but do not update open editor
 					} else {
 						var values = tags.getValuesByKey('annotation');
 						var index = values.indexOf(target);
