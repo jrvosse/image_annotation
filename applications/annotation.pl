@@ -314,11 +314,17 @@ html_resource_image(URI) -->
 
 % hack
 image(R, Image) :-
-	rdf_has(R, ann_ui:imageURL, Image).
+	rdf_has(R, ann_ui:imageURL, Image),!.
 
 image(R, Image) :-
-	rdf_has(Image, 'http://www.vraweb.org/vracore/vracore3#relation.depicts', R).
+	rdf_has(R, foaf:depiction, Image),!.
 
+image(R, Image) :-
+	rdf_has(Image, 'http://www.vraweb.org/vracore/vracore3#relation.depicts', R),!.
+
+image(R, Image) :-
+	rdf_has(Aggregation, 'http://www.europeana.eu/schemas/edm/aggregatedCHO', R),
+	rdf_has(Aggregation, 'http://www.europeana.eu/schemas/edm/isShownBy', Image),!.
 image(R,R) :-
 	catch(url_cache(R, _, MimeType), _, fail),
 	sub_atom(MimeType, 0, 5, _, 'image'),!.
