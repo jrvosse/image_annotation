@@ -2,13 +2,17 @@
 Style rules we need in both object and fragment modes.
 */
 
+.annotorious-editor {
+   text-align:left;
+}
+
 .yui3-overlay {
-	padding: 10px;
-	background-color: white;
-	border: solid gray 1pt;
-	position: absolute;
-	width: 400px;
-	z-index: 1;
+    padding: 10px;
+    background-color: white;
+    border: solid gray 1pt;
+    position: absolute;
+    width: 400px;
+    z-index: 1;
 }
 
 .yui3-overlay .altLabel {
@@ -22,4 +26,24 @@ Style rules we need in both object and fragment modes.
 
 .yui3-overlay img.depiction {
     max-width: 100%;
+}
+
+#media .resource { 
+    text-align: center;
+    font-size: x-large;
+    font-weight: lighter;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+#media .title .metalabel { display: none }
+#media .description .metalabel { display: none }
+#media .title  {
+	color: #222;
+	font-size: 1.3em;
+	font-weight: bold;
+}
+#media .link a.r_def {
+	color: #222;
+	font-size: 1.3em;
+	font-weight: bold;
+	text-decoration: none;
 }
