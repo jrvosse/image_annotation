@@ -29,7 +29,7 @@ YUI.add('annotation', function(Y) {
 		agreeEnabled:		{ value: "yours" },  // when "I agree" checkboxes will be shown for each tag
 		disagreeEnabled:	{ value: "yours" },  // when "I disagree" checkboxes will be shown for each tag
 		deleteCommentEnabled:	{ value: "always" }, // when comment overlay is shown for deletions on this field
-		tagFilter:		{ value: "user" },   // hack for roles exp: do not show tag with wrong user field 
+		tagFilter:		{ value: "always" },   // hack for roles exp: do not show tag with wrong user field 
 	};
 
 	Annotation.MOTIVATION = {
