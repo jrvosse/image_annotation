@@ -467,7 +467,11 @@ js_annotation_field(FieldURI, Options) -->
 	  (   rdf(FieldURI, ann_ui:commentEnabled,  literal(Comment))
 	  ->  true; Comment=always ),
 	  (   rdf(FieldURI, ann_ui:deleteEnabled,   literal(Delete))
-	  ->  true; Delete=mine ),
+	  ->  true
+	  ;   logged_on(admin)
+	  ->  Delete=always
+	  ;   Delete=mine
+	  ),
 	  /*
 	  (   rdf(FieldURI, ann_ui:type, QuiType)
 	  ->  rdf_global_id(_:UiType, QuiType)
