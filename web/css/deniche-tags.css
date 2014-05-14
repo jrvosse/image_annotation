@@ -140,31 +140,31 @@
         float: left;
 	content: 'My rating:';
 }
-.taglist .judgeButton:hover {
+.judgeButton:hover {
 }
-.taglist .overlay.judgeButton.unchecked:after {
+.overlay.judgeButton.unchecked:after {
 	display: block;
 	font-size: 0.7em;
 	content: attr(title);
 }
-.taglist .judgeButton {
+.judgeButton {
 	padding-left: .3em;
 	padding-right: .3em;
 	padding-top: .3em;
 	cursor: crosshair;
 }
-.taglist .overlay.judgeButton img {
+.overlay.judgeButton img {
 	width: 5ex;
 	vertical-align: middle;
 }
-.taglist .inline.judgeButton img {
+.inline.judgeButton img {
 	height: 2.1ex;
 	vertical-align: middle;
 }
-.taglist .inline.judgeButton.checked img {
+.inline.judgeButton.checked img {
 	height: 3.1ex;
 	vertical-align: middle;
 }
-.taglist .overlay.judgeButton.checked img {
+.overlay.judgeButton.checked img {
 	display: none;
 }
