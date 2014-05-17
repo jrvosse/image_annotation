@@ -329,6 +329,8 @@ object_image(R, Image) :-
 object_image(R,R) :-
 	catch(url_cache(R, _, MimeType), _, fail),
 	sub_atom(MimeType, 0, 5, _, 'image'),!.
+object_image(R,no_image_available) :-
+	debug(object_image, 'No image for object ~p', [R]).
 
 %%	html_annotation_fields(+FieldURIs, +Options)
 %
