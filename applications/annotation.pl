@@ -230,21 +230,24 @@ annotation_page_body(Options) -->
 	  option(annotation_fields(AnFields), Options, []),
 	  option(footer(Footer), Options, []),
 	  option(buttons(Buttons), Options, DefaultButtons),
-	  default_buttons(DefaultButtons, Options)
+	  field_id(img, Target, ImageId),
+	  default_buttons(DefaultButtons, Options),
+	  append([[image_id(ImageId)],
+		  Options], NewOptions)
 	},
 	html([
 	    \html_requires(yui3('cssgrids/cssgrids-min.css')),
 	    \html_requires(css('common-annotation.css')),
-	    \conditional_html_requires(style, Options),
-	    \conditional_html_requires(fragment_annotation, Options),
+	    \conditional_html_requires(style, NewOptions),
+	    \conditional_html_requires(fragment_annotation, NewOptions),
 	    div(class('yui3-skin-sam yui-skin-sam'),
 		[ div(id(hd), []),
 		  div(id(bd),
 		      div([ id(layout), class('yui3-g')],
 			  [ div([id(media), class('yui3-u')],
-				\html_resource(Target, Options)),
+				\html_resource(Target, NewOptions)),
 			    div([id(fields), class('yui3-u')],
-				[ \html_annotation_fields(AnFields, Options),
+				[ \html_annotation_fields(AnFields, NewOptions),
 				    div([id(anbuttons)], Buttons)
 				])
 			  ])
@@ -252,8 +255,8 @@ annotation_page_body(Options) -->
 		  div(id(ft), Footer)
 		]),
 	    script(type('text/javascript'),
-		   \yui_script(Options)),
-	    \application_script(Options)
+		   \yui_script(NewOptions)),
+	    \application_script(NewOptions)
 	]).
 
 %%	html_resource(+URI, Options)
@@ -272,11 +275,11 @@ html_metadata_fields(URI, [Field|Tail], Options) -->
 	html_metadata_field(URI, Field, Options),
 	html_metadata_fields(URI, Tail, Options).
 
-html_metadata_field(URI, Field, _Options) -->
+html_metadata_field(URI, Field, Options) -->
 	{
 	 rdfs_subproperty_of(Field, ann_ui:imageURL)
 	},
-	html_resource_image(URI).
+	html_resource_image(URI, Options).
 
 html_metadata_field(URI, Field, _Options) -->
 	{
@@ -302,15 +305,15 @@ html_metadata_field(URI, Field, _Options) -->
 html_metadata_field(_,_,_) --> !.
 
 
-html_resource_image(URI) -->
+html_resource_image(URI, Options) -->
 	{ object_image(URI, Image),
-	  % http_link_to_id(http_mediumscale, [uri(Image)], Medium),
+	  option(image_id(Id), Options, null),
 	  http_link_to_id(http_original,    [uri(Image)], Full)
 	}, !,
 	html(div([href(Full), target('_blank')],
-	       img([class(annotatable), src(Full)])
+	       img([id(Id), class(annotatable), src(Full)])
 	      )).
-html_resource_image(URI) -->
+html_resource_image(URI, _Options) -->
 	{
 	 resource_link(URI, Link)
 	},
@@ -453,6 +456,7 @@ js_annotation_field(FieldURI, Options) -->
 	  option(ui(UI), Options),
 	  option(user(User), Options, DefaultUser),
 	  option(next(NextURI), Options, null),
+	  option(image_id(ImageId), Options, null),
 	  field_id(FieldURI, Target,  Id),
 	  field_id(FieldURI, NextURI, Next),
 	  user_url(DefaultUser),
@@ -483,7 +487,9 @@ js_annotation_field(FieldURI, Options) -->
 
 	  object_image(Target, TargetImage),
 	  Default = config{
-			target:Target,
+			id: Id,
+			imageId: ImageId,
+			target: Target,
 			targetImage: TargetImage,
 			tagStyle: TagStyle,
 			field:FieldURI,
