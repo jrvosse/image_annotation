@@ -5,44 +5,45 @@
  */
 
 YUI.add('annotation', function(Y) {
-	function Annotation(config) {
-		Annotation.superclass.constructor.apply(this, arguments);
-	}
-	Annotation.NAME = "aclist"; // use same name as Y.Plugin.AutoComplete to inherit css
-	Annotation.NS = "annotation";
-	Annotation.ATTRS = {
-		target:			{ value: null }, // URI of target to be annotated
-		targetImage:		{ value: null }, // URI of target's image to be annotated
-		field:			{ value: null }, // URI identifying annotation field
-		store:			{ value: null }, // URIs of web services to CRUD http annotation api
-		startTyping:		{ value: null }, // timestamp when users start typing
-		myMetaTags:		{ value: {} },   // myMetaTags dictionary
-		uiLabels:		{ value: [] },   // dictionary with ui labels in the prefered language of the user
-		next:			{ value: null }, // id of next field to tab to
-		user:                   { value: "anonymous" },
+    function Annotation(config) {
+	Annotation.superclass.constructor.apply(this, arguments);
+    }
+    Annotation.NAME = "aclist"; // use same name as Y.Plugin.AutoComplete to inherit css
+    Annotation.NS = "annotation";
+    Annotation.ATTRS = {
+	target:			{ value: null }, // URI of target to be annotated
+	targetImage:		{ value: null }, // URI of target's image to be annotated
+	field:			{ value: null }, // URI identifying annotation field
+	store:			{ value: null }, // URIs of web services to CRUD http annotation api
+	startTyping:		{ value: null }, // timestamp when users start typing
+	myMetaTags:		{ value: {} },   // myMetaTags dictionary
+	uiLabels:		{ value: [] },   // dictionary with ui labels in the prefered language of the user
+	imageId:                { value: null }, // id of the corresponding img element
+	next:			{ value: null }, // id of next element to tab to in the tabindex
+	user:                   { value: "anonymous" },
+	
+	// configuration options:
+	tagStyle:          	{ value: "overlay" },   // show tag details inline, on overlay, or simple (none)
+	deleteEnabled:          { value: "mine" },   // when delete icon is shown each tag
+	commentEnabled:		{ value: "always" }, // when comment icon is shown for each tag
+	unsureEnabled:		{ value: "always" }, // when "I'm not sure" checkboxes will be shown for each tag
+	agreeEnabled:		{ value: "yours" },  // when "I agree" checkboxes will be shown for each tag
+	disagreeEnabled:	{ value: "yours" },  // when "I disagree" checkboxes will be shown for each tag
+	deleteCommentEnabled:	{ value: "always" }, // when comment overlay is shown for deletions on this field
+	tagFilter:		{ value: "always" },   // hack for roles exp: do not show tag with wrong user field 
+    };
 
-		// configuration options:
-	        tagStyle:          	{ value: "overlay" },   // show tag details inline, on overlay, or simple (none)
-	        deleteEnabled:          { value: "mine" },   // when delete icon is shown each tag
-		commentEnabled:		{ value: "always" }, // when comment icon is shown for each tag
-		unsureEnabled:		{ value: "always" }, // when "I'm not sure" checkboxes will be shown for each tag
-		agreeEnabled:		{ value: "yours" },  // when "I agree" checkboxes will be shown for each tag
-		disagreeEnabled:	{ value: "yours" },  // when "I disagree" checkboxes will be shown for each tag
-		deleteCommentEnabled:	{ value: "always" }, // when comment overlay is shown for deletions on this field
-		tagFilter:		{ value: "always" },   // hack for roles exp: do not show tag with wrong user field 
-	};
+    Annotation.MOTIVATION = {
+	tagging:    'http://www.w3.org/ns/oa#tagging',
+	commenting: 'http://www.w3.org/ns/oa#commenting',
+	moderating: 'http://www.w3.org/ns/oa#moderating',
+    };
 
-	Annotation.MOTIVATION = {
-		tagging:    'http://www.w3.org/ns/oa#tagging',
-		commenting: 'http://www.w3.org/ns/oa#commenting',
-		moderating: 'http://www.w3.org/ns/oa#moderating',
-	};
-
-	Annotation.LIST_CLASS = 'taglist';
-	Annotation.LIST_TEMPLATE = '<ul class="'+Annotation.LIST_CLASS+'"></ul>';
-
-	Y.extend(Annotation, Y.Plugin.AutoComplete, {
-
+    Annotation.LIST_CLASS = 'taglist';
+    Annotation.LIST_TEMPLATE = '<ul class="'+Annotation.LIST_CLASS+'"></ul>';
+    
+    Y.extend(Annotation, Y.Plugin.AutoComplete, {
+	
 		initializer: function(args) {
 			var next = this.get("next");
 			var parentNode = this.DEF_PARENT_NODE;
@@ -144,7 +145,7 @@ YUI.add('annotation', function(Y) {
 		var w =  target.hasSelector.w;
 		var h =  target.hasSelector.h;
 		var torious = { 
-		    src: Y.one('img.annotatable').get('src'),
+		    src: Y.one('img#'+this.get('imageId')).get('src'),
 		    text: label,
 		    targetId: target['@id'],
 		    annotationId: tag.annotation,
