@@ -335,6 +335,11 @@ object_image(R,R) :-
 object_image(R,no_image_available) :-
 	debug(object_image, 'No image for object ~p', [R]).
 
+field_id(FieldURI, TargetURI, Id) :-
+	variant_sha1(term(FieldURI, TargetURI), SHA1),
+	atom_concat(id_, SHA1, Id).
+
+
 %%	html_annotation_fields(+FieldURIs, +Options)
 %
 %	Write html for annotation fields.
@@ -344,12 +349,10 @@ html_annotation_fields([URI|T], Options) -->
 	html(\html_annotation_field(URI, Options)),
 	html_annotation_fields(T, Options).
 
-html_annotation_field(URI, _Options) -->
+html_annotation_field(URI, Options) -->
 	{ rdf_display_label(URI, Label),
-	  (   rdf_global_id(_:Id, URI)
-	  ->  true
-	  ;   Id = URI
-	  ),
+	  option(target(T), Options),
+	  field_id(URI,T, Id),
 	  rdf_lang(URI, dcterms:comment, FieldDescription, '')
 	},
 	html(div([class('annotate-field'), alt(FieldDescription)],
@@ -446,23 +449,16 @@ js_annotation_fields([URI, Next | T], Options) -->
 
 
 js_annotation_field(FieldURI, Options) -->
-	{ option(ui(UI), Options),
-	  (   rdf(UI, ann_ui:tagStyle, literal(TagStyle))
-	  ->  true
-	  ;   TagStyle = overlay
-	  ),
-	  option(next(NextURI), Options, null),
-	  (   rdf_global_id(_:Id, FieldURI)
-	  ->  true
-	  ;   Id = FieldURI
-	  ),
-	  (   rdf_global_id(_:Next, NextURI)
-	  ->  true
-	  ;   Next = NextURI
-	  ),
-	  option(target(Target), Options),
-	  user_url(DefaultUser),
+	{ option(target(Target), Options),
+	  option(ui(UI), Options),
 	  option(user(User), Options, DefaultUser),
+	  option(next(NextURI), Options, null),
+	  field_id(FieldURI, Target,  Id),
+	  field_id(FieldURI, NextURI, Next),
+	  user_url(DefaultUser),
+
+	  (   rdf(UI, ann_ui:tagStyle, literal(TagStyle))
+	  ->  true; TagStyle = overlay ),
 	  (   rdf(FieldURI, ann_ui:unsureEnabled,   literal(Unsure))
 	  ->  true; Unsure=always ),
 	  (   rdf(FieldURI, ann_ui:agreeEnabled,    literal(Agree))
@@ -477,12 +473,6 @@ js_annotation_field(FieldURI, Options) -->
 	  ->  Delete=always
 	  ;   Delete=mine
 	  ),
-	  /*
-	  (   rdf(FieldURI, ann_ui:type, QuiType)
-	  ->  rdf_global_id(_:UiType, QuiType)
-	  ;   UiType = 'Autocomplete'
-	  ),
-	  */
 	  ui_labels(FieldURI, Options, UI_labels),
 	  http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
