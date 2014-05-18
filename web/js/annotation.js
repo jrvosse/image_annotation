@@ -756,7 +756,8 @@ YUI.add('annotation', function(Y) {
 			graph: graph
 		    },
 		    on:{success: function(e,o) {
-			var r = Y.JSON.parse(o.responseText);
+			var response = Y.JSON.parse(o.responseText);
+			var r = response.annotation;
 			if (motiv == Annotation.MOTIVATION.tagging) {
 			    tags.add(r);
 			    oSelf.addTagFragment(r, false); // add but do not update open editor
