@@ -231,8 +231,13 @@ annotation_page_body(Options) -->
 	  option(footer(Footer), Options, []),
 	  option(buttons(Buttons), Options, DefaultButtons),
 	  field_id(img, Target, ImageId),
+	  field_id(div, Target, ContainerId),
+	  field_id(fields, Target, FieldsId),
 	  default_buttons(DefaultButtons, Options),
-	  append([[image_id(ImageId)],
+	  append([[image_id(ImageId),
+		   fields_id(FieldsId),
+		   container_id(ContainerId)
+		  ],
 		  Options], NewOptions)
 	},
 	html([
@@ -240,15 +245,15 @@ annotation_page_body(Options) -->
 	    \html_requires(css('common-annotation.css')),
 	    \conditional_html_requires(style, NewOptions),
 	    \conditional_html_requires(fragment_annotation, NewOptions),
-	    div(class('yui3-skin-sam yui-skin-sam'),
-		[ div(id(hd), []),
-		  div(id(bd),
-		      div([ id(layout), class('yui3-g')],
-			  [ div([id(media), class('yui3-u')],
+	    div([ id(ContainerId), class('yui3-skin-sam yui-skin-sam')],
+		[ div(class(hd), []),
+		  div(class(bd),
+		      div([ class(layout), class('yui3-g')],
+			  [ div([class(media), class('yui3-u')],
 				\html_resource(Target, NewOptions)),
-			    div([id(fields), class('yui3-u')],
+			    div([class(fields), class('yui3-u'), id(FieldsId)],
 				[ \html_annotation_fields(AnFields, NewOptions),
-				    div([id(anbuttons)], Buttons)
+				    div([class(anbuttons)], Buttons)
 				])
 			  ])
 		     ),
@@ -308,11 +313,15 @@ html_metadata_field(_,_,_) --> !.
 html_resource_image(URI, Options) -->
 	{ object_image(URI, Image),
 	  option(image_id(Id), Options, null),
+	  option(fields_id(FieldsId), Options, null),
 	  http_link_to_id(http_original,    [uri(Image)], Full)
 	}, !,
-	html(div([href(Full), target('_blank')],
-	       img([id(Id), class(annotatable), src(Full)])
-	      )).
+	html([img([id(Id), class(annotatable), src(Full), fields(FieldsId)]),
+	      script([type('text/javascript')],
+		     [
+		     ])
+	     ]).
+
 html_resource_image(URI, _Options) -->
 	{
 	 resource_link(URI, Link)
