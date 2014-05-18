@@ -47,22 +47,16 @@ annotorious.plugin.DenichePlugin = function(opt_config_options) {
 annotorious.plugin.DenichePlugin.states = { EMPTY:'empty', SOME:'some' };
 
 annotorious.plugin.DenichePlugin.prototype.onInitAnnotator = function(annotator) {
+     // move the cpack editor into the annotorious editor:
     var el =  annotator.element;
-        
-    // move the cpack editor into the annotorious editor:
     var fieldsId = el.getElementsByTagName('img')[0].getAttribute('fields');
     var fieldsEl = document.getElementById(fieldsId);
-    console.log('DenichePlugin', fieldsEl);
-    console.log('DenichePlugin', fieldsId);
     annotator.editor.addField(fieldsEl);
-
-
     
     // get the annotorious save and cancel button so we can manipulate them:
     this.saveButton   = document.getElementsByClassName('annotorious-editor-button-save').item(0);
     this.cancelButton = document.getElementsByClassName('annotorious-editor-button-cancel').item(0);
     this.saveButton.innerHTML = "Done";
-    
     
     // install all handlers on events created by annotorious:
     this.installHandlers();
