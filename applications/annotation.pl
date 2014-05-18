@@ -3,6 +3,7 @@
 	    object_image/2,
 	    get_anfields/4,
 	    get_metafields/3,
+	    annotation_page_body//1,
 	    image_annotation:application_script//1
 	  ]).
 
@@ -220,38 +221,40 @@ get_metafields(URI, ExtraFields, Fields) :-
 %	HTML page
 
 annotation_page(Options) :-
-	option(target(Target), Options, notarget),
-	option(annotation_fields(AnFields), Options, []),
-	option(footer(Footer), Options, []),
-	option(buttons(Buttons), Options, DefaultButtons),
-	default_buttons(DefaultButtons, Options),
-
 	reply_html_page(
 	    [ \annotation_page_header(Options) ],
-	    [ \html_requires(yui3('cssgrids/cssgrids-min.css')),
-	      \html_requires(css('common-annotation.css')),
-	      \conditional_html_requires(style, Options),
-	      \conditional_html_requires(fragment_annotation, Options),
-	      div(class('yui3-skin-sam yui-skin-sam'),
-		  [ div(id(hd), []),
-		    div(id(bd),
-			div([id(layout), class('yui3-g')],
-			    [
-			      div([id(media), class('yui3-u')],
-				  \html_resource(Target, Options)),
-			      div([id(fields), class('yui3-u')],
-				  [ \html_annotation_fields(AnFields, Options),
-				    div([id(anbuttons)], Buttons)
-				  ])
-			    ])
-		       ),
-		    div(id(ft), Footer)
-		  ]),
-	      script(type('text/javascript'),
-		     \yui_script(Options)),
-	      \application_script(Options)
+	    [ \annotation_page_body(Options) ]).
 
-	    ]).
+annotation_page_body(Options) -->
+	{ option(target(Target), Options, notarget),
+	  option(annotation_fields(AnFields), Options, []),
+	  option(footer(Footer), Options, []),
+	  option(buttons(Buttons), Options, DefaultButtons),
+	  default_buttons(DefaultButtons, Options)
+	},
+	html([
+	    \html_requires(yui3('cssgrids/cssgrids-min.css')),
+	    \html_requires(css('common-annotation.css')),
+	    \conditional_html_requires(style, Options),
+	    \conditional_html_requires(fragment_annotation, Options),
+	    div(class('yui3-skin-sam yui-skin-sam'),
+		[ div(id(hd), []),
+		  div(id(bd),
+		      div([ id(layout), class('yui3-g')],
+			  [ div([id(media), class('yui3-u')],
+				\html_resource(Target, Options)),
+			    div([id(fields), class('yui3-u')],
+				[ \html_annotation_fields(AnFields, Options),
+				    div([id(anbuttons)], Buttons)
+				])
+			  ])
+		     ),
+		  div(id(ft), Footer)
+		]),
+	    script(type('text/javascript'),
+		   \yui_script(Options)),
+	    \application_script(Options)
+	]).
 
 %%	html_resource(+URI, Options)
 %
@@ -260,7 +263,7 @@ annotation_page(Options) :-
 
 html_resource(URI, Options) -->
 	{
-	 option(metadata_fields(Fields), Options)
+	 option(metadata_fields(Fields), Options, [])
 	},
 	html(div(class('resource'), [ \html_metadata_fields(URI, Fields, Options)])).
 
