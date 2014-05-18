@@ -249,7 +249,7 @@ annotation_page_body(Options) -->
 		[ div(class(hd), []),
 		  div(class(bd),
 		      div([ class(layout), class('yui3-g')],
-			  [ div([class(media), class('yui3-u')],
+			  [ div([class(mediasection), class('yui3-u')],
 				\html_resource(Target, NewOptions)),
 			    div([class(fields), class('yui3-u'), id(FieldsId)],
 				[ \html_annotation_fields(AnFields, NewOptions),
