@@ -1,6 +1,6 @@
 @import "deniche-tags.css";
 
-#media img {
+.media img {
   max-width: 100%;
 }
 
