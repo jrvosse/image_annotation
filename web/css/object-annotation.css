@@ -164,7 +164,7 @@ body {
 	text-align: right;
 	float: right;
 }
-.taglist .inline.label {
+.taglist .inline.taglabel {
 	padding: 0% 1%;
 	float: left;
 }
@@ -176,7 +176,8 @@ body {
 .taglist .inline.screenName:after { content: ')'; }
 .taglist .inline.tagCreditLine:after { content: ': '; }
 
-.taglist .overlay.label, .taglist .simple.label {
+.taglist .overlay.taglabel, 
+.taglist .simple.taglabel {
 	width: 45%;
 	padding: 0% 1%;
 	float: right;
@@ -184,7 +185,7 @@ body {
 .overlay {
 	text-align: right;
 }
-.overlay.title.label {
+.overlay.title.taglabel {
 	width: 100%;
 	margin-left: 1%;
 	font-size: 2.0em;
@@ -212,7 +213,7 @@ body {
 	color: red;
 	text-decoration: none;
 }
-.taglist .label a {
+.taglist .taglabel a {
 	text-decoration: none;
 	color: #222;
 

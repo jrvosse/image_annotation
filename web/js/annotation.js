@@ -177,7 +177,7 @@ YUI.add('annotation', function(Y) {
 			var tagNodes = this.tagList.all("li");
 			for (var i=o.index; i < o.index+o.range; i++) {
 				var node = tagNodes.item(i);
-				node.one('.label').detach('hover');
+				node.one('.taglabel').detach('hover');
 				node.remove();
 			}
 		},
@@ -197,7 +197,7 @@ YUI.add('annotation', function(Y) {
 				node.all('.judgeButton').addClass(tagStyle);
 				tagList.insert(node, index+i);
 				if (tagStyle == 'overlay')
-					node.one('.label').on('hover', this.onTagHover, this.onTagHover, this, tags[i]);
+					node.one('.taglabel').on('hover', this.onTagHover, this.onTagHover, this, tags[i]);
 				else if (tagStyle == 'inline') {
 					this.rebindButtons(node, tags[i]);
 				}
@@ -238,14 +238,14 @@ YUI.add('annotation', function(Y) {
 			  html += '<div class="tagremove disabled"><a href="javascript:{}">y</a></div>';
 			}
 			if (tagStyle == "overlay")
-				html += "<div class='overlay label'>" + label + "</div>";
+				html += "<div class='overlay taglabel'>" + label + "</div>";
 			else if (tagStyle == "simple")
-				html += "<div class='simple label'>" + label + "</div>";
+				html += "<div class='simple taglabel'>" + label + "</div>";
 			else if (tagStyle == "inline") {
 				var judgement_buttons = this.formatJudgmentButtons(tagrecord.getValue());
 				var buttons = '<div class="inline commentButtons">' + judgement_buttons + '</div>';
 				html += buttons;
-				html += "<span class='inline label'>" + label + "</span>";
+				html += "<span class='inline taglabel'>" + label + "</span>";
 			}
 			if (tagStyle != "overlay") {
 				var user   = this.get("user");
@@ -272,7 +272,7 @@ YUI.add('annotation', function(Y) {
 			var judgement_buttons = this.formatJudgmentButtons(tag);
 			var buttons = '<div class="commentButtons">' + judgement_buttons + '</div>';
 			var html = '<div class="overlay tagCreation">';
-			html +=	'<div class="overlay title label">';
+			html +=	'<div class="overlay title taglabel">';
 			if (link == '')
 				html += label;
 			else
@@ -357,7 +357,7 @@ YUI.add('annotation', function(Y) {
 			  if (this.enabled('deleteEnabled', my_rating)) {
 			    judgement_buttons += '<span class="metaremove"><a class="metaremove" alt="' + my_rating.annotation + '">x</a></span>';
 			  }
-			  judgement_buttons += '<span class="overlay rating-label">' + my_rating_label + '</span>';
+			  judgement_buttons += '<span class="overlay ratinglabel">' + my_rating_label + '</span>';
 			  judgement_buttons += '</div>';
 			}
 			return judgement_buttons;
