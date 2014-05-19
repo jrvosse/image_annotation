@@ -18,6 +18,7 @@ YUI.add('annotation', function(Y) {
 	startTyping:		{ value: null }, // timestamp when users start typing
 	myMetaTags:		{ value: {} },   // myMetaTags dictionary
 	uiLabels:		{ value: [] },   // dictionary with ui labels in the prefered language of the user
+	fieldsId:               { value: null }, // id of the corresponding fields container
 	imageId:                { value: null }, // id of the corresponding img element
 	next:			{ value: null }, // id of next element to tab to in the tabindex
 	user:                   { value: "anonymous" },
@@ -148,6 +149,7 @@ YUI.add('annotation', function(Y) {
 		    src: Y.one('img#'+this.get('imageId')).get('src'),
 		    text: label,
 		    targetId: target['@id'],
+		    fieldsId: this.get('fieldsId'),
 		    annotationId: tag.annotation,
 		    shapes: [{
 			type:'rect', 
@@ -431,7 +433,6 @@ YUI.add('annotation', function(Y) {
 		var title = tagrecord.getValue("title");
 		var ov = this.commentOverlay;
 		var n = ov.get('srcNode');
-		console.log(target);
 		
 		ov.set("headerContent", "<h3 class='add_dialog'>"+ labels.commentLabel + " " + title +"</h3>");
 		n.one('.tag-comment-input').detach();
