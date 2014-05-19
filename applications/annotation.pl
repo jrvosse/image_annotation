@@ -234,9 +234,15 @@ annotation_page_body(Options) -->
 	  field_id(div, Target, ContainerId),
 	  field_id(fields, Target, FieldsId),
 	  default_buttons(DefaultButtons, Options),
+	  object_image(Target, Image),
+	  (   Image \= no_image_available
+	  ->  true
+	  ;   fail
+	  ),
 	  append([[image_id(ImageId),
 		   fields_id(FieldsId),
-		   container_id(ContainerId)
+		   container_id(ContainerId),
+		   image_url(Image)
 		  ],
 		  Options], NewOptions)
 	},
@@ -263,6 +269,16 @@ annotation_page_body(Options) -->
 		   \yui_script(NewOptions)),
 	    \application_script(NewOptions)
 	]).
+
+
+annotation_page_body(Options) -->
+	{ option(target(Target), Options, notarget)
+	},
+	html(div([class(error_msg)],
+		 [ 'no image for ',
+		   \rdf_link(Target)
+		 ])
+	    ).
 
 %%	html_resource(+URI, Options)
 %
