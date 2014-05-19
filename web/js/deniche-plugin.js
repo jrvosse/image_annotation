@@ -49,7 +49,6 @@ annotorious.plugin.DenichePlugin = function(opt_config_options) {
 annotorious.plugin.DenichePlugin.states = { EMPTY:'empty', SOME:'some' };
 
 annotorious.plugin.DenichePlugin.prototype.onInitAnnotator = function(annotator) {
-    console.log('onInitAnnotator');
     // move the cpack editor into the annotorious editor:
     var el =  annotator.element;
     var fieldsId = el.getElementsByTagName('img')[0].getAttribute('fields');
@@ -72,7 +71,6 @@ annotorious.plugin.DenichePlugin.prototype.onInitAnnotator = function(annotator)
 	fields = this._anno.fields[fieldsId];
 	for(i in fields) {
 	    f = fields[i];
-	    console.log(f.get('lazy'));
 	    if (f.get('lazy')) f.getTags();
 	}
     }

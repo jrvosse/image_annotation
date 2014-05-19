@@ -47,7 +47,6 @@ YUI.add('annotation', function(Y) {
     Y.extend(Annotation, Y.Plugin.AutoComplete, {
 	
 	initializer: function(args) {
-	    Y.log('on init YUI Annotation object');
 	    var next = this.get("next");
 	    var parentNode = this.DEF_PARENT_NODE;
 	    this._anno = null;
