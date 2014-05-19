@@ -483,6 +483,7 @@ js_annotation_field(FieldURI, Options) -->
 	  option(next(NextURI), Options, null),
 	  option(image_id(ImageId), Options, null),
 	  option(fields_id(FieldsId), Options, null),
+	  option(lazy(Lazy), Options, false),
 	  field_id(FieldURI, Target,  Id),
 	  field_id(FieldURI, NextURI, Next),
 	  user_url(DefaultUser),
@@ -532,7 +533,7 @@ js_annotation_field(FieldURI, Options) -->
 			disagreeEnabled: Disagree,
 			deleteEnabled: Delete,
 			next: Next,
-			lazy: true
+			lazy: Lazy
 		    },
 
 	  (   rdf_lang(FieldURI, ann_ui:source, Source)
