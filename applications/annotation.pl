@@ -531,7 +531,8 @@ js_annotation_field(FieldURI, Options) -->
 			agreeEnabled: Agree,
 			disagreeEnabled: Disagree,
 			deleteEnabled: Delete,
-			next: Next
+			next: Next,
+			lazy: true
 		    },
 
 	  (   rdf_lang(FieldURI, ann_ui:source, Source)

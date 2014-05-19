@@ -22,6 +22,7 @@ YUI.add('annotation', function(Y) {
 	imageId:                { value: null }, // id of the corresponding img element
 	next:			{ value: null }, // id of next element to tab to in the tabindex
 	user:                   { value: "anonymous" },
+	lazy:                   { value: false },  // delay server requests for tags
 	
 	// configuration options:
 	tagStyle:          	{ value: "overlay" },   // show tag details inline, on overlay, or simple (none)
@@ -45,67 +46,75 @@ YUI.add('annotation', function(Y) {
     
     Y.extend(Annotation, Y.Plugin.AutoComplete, {
 	
-		initializer: function(args) {
-			var next = this.get("next");
-			var parentNode = this.DEF_PARENT_NODE;
-		
-			if (typeof(anno) != "undefined")
-				this._anno = anno; // hack
-			else
-				this._anno = null;
-
-			// handler to call when item selected from autocompletion suggestions:
-			this.on("select", this.onItemSelect, this);
-
-			// handler to call when hitting return after string input (no autocomplete):
-			this.get("inputNode").on("key", this.onTextSubmit, "enter", this, null);
-			this.get("inputNode").on("key", this.onTextSubmit, "tab",   this, next);
-
-			// create tags recordset (tag model in mvc), bind events to auto-update the tagList node (tag view in mvc):
-			this.tags = new Y.Recordset({records:{}});
-			this.tags.on("add", this.addTags, this);
-			this.tags.on("update", this.updateTags, this);
-			this.tags.on("remove", this.removeTags, this);
-
-			// this.on('myMetaTagsChange', function(ev) {Y.log('myMetaTagsChange'); Y.log(ev);});
-
-			// create tagList node (tag view in mvc)
-			this.tagList = Y.Node.create(Annotation.LIST_TEMPLATE);
-			this.tagList.addClass(this.get('tagStyle'));
-			parentNode.append(this.tagList);
-
-
-			// infoNode is the overlay with tooltips when hovering over suggested terms
-			this.infoNode = new Y.Overlay({}).render(parentNode);
-			this.on("activeItemChange",  this.onSuggestionHover, this);
-			this.on("hoveredItemChange", this.onSuggestionHover, this);
-
-			// create overlays for comments on delete and add actions:
-			this.createCommentNode(parentNode);
-			if (this.enabled('deleteCommentEnabled', null)) {
-				Y.delegate("click", this.onTagRemoveClick, this.tagList, 'li .tagremove.enabled', this);
-				this.createDeleteNode(parentNode);
-			} else {
-				Y.delegate("click", this.onDelete, this.tagList, 'li .tagremove.enabled', this);
-			}
-			Y.delegate("click", this.onMetaRemoveClick, this.tagList, '.metaremove a', this);
-
-
-			// setup handlers to record typing time:
-			var firstkey = true;
-			this.setKeyInputHandler(firstkey);
-
-			var oSelf = this;
-			Y.on("load", function(e) { oSelf.getTags(); });
-		},
-
-	    findTarget : function(tag, type) {
-		if (type == 'specific')
-		    return this.findSpecificTarget(tag)
+	initializer: function(args) {
+	    Y.log('on init YUI Annotation object');
+	    var next = this.get("next");
+	    var parentNode = this.DEF_PARENT_NODE;
+	    this._anno = null;
+	    if (typeof(anno) != "undefined") {
+		this._anno = anno; // hack
+		var fieldsId = this.get('fieldsId');
+		if (! anno.fields) anno.fields = {};
+		fields = anno.fields[fieldsId];
+		if (fields) 
+		    fields.push(this);
 		else
-		    return this.findGenericTarget(tag)
-	    },
+		    anno.fields[fieldsId] = [this];
+	    }
+	    // handler to call when item selected from autocompletion suggestions:
+	    this.on("select", this.onItemSelect, this);
 
+	    // handler to call when hitting return after string input (no autocomplete):
+	    this.get("inputNode").on("key", this.onTextSubmit, "enter", this, null);
+	    this.get("inputNode").on("key", this.onTextSubmit, "tab",   this, next);
+
+	    // create tags recordset (tag model in mvc), bind events to auto-update the tagList node (tag view in mvc):
+	    this.tags = new Y.Recordset({records:{}});
+	    this.tags.on("add", this.addTags, this);
+	    this.tags.on("update", this.updateTags, this);
+	    this.tags.on("remove", this.removeTags, this);
+	    
+	    // this.on('myMetaTagsChange', function(ev) {Y.log('myMetaTagsChange'); Y.log(ev);});
+	    
+	    // create tagList node (tag view in mvc)
+	    this.tagList = Y.Node.create(Annotation.LIST_TEMPLATE);
+	    this.tagList.addClass(this.get('tagStyle'));
+	    parentNode.append(this.tagList);
+	    
+	    
+	    // infoNode is the overlay with tooltips when hovering over suggested terms
+	    this.infoNode = new Y.Overlay({}).render(parentNode);
+	    this.on("activeItemChange",  this.onSuggestionHover, this);
+	    this.on("hoveredItemChange", this.onSuggestionHover, this);
+	    
+	    // create overlays for comments on delete and add actions:
+	    this.createCommentNode(parentNode);
+	    if (this.enabled('deleteCommentEnabled', null)) {
+		Y.delegate("click", this.onTagRemoveClick, this.tagList, 'li .tagremove.enabled', this);
+		this.createDeleteNode(parentNode);
+	    } else {
+		Y.delegate("click", this.onDelete, this.tagList, 'li .tagremove.enabled', this);
+	    }
+	    Y.delegate("click", this.onMetaRemoveClick, this.tagList, '.metaremove a', this);
+	    
+	    
+	    // setup handlers to record typing time:
+	    var firstkey = true;
+	    this.setKeyInputHandler(firstkey);
+	    
+	    if (!this.get('lazy')) {
+		var oSelf = this;
+		Y.on("load", function(e) { oSelf.getTags(); });
+	    }
+	},
+
+	findTarget : function(tag, type) {
+	    if (type == 'specific')
+		return this.findSpecificTarget(tag)
+	    else
+		return this.findGenericTarget(tag)
+	},
+	
 	    findGenericTarget : function(tag) {
 		var targets = tag.hasTarget;
 		var target = undefined;
