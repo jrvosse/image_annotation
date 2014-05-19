@@ -330,7 +330,8 @@ html_resource_image(URI, Options) -->
 	{ object_image(URI, Image),
 	  option(image_id(Id), Options, null),
 	  option(fields_id(FieldsId), Options, null),
-	  http_link_to_id(http_original,    [uri(Image)], Full)
+	  option(image_link_predicate(LinkPred), Options, http_original),
+	  http_link_to_id(LinkPred, [uri(Image)], Full)
 	}, !,
 	html([img([id(Id), class(annotatable), src(Full), fields(FieldsId)]),
 	      script([type('text/javascript')],
