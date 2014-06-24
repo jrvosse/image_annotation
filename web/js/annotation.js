@@ -61,10 +61,10 @@ YUI.add('annotation', function(Y) {
 		    anno.fields[fieldsId] = [this];
 	    }
 	    // handler to call when item selected from autocompletion suggestions:
-	    this.on("select", this.onItemSelect, this);
+	    this.on("select", this.onItemSelect, this, null);
 
 	    // handler to call when hitting return after string input (no autocomplete):
-	    this.get("inputNode").on("key", this.onTextSubmit, "enter", this, null);
+	    this.get("inputNode").on("key", this.onTextSubmit, "enter", this, next);
 	    this.get("inputNode").on("key", this.onTextSubmit, "tab",   this, next);
 
 	    // create tags recordset (tag model in mvc), bind events to auto-update the tagList node (tag view in mvc):
@@ -646,7 +646,7 @@ YUI.add('annotation', function(Y) {
 			       infoNode.hide();
 			}
 		},
-		onItemSelect : function(ev) {
+		onItemSelect : function(ev, next) {
 			// Y.log('onItemSelect');
 			if (ev.preventDefault) ev.preventDefault();
 			var motiv = Annotation.MOTIVATION.tagging;
@@ -656,9 +656,9 @@ YUI.add('annotation', function(Y) {
 			var delta = now - this.get("startTyping");
 			var target = this.get('target');
 			if (item.uri && item.label) {
-			    this.submitAnnotation(motiv, target, {'@id':item.uri }, item.label, delta, null, target);
+			    this.submitAnnotation(motiv, target, {'@id':item.uri }, item.label, delta, next, target);
 			} else {
-			    this.submitAnnotation(motiv, target, {'@value': item},  item,       delta, null, target);
+			    this.submitAnnotation(motiv, target, {'@value': item},  item,       delta, next, target);
 			};
 			this.get("inputNode").set("value", "");
 		},
@@ -668,10 +668,11 @@ YUI.add('annotation', function(Y) {
 			if (ev.preventDefault) ev.preventDefault();
 			this.setKeyInputHandler(true);
 			if(!this.get("activeItem")) {
+				var value = this.getTag();
+				if (!value) return this.refocus(next);
 				var motiv = Annotation.MOTIVATION.tagging;
 				var now = new Date();
 				var delta = now - this.get("startTyping");
-				var value = this.getTag();
 				var target = this.get('target');
 			    this.submitAnnotation(motiv, target, {'@value':value}, value, delta, next, target);
 			}
@@ -722,13 +723,16 @@ YUI.add('annotation', function(Y) {
 		this.submitAnnotation(motiv, ann, {'@value':comment}, comment, -1, null, graph);
 	    },
 
-	    submitAnnotation : function(motiv, target, body, label, timing, next, graph) {
+	    refocus : function(next) {
 		if (next) {
 		    Y.one('#' + next).focus();
 		} else {
 		    this.get("inputNode").focus();
 		}
-		
+            },
+
+	    submitAnnotation : function(motiv, target, body, label, timing, next, graph) {
+		this.refocus(next);
 		if (!target) return;
 		if (!body) return;
 		if (!label && body['@value']) label = body['@value'];
