@@ -5,7 +5,7 @@
  * To this, we need to solve three issues:
  *
  * 1. We need to communicate the shape that the user created within
- *    annotorious to all annotation field objects of the cpack
+ *    annotorious to all annotation field objects of the cpack.
  *    This is why the plugin has a public member variable 'currentShape'
  *    that the cpack fields can access.
  *
@@ -82,8 +82,9 @@ annotorious.plugin.DenichePlugin.prototype.initPlugin = function(anno) {
 }
 
 annotorious.plugin.DenichePlugin.prototype.toggleButtons = function(state, fieldsId) {
-	console.log(state);
-	console.log(fieldsId);
+	// console.log('annotorious.plugin.DenichePlugin.prototype.toggleButtons');
+	// console.log(state);
+	// console.log(fieldsId);
 	if (!this._cancelButtons[fieldsId]) return;
 	if (!state) state = annotorious.plugin.DenichePlugin.states.SOME;
 	if (state == annotorious.plugin.DenichePlugin.states.SOME) {
@@ -141,6 +142,7 @@ annotorious.plugin.DenichePlugin.prototype.addAnnotation = function (annotation,
 	} else {
 		this._dirtytag = annotation;
 	}
+	// this.toggleButtons(annotorious.plugin.DenichePlugin.states.SOME, annotation.fieldsId);
 }
 
 annotorious.plugin.DenichePlugin.prototype.flushDirtyAnnotation = function(original) {
@@ -166,7 +168,7 @@ annotorious.plugin.DenichePlugin.prototype.installHandlers = function() {
 	});
 
 	this._anno.addHandler('onEditorShown', function(annotation) {
-		console.log('onEditorShown');
+		// console.log('onEditorShown');
 		oSelf._dirtytag = null;
 		if (annotation && annotation.shapes) {
 			oSelf.currentShape = annotation.shapes[0];
