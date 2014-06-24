@@ -84,10 +84,6 @@ cliopatria:menu_item(100=annotation/http_annotation, 'annotate image').
 	image_annotation:application_script//1,
 	image_annotation:page_header//1.
 
-% this url is handy for debugging annotorious, but we need to tell
-% prolog is mime type:
-:- html_resource('http://localhost:9810/compile?id=annotorious',
-		 [ mime_type(text/javascript) ]).
 
 
 :- html_resource(object_annotation,
@@ -98,14 +94,26 @@ cliopatria:menu_item(100=annotation/http_annotation, 'annotate image').
 		       ])
 		 ]).
 
+/*
+Some alternative annotorious URLs that might be handy during development:
+	'http://annotorious.github.com/latest/annotorious.css',
+	'http://annotorious.github.com/latest/annotorious.min.js',
+	'http://localhost:9810/compile?id=annotorious',
+
+
+This last url is handy for debugging annotorious, but we need to tell
+prolog is mime type:
+*/
+:- html_resource('http://localhost:9810/compile?id=annotorious',
+		 [ mime_type(text/javascript) ]).
+
 :- html_resource(fragment_annotation,
 	      [ virtual(true),
 		ordered(true),
 		requires([
-		    'http://annotorious.github.com/latest/annotorious.css',
+		    css('annotorious.css'),
 		    css('fragment-annotation.css'),
-		    % 'http://localhost:9810/compile?id=annotorious',
-		    'http://annotorious.github.com/latest/annotorious.min.js',
+		    js('annotorious.min.js'),
 		    js('deniche-plugin.js')
 		])
 	      ]).
