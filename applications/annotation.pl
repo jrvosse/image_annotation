@@ -364,6 +364,7 @@ object_image(R,R) :-
 object_image(R,no_image_available) :-
 	debug(object_image, 'No image for object ~p', [R]).
 
+field_id(null, _, null) :- !.
 field_id(FieldURI, TargetURI, Id) :-
 	variant_sha1(term(FieldURI, TargetURI), SHA1),
 	atom_concat(id_, SHA1, Id).
@@ -486,7 +487,7 @@ js_annotation_field(FieldURI, Options) -->
 	  option(fields_id(FieldsId), Options, null),
 	  option(lazy(Lazy), Options, false),
 	  field_id(FieldURI, Target,  Id),
-	  field_id(FieldURI, NextURI, Next),
+	  field_id(NextURI,  Target, Next),
 	  user_url(DefaultUser),
 
 	  (   rdf(UI, ann_ui:tagStyle, literal(TagStyle))
