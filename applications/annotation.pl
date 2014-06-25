@@ -478,7 +478,8 @@ conditional_html_requires(_,_) --> !.
 %%	js_annotation_fields(+FieldURIs, +AnnotationTarget)
 %
 %	Write JavaScript to init chain of annotation fields
-%
+
+js_annotation_fields([], _) --> !.
 js_annotation_fields([URI], Options) -->
 	js_annotation_field(URI, Options).
 js_annotation_fields([URI, Next | T], Options) -->
