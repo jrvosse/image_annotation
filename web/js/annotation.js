@@ -107,14 +107,13 @@ YUI.add('annotation', function(Y) {
 	    }
 	},
 
-	findTarget : function(tag, type) {
-	    if (type == 'specific')
-		return this.findSpecificTarget(tag)
-	    else
-		return this.findGenericTarget(tag)
+	findTarget : function(tag) {
+	    result = this.findSpecificTarget(tag);
+	    if (result) return result;
+	    else return this.findGenericTarget(tag)
 	},
-	
-	    findGenericTarget : function(tag) {
+
+	findGenericTarget : function(tag) {
 		var targets = tag.hasTarget;
 		var target = undefined;
 		if (!targets) 
@@ -127,9 +126,9 @@ YUI.add('annotation', function(Y) {
 			return target;
 		}
 		return null
-	    },
+	},
 
-	    findSpecificTarget : function(tag) {
+	findSpecificTarget : function(tag) {
 		var targets = tag.hasTarget;
 		var target = undefined;
 		if (!targets) 
@@ -142,10 +141,10 @@ YUI.add('annotation', function(Y) {
 			return target;
 		}
 		return null;
-	    },
+	},
 
 	    addTagFragment : function(tag, update) {
-		var target = this.findTarget(tag, 'specific');
+		var target = this.findSpecificTarget(tag);
 		if (! this._anno || !target) return;
 	
 		var label   = tag.title;
@@ -168,7 +167,7 @@ YUI.add('annotation', function(Y) {
 	    },
 
 	    removeTagFragment : function(tag) {
-		var target = this.findTarget(tag, 'specific');
+		var target = this.findSpecificTarget(tag);
 		if (!target) return;
 		this._anno._deniche.removeAnnotation(tag.title, target['@id']);
 	    },
@@ -202,8 +201,9 @@ YUI.add('annotation', function(Y) {
 			// format the tags
 			for(var i=0; i < tags.length; i++) {
 				var tag=tags[i].getValue();
+				var target = this.findTarget(tag);
 				var node = Y.Node.create('<li class="tagitem">'+this.formatTag(tags[i], tagStyle)+'</li>');
-				node.setAttribute('targetId', tags[i].getValue('targetId'));
+				node.setAttribute('targetId', target['@id']);
 				node.all('.judgeButton').addClass(tagStyle);
 				tagList.insert(node, index+i);
 				if (tagStyle == 'overlay')
@@ -598,18 +598,9 @@ YUI.add('annotation', function(Y) {
 							oSelf.set('myMetaTags', myMetaTags);
 
 							for (var i=0; i<len; i++) {
-								var tag = ans[i];
-								if (!oSelf.enabled('tagFilter', tag)) continue; // hack for exp usage
-
-							    var selector_target = oSelf.findTarget(tag, 'specific');
-	        						if (selector_target) {
-									ans[i].targetId = selector_target['@id'];
-									oSelf.tags.add(ans[i]); // normal image fragment tag
-									oSelf.addTagFragment(ans[i], true);
-								} else if (tag.hasTarget['@id'] == targetURI) {
-									ans[i].targetId = targetURI;
-									oSelf.tags.add(ans[i]); // normal object tag
-								}
+								if (!oSelf.enabled('tagFilter', ans[i])) continue; // hack for exp usage
+								oSelf.tags.add(ans[i]); // normal image fragment tag
+								oSelf.addTagFragment(ans[i], true);
 							}
 						  }
 						}
@@ -742,15 +733,21 @@ YUI.add('annotation', function(Y) {
 
 		var bodyString = Y.JSON.stringify(body);
 
-		var targetObject = [{'@id':target}]
+
+		var targetObject = null;
 		if (this._anno && this._anno._deniche.currentShape) { 
 		    var shape = this._anno._deniche.currentShape.geometry; 
 		    var targetImage = this.get('targetImage');
 		    if (targetImage && target != targetImage) {
+			// another annotation on selector with existing id (target id is the selector, not the image)
 			targetObject = [ { hasSource: targetImage, hasSelector: { value:shape}}, { '@id':target } ];
 		    } else {
+			// annotation on new selector, id will be generated server-side 
 			targetObject = [ { hasSource: target, hasSelector: { value:shape}} ];
 		    }
+		} else {
+			// annotation without fragment, on entire target image 
+			targetObject = [{'@id':target}];
 		}
 		var targetString = Y.JSON.stringify(targetObject);
 		
