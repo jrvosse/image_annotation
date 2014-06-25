@@ -44,25 +44,19 @@ annotorious.plugin.DenichePlugin = function(opt_config_options) {
 	this._dirtytag = null;	// tag annotorious doesn't know yet
 	this._saveButtons = {};	 // we have multiple buttons if we have multiple images per page
 	this._cancelButtons = {};
+
 }
 
 annotorious.plugin.DenichePlugin.states = { EMPTY:'empty', SOME:'some' };
 
 annotorious.plugin.DenichePlugin.prototype.onInitAnnotator = function(annotator) {
+    this.annotator = annotator;
+    this.Y = YUI().use('node', 'event');
     // move the cpack editor into the annotorious editor:
     var el =  annotator.element;
     var fieldsId = el.getElementsByTagName('img')[0].getAttribute('fields');
     var fieldsEl = document.getElementById(fieldsId);
     annotator.editor.addField(fieldsEl);
-    
-    // get the annotorious save and cancel button so we can manipulate them:
-    var oSelf = this;
-    YUI().use('node', 'event', function(Y) {
-    	var node = Y.one(el);
-    	oSelf._saveButtons[fieldsId]   = node.one('.annotorious-editor-button-save').getDOMNode();
-    	oSelf._cancelButtons[fieldsId] = node.one('.annotorious-editor-button-cancel').getDOMNode();
-    	oSelf._saveButtons[fieldsId].innerHTML = "Done";
-    });
     
     // install all handlers on events created by annotorious:
     this.installHandlers();
@@ -82,9 +76,6 @@ annotorious.plugin.DenichePlugin.prototype.initPlugin = function(anno) {
 }
 
 annotorious.plugin.DenichePlugin.prototype.toggleButtons = function(state, fieldsId) {
-	// console.log('annotorious.plugin.DenichePlugin.prototype.toggleButtons');
-	// console.log(state);
-	// console.log(fieldsId);
 	if (!this._cancelButtons[fieldsId]) return;
 	if (!state) state = annotorious.plugin.DenichePlugin.states.SOME;
 	if (state == annotorious.plugin.DenichePlugin.states.SOME) {
@@ -98,17 +89,17 @@ annotorious.plugin.DenichePlugin.prototype.toggleButtons = function(state, field
 
 annotorious.plugin.DenichePlugin.prototype.filterTags = function(targetId, fieldsId) {
 	var oSelf = this;
-	YUI().use('node', 'event', function(Y) {
-		var selector = '#'+ fieldsId + ' li.tagitem';
-		if (!fieldsId) selector = 'li.tagitem';
-		Y.all(selector).each(function(tagNode) {
-			if (targetId == tagNode.getAttribute('targetId')) {
-				tagNode.show();
-			} else {
-				tagNode.hide();
-				// console.log('Hiding tag ' + targetId + ' <> ' + tagNode.getAttribute('targetId'));
-			}
-		});
+	oSelf.Y.one('.annotorious-editor').detach("key", oSelf.onFragmentCancel, "esc");
+	oSelf.Y.one('.annotorious-editor').on("key", oSelf.onFragmentCancel, "esc", oSelf);
+	var selector = '#'+ fieldsId + ' li.tagitem';
+	if (!fieldsId) selector = 'li.tagitem';
+	oSelf.Y.all(selector).each(function(tagNode) {
+		if (targetId == tagNode.getAttribute('targetId')) {
+			oSelf.Y.all('.annotorious-editor').detach("key", oSelf.onFragmentCancel, "esc");
+			tagNode.show();
+		} else {
+			tagNode.hide();
+		}
 	});
 }
 
@@ -123,6 +114,11 @@ annotorious.plugin.DenichePlugin.prototype.removeAnnotation = function (label, t
 		this._dirtytag = annotation;
 	}
 	
+}
+
+annotorious.plugin.DenichePlugin.prototype.onFragmentCancel = function(ev) {
+	this.annotator.stopSelection();
+	this.annotator.editor.close();
 }
 
 annotorious.plugin.DenichePlugin.prototype.addAnnotation = function (annotation, update) {
@@ -144,6 +140,7 @@ annotorious.plugin.DenichePlugin.prototype.addAnnotation = function (annotation,
 		this._dirtytag = annotation;
 	}
 	this.toggleButtons(annotorious.plugin.DenichePlugin.states.SOME, annotation.fieldsId);
+	this.filterTags(annotation.targetId, annotation.fieldsId); // only show tags for this shape
 }
 
 annotorious.plugin.DenichePlugin.prototype.flushDirtyAnnotation = function(original) {
@@ -170,6 +167,13 @@ annotorious.plugin.DenichePlugin.prototype.installHandlers = function() {
 
 	this._anno.addHandler('onEditorShown', function(annotation) {
 		// console.log('onEditorShown');
+    		// get the annotorious save and cancel button so we can manipulate them:
+    		var node = oSelf.Y.one(oSelf.annotator.element);
+		oSelf.Y.one('.annotorious-editor input').focus();
+    		oSelf._saveButtons[annotation.fieldsId]   = node.one('.annotorious-editor-button-save').getDOMNode();
+    		oSelf._cancelButtons[annotation.fieldsId] = node.one('.annotorious-editor-button-cancel').getDOMNode();
+    		oSelf._saveButtons[annotation.fieldsId].innerHTML = "Done";
+    
 		oSelf._dirtytag = null;
 		if (annotation && annotation.shapes) {
 			oSelf.currentShape = annotation.shapes[0];
