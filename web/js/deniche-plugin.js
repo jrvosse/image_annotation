@@ -106,6 +106,7 @@ annotorious.plugin.DenichePlugin.prototype.filterTags = function(targetId, field
 				tagNode.show();
 			} else {
 				tagNode.hide();
+				// console.log('Hiding tag ' + targetId + ' <> ' + tagNode.getAttribute('targetId'));
 			}
 		});
 	});
@@ -142,21 +143,21 @@ annotorious.plugin.DenichePlugin.prototype.addAnnotation = function (annotation,
 	} else {
 		this._dirtytag = annotation;
 	}
-	// this.toggleButtons(annotorious.plugin.DenichePlugin.states.SOME, annotation.fieldsId);
+	this.toggleButtons(annotorious.plugin.DenichePlugin.states.SOME, annotation.fieldsId);
 }
 
 annotorious.plugin.DenichePlugin.prototype.flushDirtyAnnotation = function(original) {
-		var dirty = this._dirtytag;
-		this._dirtytag = null;
-		if (dirty) {
-			if (dirty.text) { 
-				this._anno.addAnnotation(dirty,original);
-				this._cleantags[dirty.targetId] = dirty;
-			} else {
-				this._anno.removeAnnotation(original);
-				this._cleantags[dirty.targetId] = null;
-			}
-		} 
+	var dirty = this._dirtytag;
+	this._dirtytag = null;
+	if (dirty) {
+		if (dirty.text) { 
+			this._anno.addAnnotation(dirty,original);
+			this._cleantags[dirty.targetId] = dirty;
+		} else {
+			this._anno.removeAnnotation(original);
+			this._cleantags[dirty.targetId] = null;
+		}
+	} 
 }
 
 annotorious.plugin.DenichePlugin.prototype.installHandlers = function() {
