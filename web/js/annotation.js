@@ -32,7 +32,7 @@ YUI.add('annotation', function(Y) {
 	agreeEnabled:		{ value: "yours" },  // when "I agree" checkboxes will be shown for each tag
 	disagreeEnabled:	{ value: "yours" },  // when "I disagree" checkboxes will be shown for each tag
 	deleteCommentEnabled:	{ value: "always" }, // when comment overlay is shown for deletions on this field
-	tagFilter:		{ value: "always" },   // hack for roles exp: do not show tag with wrong user field 
+	showTag:		{ value: "mine" },   // which tags to show, other values make sense only for admin users
     };
 
     Annotation.MOTIVATION = {
@@ -560,13 +560,13 @@ YUI.add('annotation', function(Y) {
 		getTags : function(ev, oSelf) {
 			    Y.detach("load");
 			    var targetURI = this.get('target');
-			    var field = this.get('field');
-			    var oSelf = this;
+			    var field     = this.get('field');
+			    var oSelf     = this;
 			    Y.io(this.get("store.get"), { 
 				   method: 'GET',
 				   data: {
 					 hasTarget: targetURI,
-					 field:  field
+					 field:     field
 					 },
 				   on: {
 				       success: function(e,o) {
@@ -598,7 +598,7 @@ YUI.add('annotation', function(Y) {
 							oSelf.set('myMetaTags', myMetaTags);
 
 							for (var i=0; i<len; i++) {
-								if (!oSelf.enabled('tagFilter', ans[i])) continue; // hack for exp usage
+								if (!oSelf.enabled('showTag', ans[i])) continue; // hack for exp usage
 								oSelf.tags.add(ans[i]); // normal image fragment tag
 								oSelf.addTagFragment(ans[i], true);
 							}
