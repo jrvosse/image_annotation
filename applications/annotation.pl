@@ -28,13 +28,15 @@
 :- use_module(library(settings)).
 
 :- use_module(cliopatria(hooks)).
-
+:- use_module(applications(browse)).
 :- use_module(components(label)).
 :- use_module(user(user_db)).
 :- use_module(user(preferences)).
 
+:- use_module(library(oa_annotation)).
 :- use_module(api(annotation)).    % needed for http api handlers
 :- use_module(api(media_caching)). % needed for http api handlers
+
 
 :- rdf_meta
 	rdf_lang(r,r,-),
@@ -610,3 +612,25 @@ user_url(User) :-
 	->  user_property(U, url(User))
 	;   rdf_global_id(user:anonymous, User)
         ).
+
+%%	list_resource(URI, Options)// is det.
+%
+%	Extends basic list_resource/2 functionality for resources that
+%	are an annotation target.
+
+cliopatria:list_resource(URI, Options) -->
+	{
+	       rdf_get_annotation_target(_, URI),
+	       http_link_to_id(http_annotation, [target(URI)], AnnotateLink)
+	},
+	html([
+	    div(['Existing annotations: ',
+		 \(cpa_browse:as_object(URI, URI))
+		]),
+	    a(href(AnnotateLink), 'Make new annotations')
+
+	     ]),
+	list_resource(URI, [raw(true) | Options]).
+
+
+%
