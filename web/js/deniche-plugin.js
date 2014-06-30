@@ -35,7 +35,7 @@
  * */
 
 
-annotorious.plugin.DenichePlugin = function(opt_config_options) { 
+annotorious.plugin.DenichePlugin = function(config) { 
 	/** @public **/
 	this.currentShape = null; // Should be accessible by cpack objects
 
@@ -44,14 +44,15 @@ annotorious.plugin.DenichePlugin = function(opt_config_options) {
 	this._dirtytag = null;	// tag annotorious doesn't know yet
 	this._saveButtons = {};	 // we have multiple buttons if we have multiple images per page
 	this._cancelButtons = {};
-
+	// console.log(config);
+	if (config.yui_sandbox) 
+		this.Y = config.yui_sandbox;
 }
 
 annotorious.plugin.DenichePlugin.states = { EMPTY:'empty', SOME:'some' };
 
 annotorious.plugin.DenichePlugin.prototype.onInitAnnotator = function(annotator) {
     this.annotator = annotator;
-    this.Y = YUI().use('node', 'event');
     // move the cpack editor into the annotorious editor:
     var el =  annotator.element;
     var fieldsId = el.getElementsByTagName('img')[0].getAttribute('fields');
@@ -89,13 +90,13 @@ annotorious.plugin.DenichePlugin.prototype.toggleButtons = function(state, field
 
 annotorious.plugin.DenichePlugin.prototype.filterTags = function(targetId, fieldsId) {
 	var oSelf = this;
-	oSelf.Y.one('.annotorious-editor').detach("key", oSelf.onFragmentCancel, "esc");
-	oSelf.Y.one('.annotorious-editor').on("key", oSelf.onFragmentCancel, "esc", oSelf);
+	var editor = oSelf.Y.one('.annotorious-editor');
+	editor.on("key", oSelf.onFragmentCancel, "esc", oSelf);
 	var selector = '#'+ fieldsId + ' li.tagitem';
 	if (!fieldsId) selector = 'li.tagitem';
 	oSelf.Y.all(selector).each(function(tagNode) {
 		if (targetId == tagNode.getAttribute('targetId')) {
-			oSelf.Y.all('.annotorious-editor').detach("key", oSelf.onFragmentCancel, "esc");
+			editor.detach("key", oSelf.onFragmentCancel, "esc");
 			tagNode.show();
 		} else {
 			tagNode.hide();
@@ -122,6 +123,7 @@ annotorious.plugin.DenichePlugin.prototype.onFragmentCancel = function(ev) {
 }
 
 annotorious.plugin.DenichePlugin.prototype.addAnnotation = function (annotation, update) {
+	// console.log('addAnnotation');
 	var old = this._dirtytag;
 	if (!old) old = this._cleantags[annotation.targetId];
 	if (old) {	
@@ -192,5 +194,3 @@ annotorious.plugin.DenichePlugin.prototype.installHandlers = function() {
 		oSelf.flushDirtyAnnotation(original);
 	});
 }
-
-anno.addPlugin('DenichePlugin', {});

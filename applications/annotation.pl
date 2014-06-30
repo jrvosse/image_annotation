@@ -420,7 +420,15 @@ yui_script(Options) -->
 	},
 	yui3([json([modules(json(Modules))])],
 	     ['recordset-base'|Includes],
-	     [\js_annotation_fields(Fields, Options)]).
+	     [\js_annotation_fields(Fields, Options),
+	      \js_fragment_plugin(Options)
+	     ]).
+
+js_fragment_plugin(Options) -->
+	{ fragments_enabled(Options), !
+	},
+	html(['anno.addPlugin("DenichePlugin", {yui_sandbox:Y});']).
+js_fragment_plugin(_Options) --> !.
 
 js_module('annotation', json([fullpath(Path),
 				    requires(['recordset-base',
@@ -497,7 +505,7 @@ js_annotation_field(FieldURI, Options) -->
 	  option(image_id(ImageId), Options, null),
 	  option(fields_id(FieldsId), Options, null),
 	  option(lazy(Lazy), Options, false),
-	  option(showTag(ShowTag), Options, mine),
+	  option(showTag(ShowTag), Options, ShowTagDefault),
 	  field_id(FieldURI, Target,  Id),
 	  field_id(NextURI,  Target, Next),
 	  user_url(DefaultUser),
@@ -515,8 +523,8 @@ js_annotation_field(FieldURI, Options) -->
 	  (   rdf(FieldURI, ann_ui:deleteEnabled,   literal(Delete))
 	  ->  true
 	  ;   logged_on(admin)
-	  ->  Delete=always
-	  ;   Delete=mine
+	  ->  Delete=always, ShowTagDefault=always
+	  ;   Delete=mine, ShowTagDefault=mine
 	  ),
 	  ui_labels(FieldURI, Options, UI_labels),
 	  http_location_by_id(http_add_annotation, Add),
