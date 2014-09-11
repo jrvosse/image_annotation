@@ -21,3 +21,8 @@
 	a void:Dataset ;
 	dcterms:title "Annotation UI configuration example instance";
 	void:dataDump <annotation_ui_example.ttl> .
+
+<bird-ui>
+	a void:Dataset ;
+	dcterms:title "Bird UI configuration instance";
+	void:dataDump <annotation_ui_bird.ttl> .
