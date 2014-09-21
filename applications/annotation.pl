@@ -409,7 +409,7 @@ field_id(FieldURI, TargetURI, Id) :-
 %	Write html for annotation fields.
 
 html_annotation_fields([URI|T], Options) -->
-	{ \+ no_object_image(URI)
+	{ option(target(Target), Options), \+ no_object_image(Target) ,!
 	},
 	html(\html_annotation_field(URI, Options)),
 	html_annotation_fields(T, Options).
@@ -667,6 +667,3 @@ user_url(User) :-
 	->  user_property(U, url(User))
 	;   rdf_global_id(user:anonymous, User)
         ).
-
-
-%
