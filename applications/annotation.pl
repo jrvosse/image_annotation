@@ -102,7 +102,7 @@ Some alternative annotorious URLs that might be handy during development:
 
 
 This last url is handy for debugging annotorious, but we need to tell
-prolog is mime type:
+prolog its mime type:
 */
 :- html_resource('http://localhost:9810/compile?id=annotorious',
 		 [ mime_type(text/javascript) ]).
