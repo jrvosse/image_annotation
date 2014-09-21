@@ -45,8 +45,7 @@ annotorious.plugin.DenichePlugin = function(config) {
 	this._saveButtons = {};	 // we have multiple buttons if we have multiple images per page
 	this._cancelButtons = {};
 	// console.log(config);
-	if (config.yui_sandbox) 
-		this.Y = config.yui_sandbox;
+	if (config.yui_sandbox) this.Y = config.yui_sandbox;
 }
 
 annotorious.plugin.DenichePlugin.states = { EMPTY:'empty', SOME:'some' };
@@ -56,14 +55,15 @@ annotorious.plugin.DenichePlugin.prototype.onInitAnnotator = function(annotator)
     // move the cpack editor into the annotorious editor:
     var el =  annotator.element;
     var fieldsId = el.getElementsByTagName('img')[0].getAttribute('fields');
+    var imageId  = el.getElementsByTagName('img')[0].getAttribute('id');
     var fieldsEl = document.getElementById(fieldsId);
     annotator.editor.addField(fieldsEl);
-    
+
     // install all handlers on events created by annotorious:
     this.installHandlers();
 
     if (this._anno.fields) {
-	fields = this._anno.fields[fieldsId];
+	fields = this._anno.fields[imageId][fieldsId];
 	for(i in fields) {
 	    f = fields[i];
 	    if (f.get('lazy')) f.getTags();
@@ -90,11 +90,11 @@ annotorious.plugin.DenichePlugin.prototype.toggleButtons = function(state, field
 
 annotorious.plugin.DenichePlugin.prototype.filterTags = function(targetId, fieldsId) {
 	var oSelf = this;
-	var editor = oSelf.Y.one('.annotorious-editor');
+	var editor = this.Y.one('.annotorious-editor');
 	editor.on("key", oSelf.onFragmentCancel, "esc", oSelf);
 	var selector = '#'+ fieldsId + ' li.tagitem';
 	if (!fieldsId) selector = 'li.tagitem';
-	oSelf.Y.all(selector).each(function(tagNode) {
+	this.Y.all(selector).each(function(tagNode) {
 		if (targetId == tagNode.getAttribute('targetId')) {
 			editor.detach("key", oSelf.onFragmentCancel, "esc");
 			tagNode.show();

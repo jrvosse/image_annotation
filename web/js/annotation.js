@@ -53,12 +53,15 @@ YUI.add('annotation', function(Y) {
 	    if (typeof(anno) != "undefined") {
 		this._anno = anno; // hack
 		var fieldsId = this.get('fieldsId');
+		var imageId  = this.get('imageId');
 		if (! anno.fields) anno.fields = {};
-		fields = anno.fields[fieldsId];
-		if (fields) 
+		if (! anno.fields[imageId]) anno.fields[imageId] = {};
+		var fields = anno.fields[imageId][fieldsId];
+		if (fields) {
 		    fields.push(this);
-		else
-		    anno.fields[fieldsId] = [this];
+		} else {
+		    anno.fields[imageId][fieldsId] = [this];
+		}
 	    }
 	    // handler to call when item selected from autocompletion suggestions:
 	    this.on("select", this.onItemSelect, this, null);
