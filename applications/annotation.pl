@@ -7,34 +7,32 @@
 	    image_annotation:application_script//1
 	  ]).
 
-
-% semweb
-
+% swi prolog:
+:- use_module(library(lists)).
+:- use_module(library(option)).
+:- use_module(library(pairs)).
+:- use_module(library(settings)).
+% swi semweb library:
 :- use_module(library(semweb/rdf_db)).
 :- use_module(library(semweb/rdfs)).
 :- use_module(library(semweb/rdf_label)).
-
-
-% http libraries
+% swi http library
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/html_write)).
 :- use_module(library(http/html_head)).
 :- use_module(library(http/http_path)).
 :- use_module(library(http/json_convert)).
+% cliopatria:
 :- use_module(library(http/url_cache)).
-
-:- use_module(library(yui3_beta)).
-:- use_module(library(settings)).
-
 :- use_module(cliopatria(hooks)).
 :- use_module(components(label)).
 :- use_module(user(user_db)).
 :- use_module(user(preferences)).
-
+% other cpacks:
+:- use_module(library(yui3_beta)).
 :- use_module(api(annotation)).    % needed for http api handlers
 :- use_module(api(media_caching)). % needed for http api handlers
-
 
 :- rdf_meta
 	rdf_lang(r,r,-),
@@ -84,8 +82,6 @@ cliopatria:menu_item(100=annotation/http_annotation, 'annotate image').
 	image_annotation:application_script//1,
 	image_annotation:page_header//1.
 
-
-
 :- html_resource(object_annotation,
 		 [ virtual(true),
 		   ordered(true),
@@ -125,11 +121,14 @@ application_script(_Options) --> !.
 annotation_page_header(Options) --> image_annotation:page_header(Options).
 annotation_page_header(Options) -->
 	{
-	 option(target(Target), Options, notarget),
-	 option(title(Title), Options, 'Annotation'),
-	 rdf_display_label(Target, TargetLabel)
+	 option(title(MainTitle), Options, 'Annotation'),
+	 (   option(targets([Target]), Options)
+	 ->  rdf_display_label(Target, TargetLabel),
+	     Title = title([MainTitle, ': ', TargetLabel])
+	 ;   Title = title(MainTitle)
+	 )
 	},
-	html(title([Title, ': ', TargetLabel])).
+	html(title([Title])).
 
 /***************************************************
 * http handler implementations
@@ -181,7 +180,7 @@ http_annotation(Request) :-
 		   title(Title),
 		   stylesheet(Stylesheet),
 		   ui(UI),
-		   target(Target),
+		   targets([Target]),
 		   user(User),
 		   annotation_fields(AnnotationFields),
 		   metadata_fields(MetadataFields)
@@ -234,7 +233,42 @@ annotation_page(Options) :-
 	    [ \annotation_page_body(Options) ]).
 
 annotation_page_body(Options) -->
-	{ option(target(Target), Options, notarget),
+	{ option(targets(Targets), Options, notarget)
+	},
+	html([
+	    \html_requires(yui3('cssgrids/cssgrids-min.css')),
+	    \html_requires(css('common-annotation.css')),
+	    \conditional_html_requires(style, Options),
+	    \conditional_html_requires(fragment_annotation, Options),
+	    div([ class('yui3-skin-sam yui-skin-sam')],
+		[ \annotation_page_targets(Targets, Options),
+		  script(type('text/javascript'),
+			 \yui_script(Options)
+			),
+		  \application_script(Options)
+		])
+	]).
+
+annotation_page_body(Options) -->
+	{ option(targets([Target|_]), Options, notarget)
+	},
+	html(div([class(error_msg)],
+		 [ 'no image for ',
+		   \rdf_link(Target)
+		 ])
+	    ).
+annotation_page_targets([], _Options) --> !.
+annotation_page_targets([H|T], Options) -->
+	{ no_object_image(H),
+	  !
+	},
+	annotation_page_targets(T, Options).
+annotation_page_targets([H|T], Options) -->
+	annotation_page_target(H, Options),
+	annotation_page_targets(T, Options).
+
+annotation_page_target(Target, Options) -->
+	{
 	  option(annotation_fields(AnFields), Options, []),
 	  option(footer(Footer), Options, []),
 	  option(buttons(Buttons), Options, DefaultButtons),
@@ -243,22 +277,15 @@ annotation_page_body(Options) -->
 	  field_id(fields, Target, FieldsId),
 	  default_buttons(DefaultButtons, Options),
 	  object_image(Target, Image),
-	  (   Image \= no_image_available
-	  ->  true
-	  ;   fail
-	  ),
 	  append([[image_id(ImageId),
 		   fields_id(FieldsId),
+		   target(Target),
 		   container_id(ContainerId),
 		   image_url(Image)
 		  ],
 		  Options], NewOptions)
 	},
 	html([
-	    \html_requires(yui3('cssgrids/cssgrids-min.css')),
-	    \html_requires(css('common-annotation.css')),
-	    \conditional_html_requires(style, NewOptions),
-	    \conditional_html_requires(fragment_annotation, NewOptions),
 	    div([ id(ContainerId), class('yui3-skin-sam yui-skin-sam')],
 		[ div(class(hd), []),
 		  div(class(bd),
@@ -272,21 +299,9 @@ annotation_page_body(Options) -->
 			  ])
 		     ),
 		  div(id(ft), Footer)
-		]),
-	    script(type('text/javascript'),
-		   \yui_script(NewOptions)),
-	    \application_script(NewOptions)
+		])
 	]).
 
-
-annotation_page_body(Options) -->
-	{ option(target(Target), Options, notarget)
-	},
-	html(div([class(error_msg)],
-		 [ 'no image for ',
-		   \rdf_link(Target)
-		 ])
-	    ).
 
 %%	html_resource(+URI, Options)
 %
@@ -372,6 +387,10 @@ object_image(R,R) :-
 object_image(R,no_image_available) :-
 	debug(object_image, 'No image for object ~p', [R]).
 
+no_object_image(R) :-
+	object_image(R, Image), !,
+	Image == no_image_available.
+
 field_id(null, _, null) :- !.
 field_id(FieldURI, TargetURI, Id) :-
 	variant_sha1(term(FieldURI, TargetURI), SHA1),
@@ -414,11 +433,12 @@ html_annotation_field(URI, Options) -->
 yui_script(Options) -->
 	{ findall(M-C, js_module(M,C), Modules),
 	  pairs_keys(Modules, Includes),
+	  option(targets(Targets), Options, []),
 	  option(annotation_fields(Fields), Options, [])
 	},
 	yui3([json([modules(json(Modules))])],
 	     ['recordset-base'|Includes],
-	     [\js_annotation_fields(Fields, Options),
+	     [\js_annotation_fields(Targets, Fields, Options),
 	      \js_fragment_plugin(Options)
 	     ]).
 
@@ -483,16 +503,35 @@ conditional_html_requires(fragment_annotation, Options) -->
 
 conditional_html_requires(_,_) --> !.
 
-%%	js_annotation_fields(+FieldURIs, +AnnotationTarget)
+%%	js_annotation_fields(+TargetURIs, +FieldURIs, +AnnotationTarget)
+%	is det.
 %
-%	Write JavaScript to init chain of annotation fields
+%	Write JavaScript for annotation fields
 
-js_annotation_fields([], _) --> !.
-js_annotation_fields([URI], Options) -->
-	js_annotation_field(URI, Options).
-js_annotation_fields([URI, Next | T], Options) -->
-	js_annotation_field(URI, [next(Next)|Options]),
-	js_annotation_fields([Next | T], Options).
+js_annotation_fields([], _, _) --> !.
+js_annotation_fields([Target|Tail], Fields, Options) -->
+	{ no_object_image(Target), ! },
+	js_annotation_fields(Tail, Fields, Options).
+js_annotation_fields([Target|Tail], Fields, Options) -->
+	 { field_id(img, Target, ImageId),
+	   field_id(div, Target, ContainerId),
+	   field_id(fields, Target, FieldsId),
+	   object_image(Target, Image),
+	   append([[image_id(ImageId),
+		    fields_id(FieldsId),
+		    target(Target),
+		    container_id(ContainerId),
+		    image_url(Image)
+		   ],
+		   Options], TargetOptions)
+	 },
+	 js_annotation_fields(Fields, TargetOptions),
+	 js_annotation_fields(Tail, Fields, Options).
+js_annotation_fields([Field], Options) -->
+	js_annotation_field(Field, Options).
+js_annotation_fields([Field, NextField | FieldT], Options) -->
+	js_annotation_field(Field, [next(NextField)|Options]),
+	js_annotation_fields([NextField | FieldT], Options).
 
 
 js_annotation_field(FieldURI, Options) -->
@@ -501,6 +540,7 @@ js_annotation_field(FieldURI, Options) -->
 	  option(user(User), Options, DefaultUser),
 	  option(next(NextURI), Options, null),
 	  option(image_id(ImageId), Options, null),
+	  option(image_url(TargetImage), Options),
 	  option(fields_id(FieldsId), Options, null),
 	  option(lazy(Lazy), Options, false),
 	  option(showTag(ShowTag), Options, ShowTagDefault),
@@ -531,8 +571,6 @@ js_annotation_field(FieldURI, Options) -->
 	  user_preference(user:lang, literal(Lang)),
 	  setting(min_query_length, MinQueryLength),
 	  setting(http:prefix, Prefix),
-
-	  object_image(Target, TargetImage),
 	  Default = config{
 			id: Id,
 			imageId: ImageId,
