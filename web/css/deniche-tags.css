@@ -44,6 +44,7 @@
 }
 .taglist .inline.screenName {
 	padding: 0% 1%;
+	width: 1%; /* rely on overflow... */
 	float: left;
 }
 .taglist .inline.screenName:before { content: '('; }
