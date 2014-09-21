@@ -1,6 +1,7 @@
 :- module(cp_image_annotation,
 	  [ annotation_page/1,
 	    object_image/2,
+	    no_object_image/1,
 	    get_anfields/4,
 	    get_metafields/3,
 	    annotation_page_body//1,
@@ -79,6 +80,7 @@ cliopatria:menu_item(100=annotation/http_annotation, 'annotate image').
 ***************************************************/
 
 :- multifile
+	image_annotation:html_application_target_info//1,
 	image_annotation:application_script//1,
 	image_annotation:page_header//1.
 
@@ -115,8 +117,13 @@ prolog its mime type:
 	      ]).
 
 application_script(Options) -->
-	image_annotation:application_script(Options).
+	image_annotation:application_script(Options),
+	!.
 application_script(_Options) --> !.
+
+html_application_target_hook(Options) -->
+	image_annotation:html_application_target_info(Options).
+html_application_target_hook(_Options) --> !.
 
 annotation_page_header(Options) --> image_annotation:page_header(Options).
 annotation_page_header(Options) -->
@@ -259,19 +266,15 @@ annotation_page_body(Options) -->
 	    ).
 annotation_page_targets([], _Options) --> !.
 annotation_page_targets([H|T], Options) -->
-	{ no_object_image(H),
-	  !
-	},
-	annotation_page_targets(T, Options).
-annotation_page_targets([H|T], Options) -->
 	annotation_page_target(H, Options),
 	annotation_page_targets(T, Options).
 
 annotation_page_target(Target, Options) -->
-	{
-	  option(annotation_fields(AnFields), Options, []),
+	{ option(annotation_fields(AnFields), Options, []),
 	  option(footer(Footer), Options, []),
 	  option(buttons(Buttons), Options, DefaultButtons),
+	  option(media_class(MediaClass), Options, ''),
+
 	  field_id(img, Target, ImageId),
 	  field_id(div, Target, ContainerId),
 	  field_id(fields, Target, FieldsId),
@@ -289,13 +292,14 @@ annotation_page_target(Target, Options) -->
 	    div([ id(ContainerId), class('yui3-skin-sam yui-skin-sam')],
 		[ div(class(hd), []),
 		  div(class(bd),
-		      div([ class(layout), class('yui3-g')],
-			  [ div([class(mediasection), class('yui3-u')],
+		      div([ class([layout, row])],
+			  [ div([class([mediasection, MediaClass]), class('yui3-u')],
 				\html_resource(Target, NewOptions)),
 			    div([class(fields), class('yui3-u'), id(FieldsId)],
 				[ \html_annotation_fields(AnFields, NewOptions),
 				    div([class(anbuttons)], Buttons)
-				])
+				]),
+			    \html_application_target_hook(NewOptions)
 			  ])
 		     ),
 		  div(id(ft), Footer)
@@ -309,10 +313,13 @@ annotation_page_target(Target, Options) -->
 %	Title image and description of the resource being annotated.
 
 html_resource(URI, Options) -->
-	{
-	 option(metadata_fields(Fields), Options, [])
+	{ \+ no_object_image(URI),
+	 option(metadata_fields(Fields), Options, []),!
 	},
 	html(div(class('resource'), [ \html_metadata_fields(URI, Fields, Options)])).
+
+html_resource(URI,_Options) -->
+	html(div(class('resource'), [ 'Cannot show ~p'-[URI]])).
 
 html_metadata_fields(_URI, [], _) --> !.
 html_metadata_fields(URI, [Field|Tail], Options) -->
@@ -401,10 +408,12 @@ field_id(FieldURI, TargetURI, Id) :-
 %
 %	Write html for annotation fields.
 
-html_annotation_fields([],_) --> !.
 html_annotation_fields([URI|T], Options) -->
+	{ \+ no_object_image(URI)
+	},
 	html(\html_annotation_field(URI, Options)),
 	html_annotation_fields(T, Options).
+html_annotation_fields(_,_) --> !.
 
 html_annotation_field(URI, Options) -->
 	{ rdf_display_label(URI, Label),
