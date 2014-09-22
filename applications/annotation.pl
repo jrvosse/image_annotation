@@ -138,7 +138,7 @@ annotation_page_header(Options) -->
 	 ;   Title = title(MainTitle)
 	 )
 	},
-	html(title([Title])).
+	html(Title).
 
 /***************************************************
 * http handler implementations
