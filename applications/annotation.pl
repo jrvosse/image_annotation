@@ -75,6 +75,8 @@ cliopatria:menu_item(100=annotation/http_annotation, 'annotate image').
 	   ], 'Default metadata fields to show').
 
 :- setting(enableFragments, boolean, true, 'enable (annotorious) fragment support').
+:- setting(fancybox,	    boolean, true, 'enable (annotorious) fancybox plugin').
+
 /***************************************************
 * hooks
 ***************************************************/
@@ -112,6 +114,7 @@ prolog its mime type:
 		    css('annotorious.css'),
 		    css('fragment-annotation.css'),
 		    js('annotorious.min.js'),
+		    js('anno-fancybox.min.js'),
 		    js('deniche-plugin.js')
 		])
 	      ]).
@@ -448,14 +451,20 @@ yui_script(Options) -->
 	yui3([json([modules(json(Modules))])],
 	     ['recordset-base'|Includes],
 	     [\js_annotation_fields(Targets, Fields, Options),
-	      \js_fragment_plugin(Options)
+	      \js_fragment_plugin(Options),
+	      \js_fancybox_plugin(Options)
 	     ]).
 
 js_fragment_plugin(Options) -->
 	{ fragments_enabled(Options), !
 	},
-	html(['anno.addPlugin("DenichePlugin", {yui_sandbox:Y});']).
+	html(\['anno.addPlugin("DenichePlugin", {yui_sandbox:Y});']).
 js_fragment_plugin(_Options) --> !.
+js_fancybox_plugin(_Options) -->
+	{ setting(fancybox,true), !
+	},
+	html(\['anno.addPlugin("FancyBoxSelector", { activate: true });']).
+js_fancybox_plugin(_Options) --> !.
 
 js_module('annotation', json([fullpath(Path),
 				    requires(['recordset-base',
