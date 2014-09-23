@@ -2,7 +2,6 @@ body {
 	color: #222;
 	font-family: "Trebuchet MS",Helvetica,Arial,sans-serif;
 	font-size: 1.0em;
-	background-color: #EEE;
 }
 
 /* layout */
@@ -10,7 +9,6 @@ body {
 	width: 95%
 	margin: 0 auto;
 	padding: 0% 1%;
-	background-color: #FFF;
 }
 .fields {
 	float: right;
