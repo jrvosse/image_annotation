@@ -32,6 +32,7 @@
 :- use_module(user(preferences)).
 % other cpacks:
 :- use_module(library(yui3_beta)).
+:- use_module(library(oa_annotation)).
 :- use_module(api(annotation)).    % needed for http api handlers
 :- use_module(api(media_caching)). % needed for http api handlers
 
@@ -299,7 +300,8 @@ annotation_page_target(Target, Options) -->
 
 html_resource(URI, Options) -->
 	{ \+ no_object_image(URI),
-	 option(metadata_fields(Fields), Options, []),!
+	  setting(default_metadata, D),
+	  option(metadata_fields(Fields), Options, D),!
 	},
 	html(div(class('resource'), [ \html_metadata_fields(URI, Fields, Options)])).
 
@@ -393,6 +395,11 @@ field_id(FieldURI, TargetURI, Id) :-
 %
 %	Write html for annotation fields.
 
+html_annotation_fields(dynamic, Options) -->
+	{ get_dynamic_fields(Fields, Options)
+	},
+	html_annotation_fields(Fields, Options).
+
 html_annotation_fields([URI|T], Options) -->
 	{ option(target(Target), Options), \+ no_object_image(Target) ,!
 	},
@@ -463,7 +470,7 @@ js_module('annotation', json([fullpath(Path),
 	http_absolute_location(js('annotation.js'), Path, []).
 
 ui_labels(Field, Options, Labels) :-
-	option(ui(UI), Options),
+	option(ui(UI), Options, none),
 	findall(P, rdf_has(UI,    ann_ui:uiLabel, _, P), UILP),
 	findall(P, rdf_has(Field, ann_ui:uiLabel, _, P), FILP),
 	append(UILP, FILP, LP),
@@ -479,6 +486,7 @@ get_label(UI, Field, LabelProp, LabelOption) :-
 	rdf_global_id(_NS:LabelName, LabelProp),
 	LabelOption =.. [LabelName, LabelText].
 
+fragments_enabled(_Options) :- true.
 fragments_enabled(Options) :-
 	setting(enableFragments, Default),
 	option(ui(UI), Options),
@@ -529,6 +537,13 @@ js_annotation_fields([Target|Tail], Fields, Options) -->
 	 },
 	 js_annotation_fields(Fields, TargetOptions),
 	 js_annotation_fields(Tail, Fields, Options).
+
+
+js_annotation_fields(dynamic, Options) -->
+	{ get_dynamic_fields(Fields, Options)
+	},
+	js_annotation_fields(Fields, Options).
+
 js_annotation_fields([Field], Options) -->
 	js_annotation_field(Field, Options).
 js_annotation_fields([Field, NextField | FieldT], Options) -->
@@ -538,7 +553,7 @@ js_annotation_fields([Field, NextField | FieldT], Options) -->
 
 js_annotation_field(FieldURI, Options) -->
 	{ option(target(Target), Options),
-	  option(ui(UI), Options),
+	  option(ui(UI), Options, none),
 	  option(user(User), Options, DefaultUser),
 	  option(next(NextURI), Options, null),
 	  option(image_id(ImageId), Options, null),
@@ -660,3 +675,9 @@ user_url(User) :-
 	->  user_property(U, url(User))
 	;   rdf_global_id(user:anonymous, User)
         ).
+
+get_dynamic_fields(Fields, Options) :-
+	option(target(T), Options),
+	option(user(A), Options),
+	findall(F, rdf_get_annotation_by_tfa(T,F,A, _Graph, _Annotation), Fields).
+
