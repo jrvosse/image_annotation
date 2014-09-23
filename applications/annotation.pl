@@ -150,6 +150,7 @@ annotation_page_header(Options) -->
 
 http_annotation(Request) :-
 	setting(default_target, DefaultTarget),
+	setting(default_ui, DefaultUI),
 	http_parameters(Request,
 		[ target(Target,
 		     [uri,
@@ -157,7 +158,7 @@ http_annotation(Request) :-
 		      description('URI of the object to be annotated')
 		     ]),
 		  ui(UI,
-		     [ uri,
+		     [ default(DefaultUI),
 		       optional(true),
 		       description('URI of the UI configuration')
 		     ]),
@@ -182,10 +183,8 @@ http_annotation(Request) :-
 	user_url(User),
 	get_anfields(UI, ExtraFields, DisabledFields, AnnotationFields),
 	get_metafields(UI, MetaFields, MetadataFields),
-	(   var(UI)
-	->  Title = 'Error: UI not defined ...', UI = undefined
-	;   rdf_display_label(UI, Title)
-	),
+	rdf_display_label(UI, Title),
+
 	Options = [
 		   title(Title),
 		   stylesheet(Stylesheet),
@@ -197,15 +196,6 @@ http_annotation(Request) :-
 		  ],
 	annotation_page(Options).
 
-get_anfields(UI, [], [], Fields) :-
-	var(UI),
-	setting(default_ui, UI),
-	rdfs_individual_of(UI, ann_ui:'AnnotationUI'),
-	get_anfields(UI, [], [], Fields).
-get_anfields(UI, Fields, [], Fields) :-
-	var(UI),
-	Fields = [_|_],
-	!.
 get_anfields(URI, ExtraFields, DisabledFields, Fields) :-
 	(   rdf_has(URI, ann_ui:fields, RdfList)
 	->  rdfs_list_to_prolog_list(RdfList, UiFields),
@@ -214,20 +204,12 @@ get_anfields(URI, ExtraFields, DisabledFields, Fields) :-
 	;   Fields=ExtraFields
 	).
 
-get_metafields('', [], Fields) :-
-	rdfs_individual_of(URI, ann_ui:'AnnotationUI'),
-	get_metafields(URI, [], Fields),!.
-
-get_metafields('', Fields, Fields) :-!.
-
 get_metafields(URI, ExtraFields, Fields) :-
 	(   rdf_has(URI, ann_ui:metadata, RdfList)
 	->  rdfs_list_to_prolog_list(RdfList, UiFields),
 	    append(UiFields, ExtraFields, Fields)
 	;   setting(default_metadata, Fields)
 	),!.
-
-
 
 /***************************************************
 * annotation page
