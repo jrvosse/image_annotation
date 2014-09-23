@@ -442,8 +442,10 @@ js_fragment_plugin(Options) -->
 	},
 	html(\['anno.addPlugin("DenichePlugin", {yui_sandbox:Y});']).
 js_fragment_plugin(_Options) --> !.
-js_fancybox_plugin(_Options) -->
-	{ setting(fancybox,true), !
+js_fancybox_plugin(Options) -->
+	{ setting(fancybox,true),
+	  fragments_enabled(Options),
+	  !
 	},
 	html(\['anno.addPlugin("FancyBoxSelector", { activate: true });']).
 js_fancybox_plugin(_Options) --> !.
