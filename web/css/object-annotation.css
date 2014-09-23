@@ -9,10 +9,11 @@ body {
 .layout {
 	width: 95%
 	margin: 0 auto;
-	padding: 1%;
+	padding: 0% 1%;
 	background-color: #FFF;
 }
 .fields {
+	float: right;
 	width: 33%;
 	padding: 1%;
 	margin-left: 1%;
@@ -21,6 +22,7 @@ body {
 
 .mediasection {
 	max-width: 64%;
+	float: left;
 }
 
 
