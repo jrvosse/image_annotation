@@ -158,6 +158,11 @@ http_annotation(Request) :-
 		      default(DefaultTarget),
 		      description('URI of the object to be annotated')
 		     ]),
+		  body_only(BodyOnly,
+		     [boolean,
+		      default(false),
+		      description('Indicate whether only the contents of the body should be returned')
+		     ]),
 		  ui(UI,
 		     [ default(DefaultUI),
 		       optional(true),
@@ -189,6 +194,7 @@ http_annotation(Request) :-
 	Options = [
 		   title(Title),
 		   stylesheet(Stylesheet),
+		   body_only(BodyOnly),
 		   ui(UI),
 		   targets([Target]),
 		   user(User),
@@ -219,6 +225,10 @@ get_metafields(URI, ExtraFields, Fields) :-
 %%	annotation_page(Options)
 %
 %	HTML page
+
+annotation_page(Options) :-
+	option(body_only(true), Options),
+	reply_html_page([], \annotation_page_body(Options)).
 
 annotation_page(Options) :-
 	reply_html_page(
