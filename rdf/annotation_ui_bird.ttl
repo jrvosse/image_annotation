@@ -1,24 +1,24 @@
+@prefix aabir:  <http://accurator.nl/ui/annotation/bird#> .
 @prefix ui:     <http://semanticweb.cs.vu.nl/annotate/ui/> .
-@prefix exp:    <http://semanticweb.cs.vu.nl/annotate/example#> .
 @prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix dc:	<http://purl.org/dc/terms/> .
+@prefix dc:	    <http://purl.org/dc/terms/> .
 @prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
 
-exp:smallBirdDemoUi a ui:AnnotationUI ;
+aabir:smallBirdDemoUi a ui:AnnotationUI ;
 	ui:fields (
-	     exp:IOCCommonNameAnnotation
-		 exp:IOCScientificNameAnnotation
+	     aabir:IOCCommonNameAnnotation
+		 aabir:IOCScientificNameAnnotation
 	 ) .
 
-exp:IOCCommonNameAnnotation
+aabir:IOCCommonNameAnnotation
 	rdfs:label "Species"@en ;
 	rdfs:label "Soortnaam"@nl ;
 	dc:comment "add common name of the species"@en ;
 	dc:comment "voeg de in Nederland gebruikelijke naam van soort toe"@nl ;	
 	ui:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://purl.org/collections/birds/IOCConceptScheme\"}&labelrank=['http://lod.taxonconcept.org/ontology/txn.owl%23commonName'-1]" .
 	
-exp:IOCScientificNameAnnotation
+aabir:IOCScientificNameAnnotation
 	rdfs:label "Scientific name"@en ;
 	rdfs:label "Wetenschappelijke naam"@nl ;
 	dc:comment "add scientificly accepted species or genus name"@en ;

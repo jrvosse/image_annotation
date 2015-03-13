@@ -1,0 +1,26 @@
+@prefix aabib:  <http://accurator.nl/ui/annotation/bible#> .
+@prefix ui:     <http://semanticweb.cs.vu.nl/annotate/ui/> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:	    <http://purl.org/dc/terms/> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+
+aabib:smallBibleUi a ui:AnnotationUI ;
+	ui:fields (
+	     aabib:ICBibleTheme
+		 aabib:BibleCharacter
+	 ) .
+
+aabib:ICBibleTheme
+	rdfs:label "Theme"@en ;
+	rdfs:label "Thema"@nl ;
+	dc:comment "add the Biblical theme"@en ;
+	dc:comment "voeg het bijbelse thema toe."@nl ;
+	ui:source "/api/autocomplete?q={query}&filter={\"scheme\":\"file:///home/rasvaan/local/git/iconclass/iconclass.20121019.en.ttl\"}&labelrank=['http://lod.taxonconcept.org/ontology/txn.owl%23commonName'-1]" .
+	
+aabib:BibleCharacter
+	rdfs:label "Biblical person"@en ;
+	rdfs:label "Bijbels persoon"@nl ;
+	dc:comment "add the biblical person"@en ;
+	dc:comment "voeg de bijbelse persoon toe"@nl ;
+	ui:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://bibleontology.com/\"}&labelrank=['http://www.w3.org/2004/02/skos/core%23Concept'-1]" .
