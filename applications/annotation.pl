@@ -418,9 +418,9 @@ html_annotation_field(URI, Options) -->
 	},
 	html(div([class('annotate-field'), alt(FieldDescription)],
 		 [ div(class('annotate-header'),
-		       [ h3(Label),
-			 div([class('annotate-description')], FieldDescription)
-		       ]),
+			   h4([Label,
+				   span('  '),
+				   small(class('annotate-description'), FieldDescription)])),
 		   input([id(Id), type(text)])
 		 ])),
 	!.
