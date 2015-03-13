@@ -6,9 +6,33 @@
 @prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
 
 aabir:smallBirdDemoUi a ui:AnnotationUI ;
+        dc:title "Bird annotation UI"@en;
+        ui:agreeLabel "I agree"@en;
+        ui:agreeLabel "mee eens"@nl;
+        ui:cancelCommentLabel "Cancel"@en;
+        ui:cancelCommentLabel "Annuleren"@nl;
+        ui:cancelDeleteLabel  "Annuleren"@nl;
+        ui:cancelDeleteLabel  "Cancel"@en;
+        ui:commentLabel       "Opmerkingen: "@nl;
+        ui:commentLabel       "Comment:"@en;
+        ui:confirmCommentLabel "Add comment"@en;
+        ui:confirmCommentLabel "Voeg toe"@nl;
+        ui:confirmDeleteLabel "Verwijderen"@nl;
+        ui:confirmDeleteLabel "Delete"@en;
+        ui:deleteLabel        "Verwijder:"@nl;
+        ui:deleteLabel        "Remove:"@en;
+        ui:disagreeLabel "I disagree"@en;
+        ui:disagreeLabel "niet mee eens"@nl;
+        ui:unsureLabel "I am not sure"@en;
+        ui:unsureLabel "ik ben niet zeker"@nl;
+
 	ui:fields (
 	     aabir:IOCCommonNameAnnotation
 		 aabir:IOCScientificNameAnnotation
+		 aabir:Gender
+		 aabir:StageOfLife
+		 aabir:RealOrNotAnnotation
+		 aabir:SymbolicField
 	 ) .
 
 aabir:IOCCommonNameAnnotation
@@ -24,3 +48,41 @@ aabir:IOCScientificNameAnnotation
 	dc:comment "add scientificly accepted species or genus name"@en ;
 	dc:comment "voeg de wetenschappelijke soortnaam toe"@nl ;
 	ui:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://purl.org/collections/birds/IOCConceptScheme\"}&labelrank=['http://lod.taxonconcept.org/ontology/txn.owl%23scientificName'-1]" .
+
+aabir:Gender a ui:Field ;
+	rdfs:label "Geslacht"@nl ;
+	rdfs:label "Gender"@en ;
+	dc:comment "add gender of the species"@en ;
+	dc:comment "voeg het geslacht van het soort toe"@nl ;
+	ui:source ( "male"@en "female"@en ) ;
+	ui:source ( "man"@nl "vrouw"@nl ) .
+
+aabir:StageOfLife a ui:Field ;
+	rdfs:label "Levensfase"@nl ;
+	rdfs:label "Stage of life"@en ;
+	dc:comment "add the stage of life the species is in"@en ;
+	dc:comment "voeg de levensfase van de soort toe"@nl ;
+	ui:source ( "adult"@en "juvenile"@en "chick"@en) ;
+	ui:source ( "adult"@nl "juveniel"@nl "pul"@nl ) .
+
+aabir:Realism
+	rdfs:label "Realisme"@nl ;
+	rdfs:label "Realism"@en ;
+	dc:comment "is the depiction of the subject realistic"@en ;
+	dc:comment "is het onderwerp realistisch afgebeeld"@nl ;
+	ui:source ( "realistisch"@nl "enigzins realtisch"@nl "enigzins abstract"@nl "abstract"@nl ) ;
+	ui:source ( "realistic"@en "somewhat realistic"@en "somewhat abstract"@en "abstract"@en ) .
+
+aabir:RealOrNotAnnotation
+	rdfs:label "Fantasie soort"@nl ;
+	rdfs:label "Imaginary"@en ;
+	dc:comment "use when species only occurs in fiction (e.g. a dragon or unicorn)"@en ;
+	dc:comment "gebruik bij fantasie dieren en planten (zoals draken en eenhoorns)"@nl ;
+	ui:source ( "fantasie"@nl "echt"@nl ) ;
+	ui:source ( "imaginairy"@en "real"@en ) .
+
+aabir:SymbolicField a ui:Field ;
+        rdfs:label "Iconologie"@nl ;
+	rdfs:label "Iconology"@en ;
+	dc:comment "(symbolische) interpretatie, optioneel"@nl ;
+	dc:comment "(symbolic) interpretation, optional"@en .
