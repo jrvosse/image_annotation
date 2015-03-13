@@ -411,7 +411,7 @@ html_annotation_fields([URI|T], Options) -->
 html_annotation_fields(_,_) --> !.
 
 html_annotation_field(URI, Options) -->
-	{ rdf_display_label(URI, Label),
+	{ rdf_lang(URI, rdfs:label, Label, ''),
 	  option(target(T), Options),
 	  field_id(URI,T, Id),
 	  rdf_lang(URI, dcterms:comment, FieldDescription, '')
@@ -651,13 +651,22 @@ rdf_lang(Subject, Predicate, Text, Default) :-
 	).
 
 rdf_lang(Subject, Predicate, Text) :-
-	user_preference(user:lang, literal(Lang)),
+	user_language(Lang),
 	(   rdf(Subject, Predicate, literal(lang(Lang, Text)))
 	->  true
 	;   rdf(Subject, Predicate, literal(lang(en, Text)))
 	->  true
 	;   rdf(Subject, Predicate, literal(lang(_, Text)))
 	).
+
+user_language(Lang) :-
+	logged_on(User),
+	user_property(User, locale(Lang)),
+	!.
+
+user_language(Lang) :-
+	user_preference(user:lang, literal(Lang)).
+
 
 default_buttons([],_).
 
