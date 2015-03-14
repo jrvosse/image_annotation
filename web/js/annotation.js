@@ -758,6 +758,18 @@ YUI.add('annotation', function(Y) {
 		var myMetaTags = this.get("myMetaTags");
 		var oSelf = this;
 		
+		var context = "";
+		var index = parseInt(localStorage.getItem("itemIndex"));
+		var clusterId = parseInt(localStorage.getItem("clusterId"));
+		if(query === "expertise values") {
+			context = "recommendation, " + index + ", " + cluserId;
+		} else if (query !== "") {
+			context = "search, " + query + ", " + index + ", " + clusterId;
+		} else {
+			context = "unknown";
+		}
+		console.log("Context", context);
+		
 		Y.io(this.get("store.add"), {
 		    method: "POST",
 		    data:{
@@ -766,6 +778,7 @@ YUI.add('annotation', function(Y) {
 			hasBody:bodyString,
 			label:label,
 			typing_time: timing,
+//			reached_object_with: context,
 			motivatedBy: motiv,
 			graph: graph
 		    },
