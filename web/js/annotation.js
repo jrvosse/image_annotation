@@ -778,7 +778,7 @@ YUI.add('annotation', function(Y) {
 			hasBody:bodyString,
 			label:label,
 			typing_time: timing,
-//			reached_object_with: context,
+			reached_object_with: context,
 			motivatedBy: motiv,
 			graph: graph
 		    },
