@@ -1,26 +1,75 @@
-@prefix aabib:  <http://accurator.nl/ui/annotation/bible#> .
+@prefix abibui:  <http://accurator.nl/ui/annotation/bible#> .
 @prefix ui:     <http://semanticweb.cs.vu.nl/annotate/ui/> .
 @prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix dc:	    <http://purl.org/dc/terms/> .
 @prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
 
-aabib:smallBibleUi a ui:AnnotationUI ;
+abibui:smallBibleUi a ui:AnnotationUI ;
+        dc:title "Bird annotation UI"@en;
+        ui:agreeLabel "I agree"@en;
+        ui:agreeLabel "mee eens"@nl;
+        ui:cancelCommentLabel "Cancel"@en;
+        ui:cancelCommentLabel "Annuleren"@nl;
+        ui:cancelDeleteLabel  "Annuleren"@nl;
+        ui:cancelDeleteLabel  "Cancel"@en;
+        ui:commentLabel       "Opmerkingen: "@nl;
+        ui:commentLabel       "Comment:"@en;
+        ui:confirmCommentLabel "Add comment"@en;
+        ui:confirmCommentLabel "Voeg toe"@nl;
+        ui:confirmDeleteLabel "Verwijderen"@nl;
+        ui:confirmDeleteLabel "Delete"@en;
+        ui:deleteLabel        "Verwijder:"@nl;
+        ui:deleteLabel        "Remove:"@en;
+        ui:disagreeLabel "I disagree"@en;
+        ui:disagreeLabel "niet mee eens"@nl;
+        ui:unsureLabel "I am not sure"@en;
+        ui:unsureLabel "ik ben niet zeker"@nl;
+
 	ui:fields (
-	     aabib:ICBibleTheme
-		 aabib:BibleCharacter
+	     abibui:ICBibleTheme
+		 abibui:BibleCharacter
+		 abibui:Appraisal
+		 abibui:Emotion
+		 abibui:Intensity
+		 abibui:References
 	 ) .
 
-aabib:ICBibleTheme
+abibui:ICBibleTheme
 	rdfs:label "Theme"@en ;
 	rdfs:label "Thema"@nl ;
 	dc:comment "add the Biblical theme"@en ;
 	dc:comment "voeg het bijbelse thema toe."@nl ;
-	ui:source "/api/autocomplete?q={query}&filter={\"scheme\":\"file:///home/rasvaan/local/git/iconclass/iconclass.20121019.en.ttl\"}&labelrank=['http://lod.taxonconcept.org/ontology/txn.owl%23commonName'-1]" .
+	ui:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://www.w3.org/2004/02/skos/core%23Concept\"}" .
 	
-aabib:BibleCharacter
+abibui:BibleCharacter
 	rdfs:label "Biblical person"@en ;
 	rdfs:label "Bijbels persoon"@nl ;
 	dc:comment "add the biblical person"@en ;
 	dc:comment "voeg de bijbelse persoon toe"@nl ;
 	ui:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://bibleontology.com/\"}&labelrank=['http://www.w3.org/2004/02/skos/core%23Concept'-1]" .
+
+abibui:Emotion a ui:Field ;
+	rdfs:label "Emotie"@nl ;
+	rdfs:label "Emotion"@en ;
+	dc:comment "welke emotie wordt getoond"@nl ;
+	dc:comment "which emotion is shown"@en .
+
+abibui:Intensity a ui:Field ;
+	rdfs:label "Intensiteit emotie"@nl ;
+	rdfs:label "Emotion intensity"@en ;
+	dc:comment "wat is de intensiteit van de emotie?"@nl ;
+	dc:comment "what is the intensity of the emotion?"@en .
+
+abibui:Appraisal a ui:Field ;
+	rdfs:label "Waardering"@nl ;
+	rdfs:label "Appraisal"@en ;
+	dc:comment "welke waardering kunt u onderscheiden?"@nl ;
+	dc:comment "what appraisal can you descern?"@en .
+
+abibui:References a ui:Field ;
+	rdfs:label "Referenties"@nl ;
+	rdfs:label "References"@en ;
+	dc:comment "text/url"@nl ;
+	dc:comment "text/url"@en .
+
