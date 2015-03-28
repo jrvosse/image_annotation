@@ -335,9 +335,10 @@ html_metadata_field(URI, Field, _Options) -->
 
 html_metadata_field(URI, Field, _Options) -->
 	{
+	 user_language(Lang),
 	 rdf_has(URI, Field, Object),
-	 rdf_display_label(Field, Label),
-	 rdf_display_label(Object, Value),
+	 rdf_display_label(Field, Lang, Label),
+	 rdf_display_label(Object, Lang, Value),
 	 rdf_global_id(_:Class, Field)
 	},
 	html(
@@ -411,7 +412,8 @@ html_annotation_fields([URI|T], Options) -->
 html_annotation_fields(_,_) --> !.
 
 html_annotation_field(URI, Options) -->
-	{ rdf_lang(URI, rdfs:label, Label, ''),
+	{ user_language(Lang),
+	  rdf_display_label(URI, Lang, Label),
 	  option(target(T), Options),
 	  field_id(URI,T, Id),
 	  rdf_lang(URI, dcterms:comment, FieldDescription, '')
@@ -580,7 +582,7 @@ js_annotation_field(FieldURI, Options) -->
 	  http_location_by_id(http_add_annotation, Add),
 	  http_location_by_id(http_remove_annotation, Remove),
 	  http_location_by_id(http_get_annotation, Get),
-	  user_preference(user:lang, literal(Lang)),
+	  user_language(Lang),
 	  setting(min_query_length, MinQueryLength),
 	  setting(http:prefix, Prefix),
 	  Default = config{
