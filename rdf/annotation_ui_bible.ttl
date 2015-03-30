@@ -40,14 +40,14 @@ abibui:ICBibleTheme
 	rdfs:label "Thema"@nl ;
 	dc:comment "add the Biblical theme"@en ;
 	dc:comment "voeg het bijbelse thema toe."@nl ;
-	ui:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://www.w3.org/2004/02/skos/core%23Concept\"}" .
+	ui:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://accurator.nl/bible%23BiblicalThemeConceptScheme\"}" .
 	
 abibui:BibleCharacter
 	rdfs:label "Biblical person"@en ;
 	rdfs:label "Bijbels persoon"@nl ;
 	dc:comment "add the biblical person"@en ;
 	dc:comment "voeg de bijbelse persoon toe"@nl ;
-	ui:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://bibleontology.com/\"}&labelrank=['http://www.w3.org/2004/02/skos/core%23Concept'-1]" .
+	ui:source "/api/autocomplete?q={query}&filter={\"scheme\":\"http://accurator.nl/bible%23BiblicalFigureConceptScheme\"}&labelrank=['http://www.w3.org/2000/01/rdf-schema%23label'-1]" .
 
 abibui:Emotion a ui:Field ;
 	rdfs:label "Emotie"@nl ;
