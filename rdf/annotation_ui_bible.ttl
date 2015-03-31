@@ -29,9 +29,9 @@ abibui:smallBibleUi a ui:AnnotationUI ;
 	ui:fields (
 	     abibui:ICBibleTheme
 		 abibui:BibleCharacter
-		 abibui:Appraisal
 		 abibui:Emotion
 		 abibui:Intensity
+		 abibui:Appraisal
 		 abibui:References
 	 ) .
 
@@ -53,7 +53,9 @@ abibui:Emotion a ui:Field ;
 	rdfs:label "Emotie"@nl ;
 	rdfs:label "Emotion"@en ;
 	dc:comment "welke emotie wordt getoond"@nl ;
-	dc:comment "which emotion is shown"@en .
+	dc:comment "which emotion is shown"@en ;
+	ui:source ( "Anger"@en "Annoyance"@en "Aquiescence"@en "Awe"@en "Benevolence"@en "Compassion"@en "Dedication"@en "Desire"@en "Despair"@en "Devotion"@en "Disappointment"@en "Disgust"@en "Fear"@en "Feeling of loss"@en "Happiness"@en "Hatred"@en "Heavy-heartedness"@en "Honor"@en "Joy"@en "Love"@en "Loyalty"@en "Moved"@en "Offended"@en "Relief"@en "Remorse"@en "Sadness"@en "Shame"@en "Spitefulness"@en "Suspicion"@en "Trust"@en "Unhappiness"@en "Vindictiveness"@en "Wonder"@en "Worry"@en ) ;
+	ui:source ( "Woede"@nl "Wrevel"@nl "Berusting"@nl "Ontzag"@nl "Welwillendheid"@nl  "Mededogen"@nl "Toewijding"@nl "Verlangen"@nl "Wanhoop"@nl "Devotie"@nl "Teleurstelling"@nl "Walging"@nl "Angst"@nl "Gemis"@nl "Geluk"@nl "Haat"@nl "Bedruktheid"@nl "Eergevoel"@nl "Blijdschap"@nl "Liefde"@nl "Trouw"@nl "Ontroerd"@nl "Beledigd"@nl "Opluchting"@nl "Wroeging"@nl "Verdriet"@nl "Schaamte"@nl "Wrok"@nl "Achterdocht"@nl "Vertrouwen"@nl "Ongelukkig"@nl "Wraakzucht"@nl "Verwondering"@nl "Bezorgdheid"@nl ) .
 
 abibui:Intensity a ui:Field ;
 	rdfs:label "Intensiteit emotie"@nl ;
@@ -62,17 +64,14 @@ abibui:Intensity a ui:Field ;
 	dc:comment "what is the intensity of the emotion?"@en ;
 	ui:source ( "very weak"@en "weak"@en "average"@en "strong"@en "very strong"@en ) ;
 	ui:source ( "zeer zwak"@nl "zwak"@nl "gemiddeld"@nl "sterk"@nl "zeer sterk"@nl ) .
-1. Zwak
-2. Matig
-3. Gemiddeld
-4. Sterk
-5. Zeer sterk
 
 abibui:Appraisal a ui:Field ;
 	rdfs:label "Waardering"@nl ;
 	rdfs:label "Appraisal"@en ;
 	dc:comment "welke waardering kunt u onderscheiden?"@nl ;
-	dc:comment "what appraisal can you descern?"@en .
+	dc:comment "what appraisal can you descern?"@en ;
+	ui:source ( "Charity (love)"@en "Courage (fortitude)"@en "Envy"@en "Faith"@en "Gluttony"@en "Greed"@en "Hope"@en "Justice"@en "Lust"@en "Pride"@en "Prudence"@en "Sloth"@en "Temperance"@en "Wrath"@en ) ;
+	ui:source ( "Naastenliefde"@nl "Moed"@nl "Afgunst"@nl "Geloof"@nl "Vraatzucht"@nl "Hebzucht"@nl "Hoop"@nl "Rechtvaardigheid"@nl "Wellust"@nl "Trots"@nl "Voorzichtigheid"@nl "Traagheid"@nl "Gematigdheid"@nl "Toorn"@nl ) .
 
 abibui:References a ui:Field ;
 	rdfs:label "Referenties"@nl ;
