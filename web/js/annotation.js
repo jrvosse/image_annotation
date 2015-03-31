@@ -762,7 +762,7 @@ YUI.add('annotation', function(Y) {
 		var index = parseInt(localStorage.getItem("itemIndex"));
 		var clusterId = parseInt(localStorage.getItem("clusterId"));
 		if(query === "expertise values") {
-			context = "recommendation, " + index + ", " + cluserId;
+			context = "recommendation, " + index + ", " + clusterId;
 		} else if (query !== "") {
 			context = "search, " + query + ", " + index + ", " + clusterId;
 		} else {
