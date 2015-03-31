@@ -59,7 +59,14 @@ abibui:Intensity a ui:Field ;
 	rdfs:label "Intensiteit emotie"@nl ;
 	rdfs:label "Emotion intensity"@en ;
 	dc:comment "wat is de intensiteit van de emotie?"@nl ;
-	dc:comment "what is the intensity of the emotion?"@en .
+	dc:comment "what is the intensity of the emotion?"@en ;
+	ui:source ( "very weak"@en "weak"@en "average"@en "strong"@en "very strong"@en ) ;
+	ui:source ( "zeer zwak"@nl "zwak"@nl "gemiddeld"@nl "sterk"@nl "zeer sterk"@nl ) .
+1. Zwak
+2. Matig
+3. Gemiddeld
+4. Sterk
+5. Zeer sterk
 
 abibui:Appraisal a ui:Field ;
 	rdfs:label "Waardering"@nl ;
