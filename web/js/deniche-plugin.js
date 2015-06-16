@@ -63,9 +63,9 @@ annotorious.plugin.DenichePlugin.prototype.onInitAnnotator = function(annotator)
     this.installHandlers();
 
     if (this._anno.fields) {
-	fields = this._anno.fields[imageId][fieldsId];
-	for(i in fields) {
-	    f = fields[i];
+	var fields = this._anno.fields[imageId][fieldsId];
+	for(var i in fields) {
+	    var f = fields[i];
 	    if (f.get('lazy')) f.getTags();
 	}
     }
