@@ -761,14 +761,16 @@ YUI.add('annotation', function(Y) {
 		var context = "";
 		var index = parseInt(localStorage.getItem("itemIndex"));
 		var clusterId = parseInt(localStorage.getItem("clusterId"));
-		if(query === "expertise values") {
+		
+		if(typeof domainSettings == 'undefined') {
+			context = "unknown";
+		} else if(query === "expertise values") {
 			context = "recommendation, " + index + ", " + clusterId;
 		} else if (query !== "") {
 			context = "search, " + query + ", " + index + ", " + clusterId;
 		} else {
 			context = "unknown";
 		}
-		console.log("Context", context);
 		
 		Y.io(this.get("store.add"), {
 		    method: "POST",
