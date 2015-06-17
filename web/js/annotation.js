@@ -541,9 +541,9 @@ YUI.add('annotation', function(Y) {
 
 		findMetaTagByAnnotation : function(an) {
 		     var mymeta = this.get('myMetaTags');
-		     for (target in mymeta) {
+		     for (var target in mymeta) {
 		       tlist = mymeta[target];
-		       for (type in tlist) {
+		       for (var type in tlist) {
 			 a = tlist[type];
 			 if (a.annotation == an) return a;
 		       }
