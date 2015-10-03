@@ -23,7 +23,7 @@ YUI.add('annotation', function(Y) {
 	next:			{ value: null }, // id of next element to tab to in the tabindex
 	user:                   { value: "anonymous" },
 	lazy:                   { value: false },  // delay server requests for tags
-	
+
 	// configuration options:
 	tagStyle:          	{ value: "overlay" },   // show tag details inline, on overlay, or simple (none)
 	deleteEnabled:          { value: "mine" },   // when delete icon is shown each tag
@@ -43,9 +43,9 @@ YUI.add('annotation', function(Y) {
 
     Annotation.LIST_CLASS = 'taglist';
     Annotation.LIST_TEMPLATE = '<ul class="'+Annotation.LIST_CLASS+'"></ul>';
-    
+
     Y.extend(Annotation, Y.Plugin.AutoComplete, {
-	
+
 	initializer: function(args) {
 	    var next = this.get("next");
 	    var parentNode = this.DEF_PARENT_NODE;
@@ -75,20 +75,20 @@ YUI.add('annotation', function(Y) {
 	    this.tags.on("add", this.addTags, this);
 	    this.tags.on("update", this.updateTags, this);
 	    this.tags.on("remove", this.removeTags, this);
-	    
+
 	    // this.on('myMetaTagsChange', function(ev) {Y.log('myMetaTagsChange'); Y.log(ev);});
-	    
+
 	    // create tagList node (tag view in mvc)
 	    this.tagList = Y.Node.create(Annotation.LIST_TEMPLATE);
 	    this.tagList.addClass(this.get('tagStyle'));
 	    parentNode.append(this.tagList);
-	    
-	    
+
+
 	    // infoNode is the overlay with tooltips when hovering over suggested terms
 //	    this.infoNode = new Y.Overlay({}).render(parentNode);
 //	    this.on("activeItemChange",  this.onSuggestionHover, this);
 //	    this.on("hoveredItemChange", this.onSuggestionHover, this);
-			 
+
 	    // create overlays for comments on delete and add actions:
 	    this.createCommentNode(parentNode);
 	    if (this.enabled('deleteCommentEnabled', null)) {
@@ -98,12 +98,12 @@ YUI.add('annotation', function(Y) {
 		Y.delegate("click", this.onDelete, this.tagList, 'li .tagremove.enabled', this);
 	    }
 	    Y.delegate("click", this.onMetaRemoveClick, this.tagList, '.metaremove a', this);
-	    
-	    
+
+
 	    // setup handlers to record typing time:
 	    var firstkey = true;
 	    this.setKeyInputHandler(firstkey);
-	    
+
 	    if (!this.get('lazy')) {
 		var oSelf = this;
 		Y.on("load", function(e) { oSelf.getTags(); });
@@ -119,13 +119,13 @@ YUI.add('annotation', function(Y) {
 	findGenericTarget : function(tag) {
 		var targets = tag.hasTarget;
 		var target = undefined;
-		if (!targets) 
+		if (!targets)
 		    return null;
-		if (targets['@id'])  
+		if (targets['@id'])
 		    return targets;
 		for (var t in targets) {
 		    target = targets[t];
-		    if (target['@id']) 
+		    if (target['@id'])
 			return target;
 		}
 		return null
@@ -134,9 +134,9 @@ YUI.add('annotation', function(Y) {
 	findSpecificTarget : function(tag) {
 		var targets = tag.hasTarget;
 		var target = undefined;
-		if (!targets) 
+		if (!targets)
 		    return null;
-		if (targets.hasSelector) 
+		if (targets.hasSelector)
 		    return targets;
 		for (var t in targets) {
 		    target = targets[t];
@@ -149,20 +149,20 @@ YUI.add('annotation', function(Y) {
 	    addTagFragment : function(tag, update) {
 		var target = this.findSpecificTarget(tag);
 		if (! this._anno || !target) return;
-	
+
 		var label   = tag.title;
 		var x =  target.hasSelector.x;
 		var y =  target.hasSelector.y;
 		var w =  target.hasSelector.w;
 		var h =  target.hasSelector.h;
-		var torious = { 
+		var torious = {
 		    src: Y.one('img#'+this.get('imageId')).get('src'),
 		    text: label,
 		    targetId: target['@id'],
 		    fieldsId: this.get('fieldsId'),
 		    annotationId: tag.annotation,
 		    shapes: [{
-			type:'rect', 
+			type:'rect',
 			geometry: { x:x,y:y,width:w,height:h }
 		    }]
 		};
@@ -266,7 +266,7 @@ YUI.add('annotation', function(Y) {
 				if (user != annotatedBy) {
 					var screenName = tagrecord.getValue("screenName");
 					var credit = this.get('uiLabels').tagCreditLabel;
-					html += "<span class='inline screenName'>" 
+					html += "<span class='inline screenName'>"
 					if (credit)
 						html += "<span class='inline tagCreditLine'>" + credit + "</span>";
 					html +=	screenName + "</span>";
@@ -379,8 +379,8 @@ YUI.add('annotation', function(Y) {
 		onTagHover: function(ev, tagrecord) {
 			// Y.log('onTagHover');
 			var overlay = tagrecord.overlay;
-			if (overlay) { 
-				overlay.destroy(); 
+			if (overlay) {
+				overlay.destroy();
 			}
 			if (ev.phase == 'over') {
 			  var ovBody = this.formatTagOverlay(tagrecord.getValue());
@@ -397,7 +397,7 @@ YUI.add('annotation', function(Y) {
 			  	overlay.set("align", {node:ev.target, points:[Y.WidgetPositionAlign.LC, Y.WidgetPositionAlign.TL]});
 			  else
 			  	overlay.set("align", {node:ev.target, points:[Y.WidgetPositionAlign.CC, Y.WidgetPositionAlign.TL]});
-			} 
+			}
 		},
 
 		rebindButtons: function(node, tagrecord) {
@@ -444,16 +444,16 @@ YUI.add('annotation', function(Y) {
 		var title = tagrecord.getValue("title");
 		var ov = this.commentOverlay;
 		var n = ov.get('srcNode');
-		
+
 		ov.set("headerContent", "<h3 class='add_dialog'>"+ labels.commentLabel + " " + title +"</h3>");
 		n.one('.tag-comment-input').detach();
 		n.one('#confirm-tag-comment').detach();
 		n.one('#cancel-tag-comment').detach();
-		
+
 		n.one('.tag-comment-input').on("key", this.onSubmitComment, "enter", this, annotation, target);
 		n.one('#confirm-tag-comment').on("click", this.onSubmitComment, this, annotation, target);
 		n.one('#cancel-tag-comment').on("click", this.onCancelComment, this);
-		
+
 		ov.show();
 		n.one('.tag-comment-input').focus();
 	    },
@@ -565,7 +565,7 @@ YUI.add('annotation', function(Y) {
 			    var targetURI = this.get('target');
 			    var field     = this.get('field');
 			    var oSelf     = this;
-			    Y.io(this.get("store.get"), { 
+			    Y.io(this.get("store.get"), {
 				   method: 'GET',
 				   data: {
 					 hasTarget: targetURI,
@@ -738,40 +738,43 @@ YUI.add('annotation', function(Y) {
 
 
 		var targetObject = null;
-		if (this._anno && this._anno._deniche.currentShape) { 
-		    var shape = this._anno._deniche.currentShape.geometry; 
+		if (this._anno && this._anno._deniche.currentShape) {
+		    var shape = this._anno._deniche.currentShape.geometry;
 		    var targetImage = this.get('targetImage');
 		    if (targetImage && target != targetImage) {
 			// another annotation on selector with existing id (target id is the selector, not the image)
 			targetObject = [ { hasSource: targetImage, hasSelector: { value:shape}}, { '@id':target } ];
 		    } else {
-			// annotation on new selector, id will be generated server-side 
+			// annotation on new selector, id will be generated server-side
 			targetObject = [ { hasSource: target, hasSelector: { value:shape}} ];
 		    }
 		} else {
-			// annotation without fragment, on entire target image 
+			// annotation without fragment, on entire target image
 			targetObject = [{'@id':target}];
 		}
 		var targetString = Y.JSON.stringify(targetObject);
-		
+
 		var tags = this.tags;
 		var myMetaTags = this.get("myMetaTags");
 		var oSelf = this;
-		
+
 		var context = "";
 		var index = parseInt(localStorage.getItem("itemIndex"));
 		var clusterId = parseInt(localStorage.getItem("clusterId"));
-		
-		if(typeof domainSettings == 'undefined') {
-			context = "unknown";
-		} else if(query === "expertise values") {
+        var query = localStorage.getItem("query");
+
+		if(query === "random") {
+            context = "random, " + index;
+        } else if(query === "expertise") {
+            context = "expertise, " + index;
+        } else if(query === "expertise values") {
 			context = "recommendation, " + index + ", " + clusterId;
 		} else if (query !== "") {
 			context = "search, " + query + ", " + index + ", " + clusterId;
 		} else {
 			context = "unknown";
 		}
-		
+
 		Y.io(this.get("store.add"), {
 		    method: "POST",
 		    data:{
@@ -807,7 +810,7 @@ YUI.add('annotation', function(Y) {
 		       }
 		});
 	    },
-	    
+
 		createDeleteNode : function(parentNode) {
 			var Node = new Y.Overlay({}).render(parentNode);
 			Node.hide();
